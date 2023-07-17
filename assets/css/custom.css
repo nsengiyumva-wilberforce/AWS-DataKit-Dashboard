@@ -1,0 +1,13 @@
+
+.option-qns {
+    display: none;
+}
+
+.option-qns.show {
+    display: block;
+}
+
+.logic-help-text ul {
+    padding: 0 10px;
+    font-style: italic;
+}
