@@ -944,163 +944,162 @@ class Entry extends BaseController
 
 		var_dump($entry_list);
 
-		// $query['form_id'] = $params['form_id'];
+		$query['form_id'] = $params['form_id'];
 
-		// if (isset($params['project'])) {
-		// 	$query['responses.qn148'] = $params['project'];
-		// 	// $emb_doc_filter['project'] = $params['project'];
-		// }
+		if (isset($params['project'])) {
+			$query['responses.qn148'] = $params['project'];
+			// $emb_doc_filter['project'] = $params['project'];
+		}
 
-		// if (isset($params['startdate']) && isset($params['enddate'])) {
-		// 	if ($params['data_type'] == "baseline")
-		// 		$query['responses.created_at'] = ['$gte' => $params['startdate'], '$lte' => $params['enddate']];
+		if (isset($params['startdate']) && isset($params['enddate'])) {
+			if ($params['data_type'] == "baseline")
+				$query['responses.created_at'] = ['$gte' => $params['startdate'], '$lte' => $params['enddate']];
 
-		// 	if ($params['data_type'] == "followup") {
-		// 		$query['$or'] = [];
+			if ($params['data_type'] == "followup") {
+				$query['$or'] = [];
 
-		// 		for ($i = 1; $i <= 6; $i++) {
-		// 			$query['$or'][] = ["responses.$i.created_at" => ['$gte' => $params['startdate'], '$lte' => $params['enddate']]];
-		// 		}
-		// 	}
+				for ($i = 1; $i <= 6; $i++) {
+					$query['$or'][] = ["responses.$i.created_at" => ['$gte' => $params['startdate'], '$lte' => $params['enddate']]];
+				}
+			}
 
-		// 	//$emb_doc_filter['created_at'] = array('$gte' => $params['startdate'], '$lte' => $params['enddate']);
-		// }
+			//$emb_doc_filter['created_at'] = array('$gte' => $params['startdate'], '$lte' => $params['enddate']);
+		}
 
-		// $project = array(
-		// 	'projection' => array(
-		// 		// '_id' => 0,
-		// 		// 'response_id' => 1,
-		// 		// 'entry_form_id' => 1,
-		// 		'responses' => ($params["data_type"] == "baseline") ? (array('$slice' => array(0, 1))) : (array('$slice' => array(1, 6)))
-		// 	)
-		// );
+		$project = array(
+			'projection' => array(
+				// '_id' => 0,
+				// 'response_id' => 1,
+				// 'entry_form_id' => 1,
+				'responses' => ($params["data_type"] == "baseline") ? (array('$slice' => array(0, 1))) : (array('$slice' => array(1, 6)))
+			)
+		);
 
-		// $header = $utility->form_subheader_mapper($params['form_id']);
-		// $qn_keys = $header['qn_keys'];
+		$header = $utility->form_subheader_mapper($params['form_id']);
+		$qn_keys = $header['qn_keys'];
 
-		// // Fetch Groups
-		// if ($params['group_by'] == 'village') {
-		// 	$results = $this->db->table('village_view')->where('region_id', $params['region_id'])->get()->getResult();
-		// } elseif ($params['group_by'] == 'parish') {
-		// 	$results = $this->db->table('parish_view')->where('region_id', $params['region_id'])->get()->getResult();
-		// } elseif ($params['group_by'] == 'district') {
-		// 	$results = $this->db->table('district_view')->where('region_id', $params['region_id'])->get()->getResult();
-		// }
+		// Fetch Groups
+		if ($params['group_by'] == 'village') {
+			$results = $this->db->table('village_view')->where('region_id', $params['region_id'])->get()->getResult();
+		} elseif ($params['group_by'] == 'parish') {
+			$results = $this->db->table('parish_view')->where('region_id', $params['region_id'])->get()->getResult();
+		} elseif ($params['group_by'] == 'district') {
+			$results = $this->db->table('district_view')->where('region_id', $params['region_id'])->get()->getResult();
+		}
 
-		// $group_result = [];
-		// $group_index = 0;
-		// foreach ($results as $result) {
+		$group_result = [];
+		$group_index = 0;
+		foreach ($results as $result) {
 
-		// 	// Build query filter array based on targeted group_by
-		// 	if ($params['group_by'] == 'village') {
-		// 		$query['responses.qn4'] = $result->district;
-		// 		$query['responses.qn7'] = $result->sub_county;
-		// 		$query['responses.qn8'] = $result->parish;
-		// 		$query['responses.qn9'] = $result->name;
-		// 	} elseif ($params['group_by'] == 'parish') {
-		// 		$query['responses.qn4'] = $result->district;
-		// 		$query['responses.qn7'] = $result->sub_county;
-		// 		$query['responses.qn8'] = $result->name;
-		// 	} elseif ($params['group_by'] == 'sub_county') {
-		// 		$query['responses.qn4'] = $result->district;
-		// 		$query['responses.qn7'] = $result->name;
-		// 	} elseif ($params['group_by'] == 'district') {
-		// 		$query['responses.qn4'] = $result->name;
-		// 	}
+			// Build query filter array based on targeted group_by
+			if ($params['group_by'] == 'village') {
+				$query['responses.qn4'] = $result->district;
+				$query['responses.qn7'] = $result->sub_county;
+				$query['responses.qn8'] = $result->parish;
+				$query['responses.qn9'] = $result->name;
+			} elseif ($params['group_by'] == 'parish') {
+				$query['responses.qn4'] = $result->district;
+				$query['responses.qn7'] = $result->sub_county;
+				$query['responses.qn8'] = $result->name;
+			} elseif ($params['group_by'] == 'sub_county') {
+				$query['responses.qn4'] = $result->district;
+				$query['responses.qn7'] = $result->name;
+			} elseif ($params['group_by'] == 'district') {
+				$query['responses.qn4'] = $result->name;
+			}
 
-		// 	if ($entry_list = $collection->find($query, $project)->toArray()) {
-		// 		$group_result[$group_index]['name'] = $result->name;
-		// 		if ($params['data_type'] == "baseline") {
-		// 			$group_result[$group_index]['entries'] = count($entry_list);
-		// 		} else {
-		// 			$group_result[$group_index]['entries'] = 0;
-		// 		}
-		// 		// Reset Counter
-		// 		$answer_counter = $header['answer_counter'];
-		// 		if ($params['data_type'] == "followup") {
-		// 			$newEntries = []; // Create a new array to hold the updated entries
+			if ($entry_list = $collection->find($query, $project)->toArray()) {
+				$group_result[$group_index]['name'] = $result->name;
+				if ($params['data_type'] == "baseline") {
+					$group_result[$group_index]['entries'] = count($entry_list);
+				} else {
+					$group_result[$group_index]['entries'] = 0;
+				}
+				// Reset Counter
+				$answer_counter = $header['answer_counter'];
+				if ($params['data_type'] == "followup") {
+					$newEntries = []; // Create a new array to hold the updated entries
 
-		// 			foreach ($entry_list as $entry) {
-		// 				$newResponses = []; // Create a new array to hold the updated responses for each entry
+					foreach ($entry_list as $entry) {
+						$newResponses = []; // Create a new array to hold the updated responses for each entry
 
-		// 				foreach ($entry->responses as $response) {
-		// 					if (($response[0]['created_at'] > $params['startdate']) && ($response[0]['created_at'] < $params['enddate'])) {
-		// 						$newResponses[] = $response; // Add the response to the new array if it satisfies the condition
-		// 					}
-		// 				}
+						foreach ($entry->responses as $response) {
+							if (($response[0]['created_at'] > $params['startdate']) && ($response[0]['created_at'] < $params['enddate'])) {
+								$newResponses[] = $response; // Add the response to the new array if it satisfies the condition
+							}
+						}
 
-		// 				$entry->responses = $newResponses; // Replace the responses of the current entry with the updated responses
-		// 				$newEntries[] = $entry; // Add the updated entry to the new array
-		// 			}
+						$entry->responses = $newResponses; // Replace the responses of the current entry with the updated responses
+						$newEntries[] = $entry; // Add the updated entry to the new array
+					}
 
-		// 			$entry_list = $newEntries; // Replace the original entries with the updated entries
-		// 		}
-		// 		foreach ($entry_list as $entry) {
-		// 			if ($params['data_type'] == "followup") {
-		// 				$group_result[$group_index]['entries'] += count($entry->responses);
-		// 				//var_dump($entry->responses[0][0]['qn4']);
-		// 				foreach ($entry->responses as $sub_entry) {
-		// 					foreach ($qn_keys as $key) {
-		// 						if (isset($sub_entry[0][$key])) {
-		// 							if (is_numeric($sub_entry[0][$key])) {
-		// 								$answer_counter[$key]['Total'] += $sub_entry[0][$key];
-		// 							} else {
-		// 								if (is_array($sub_entry[0][$key]) || is_object($sub_entry[0][$key])) {
-		// 									foreach ($sub_entry[0][$key] as $item) {
-		// 										$answer_counter[$key][$item] += 1;
-		// 									}
-		// 								} else {
-		// 									if (!isset($answer_counter[$key][$sub_entry[0][$key]])) {
-		// 										$answer_counter[$key][$sub_entry[0][$key]] = 0;
-		// 									}
+					$entry_list = $newEntries; // Replace the original entries with the updated entries
+				}
+				foreach ($entry_list as $entry) {
+					if ($params['data_type'] == "followup") {
+						$group_result[$group_index]['entries'] += count($entry->responses);
+						//var_dump($entry->responses[0][0]['qn4']);
+						foreach ($entry->responses as $sub_entry) {
+							foreach ($qn_keys as $key) {
+								if (isset($sub_entry[0][$key])) {
+									if (is_numeric($sub_entry[0][$key])) {
+										$answer_counter[$key]['Total'] += $sub_entry[0][$key];
+									} else {
+										if (is_array($sub_entry[0][$key]) || is_object($sub_entry[0][$key])) {
+											foreach ($sub_entry[0][$key] as $item) {
+												$answer_counter[$key][$item] += 1;
+											}
+										} else {
+											if (!isset($answer_counter[$key][$sub_entry[0][$key]])) {
+												$answer_counter[$key][$sub_entry[0][$key]] = 0;
+											}
 
-		// 									$answer_counter[$key][$sub_entry[0][$key]] += 1;
-		// 								}
-		// 							}
-		// 						}
-		// 					}
-		// 				}
-		// 			} else {
-		// 				if (isset($entry->responses[0])) {
-		// 					$response_set = $entry->responses[0];
-		// 					foreach ($qn_keys as $key) {
-		// 						if (isset($response_set[$key])) {
-		// 							if (is_numeric($response_set[$key])) {
-		// 								$answer_counter[$key]['Total'] += $response_set[$key];
-		// 							} else {
-		// 								if (is_array($response_set[$key]) || is_object($response_set[$key])) {
-		// 									foreach ($response_set[$key] as $item) {
-		// 										$answer_counter[$key][$item] += 1;
-		// 									}
-		// 								} else {
-		// 									if (!isset($answer_counter[$key][$response_set[$key]])) {
-		// 										$answer_counter[$key][$response_set[$key]] = 0;
-		// 									}
+											$answer_counter[$key][$sub_entry[0][$key]] += 1;
+										}
+									}
+								}
+							}
+						}
+					} else {
+						if (isset($entry->responses[0])) {
+							$response_set = $entry->responses[0];
+							foreach ($qn_keys as $key) {
+								if (isset($response_set[$key])) {
+									if (is_numeric($response_set[$key])) {
+										$answer_counter[$key]['Total'] += $response_set[$key];
+									} else {
+										if (is_array($response_set[$key]) || is_object($response_set[$key])) {
+											foreach ($response_set[$key] as $item) {
+												$answer_counter[$key][$item] += 1;
+											}
+										} else {
+											if (!isset($answer_counter[$key][$response_set[$key]])) {
+												$answer_counter[$key][$response_set[$key]] = 0;
+											}
 
-		// 									$answer_counter[$key][$response_set[$key]] += 1;
-		// 								}
-		// 							}
-		// 						}
-		// 					}
-		// 				}
-		// 			}
-		// 			$group_result[$group_index]['aggregate'] = $answer_counter;
-		// 		}
-		// 		$group_index++;
-		// 	}
+											$answer_counter[$key][$response_set[$key]] += 1;
+										}
+									}
+								}
+							}
+						}
+					}
+					$group_result[$group_index]['aggregate'] = $answer_counter;
+				}
+				$group_index++;
+			}
 
-		// }
+		}
 
-		// $data['main_header'] = $header['main_header'];
-		// $data['sub_header'] = $header['sub_header'];
-		// $data['data_rows'] = $group_result;
+		$data['main_header'] = $header['main_header'];
+		$data['sub_header'] = $header['sub_header'];
+		$data['data_rows'] = $group_result;
 
-		// $response = [
-		// 	'status' => 200,
-		// 	'data' => $data
-		// ];
-		// return $this->respond($response);
-		return 200;
+		$response = [
+			'status' => 200,
+			'data' => $data
+		];
+		return $this->respond($response);
 	}
 
 
