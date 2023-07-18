@@ -34,8 +34,8 @@ class Entry extends BaseController
 
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			/*				$district_list = $utility->region_district_array($params['region_id']);
-			$query['responses.qn4'] = ['$in' => $district_list];
-			*/
+					 $query['responses.qn4'] = ['$in' => $district_list];
+					 */
 		}
 
 
@@ -215,7 +215,7 @@ class Entry extends BaseController
 
 	public function getEntry()
 	{
-				$utility = new Utility();
+		$utility = new Utility();
 		$user_map = $utility->mobile_user_mapper();
 
 		$params = $this->request->getGet();
@@ -254,59 +254,59 @@ class Entry extends BaseController
 		}
 		$number_of_responses = count($entry->responses);
 		$baseline = (array) $entry->responses[0];
-		$latest_followup = (array) $entry->responses[$number_of_responses-1];
+		$latest_followup = (array) $entry->responses[$number_of_responses - 1];
 		$followups = [];
 		foreach ($qn_data as $key => $value) {
-			 if (isset($qn_data[$key]) && isset($baseline[$key])) {
+			if (isset($qn_data[$key]) && isset($baseline[$key])) {
 				$comp['baseline'][] = array('question' => $qn_data[$key], 'response' => $baseline[$key]);
-                        }
-                        if (isset($qn_data[$key]) && isset($latest_followup[0][$key])) {
-                                $comp['followup'][0][] = array('question' => $qn_data[$key], 'response' => $latest_followup[0][$key]);
-                                $photo_mobile_path = explode('/', $latest_followup[0]['photo']);
-                                 $filename = end($photo_mobile_path);
+			}
+			if (isset($qn_data[$key]) && isset($latest_followup[0][$key])) {
+				$comp['followup'][0][] = array('question' => $qn_data[$key], 'response' => $latest_followup[0][$key]);
+				$photo_mobile_path = explode('/', $latest_followup[0]['photo']);
+				$filename = end($photo_mobile_path);
 				$comp['followup'][0]['photo'] = $filename;
 				$comp['has_an_array'] = 1;
-                        }
-                         if (isset($qn_data[$key]) && isset($latest_followup[$key])) {
-                                 $comp['followup'][] = array('question' => $qn_data[$key], 'response' => $latest_followup[$key]);
-                                 $photo_mobile_path = explode('/', $latest_followup['photo']);
-                                 $filename = end($photo_mobile_path);
-				 $comp['followup']['photo'] = $filename;
-				 $comp['has_an_array'] = 0;
-                        }
-                        if (isset($latest_followup[0]['creator_id'])) {
-                                $comp['followup'][0]['followup_creator'] = $user_map[$latest_followup[0]['creator_id']];
+			}
+			if (isset($qn_data[$key]) && isset($latest_followup[$key])) {
+				$comp['followup'][] = array('question' => $qn_data[$key], 'response' => $latest_followup[$key]);
+				$photo_mobile_path = explode('/', $latest_followup['photo']);
+				$filename = end($photo_mobile_path);
+				$comp['followup']['photo'] = $filename;
+				$comp['has_an_array'] = 0;
+			}
+			if (isset($latest_followup[0]['creator_id'])) {
+				$comp['followup'][0]['followup_creator'] = $user_map[$latest_followup[0]['creator_id']];
 			}
 
-			if(isset($followup['creator_id'])){
+			if (isset($followup['creator_id'])) {
 				$comp['followup']['followup_creator'] = $user_map[$latest_followup['creator_id']];
 			}
 		}
 
 		//Generate a list of followups
-		for ($i = 1; $i < $number_of_responses; $i++){
+		for ($i = 1; $i < $number_of_responses; $i++) {
 			$followup = (array) $entry->responses[$i];
-		      foreach ($qn_data as $key => $value) {
-                        if (isset($qn_data[$key]) && isset($followup[0][$key])) {
-                                $comp['followups'][$i][] = array('question' => $qn_data[$key], 'response' => $followup[0][$key]);
-                                $photo_mobile_path = explode('/', $followup[0]['photo']);
-                                 $filename = end($photo_mobile_path);
-				$comp['followups'][$i]['photo'] = $filename;
-                        }
-                         if (isset($qn_data[$key]) && isset($followup[$key])) {
-                                 $comp['followups'][$i][] = array('question' => $qn_data[$key], 'response' => $followup[$key]);
-                                 $photo_mobile_path = explode('/', $followup['photo']);
-                                 $filename = end($photo_mobile_path);
-				 $comp['followups'][$i]['photo'] = $filename;
-                        }
-                        if (isset($followup[0]['creator_id'])) {
-                                $comp['followups'][$i]['followup_creator'] = $user_map[$followup[0]['creator_id']];
-			}
+			foreach ($qn_data as $key => $value) {
+				if (isset($qn_data[$key]) && isset($followup[0][$key])) {
+					$comp['followups'][$i][] = array('question' => $qn_data[$key], 'response' => $followup[0][$key]);
+					$photo_mobile_path = explode('/', $followup[0]['photo']);
+					$filename = end($photo_mobile_path);
+					$comp['followups'][$i]['photo'] = $filename;
+				}
+				if (isset($qn_data[$key]) && isset($followup[$key])) {
+					$comp['followups'][$i][] = array('question' => $qn_data[$key], 'response' => $followup[$key]);
+					$photo_mobile_path = explode('/', $followup['photo']);
+					$filename = end($photo_mobile_path);
+					$comp['followups'][$i]['photo'] = $filename;
+				}
+				if (isset($followup[0]['creator_id'])) {
+					$comp['followups'][$i]['followup_creator'] = $user_map[$followup[0]['creator_id']];
+				}
 
-			  if(isset($followup['creator_id'])){
-                                $comp['followups'][$i]['followup_creator'] = $user_map[$followup['creator_id']];
-                        }
-                }
+				if (isset($followup['creator_id'])) {
+					$comp['followups'][$i]['followup_creator'] = $user_map[$followup['creator_id']];
+				}
+			}
 		}
 		if (!property_exists($entry, 'title')) {
 			if (property_exists($entry->responses[0], 'qn10')) {
@@ -332,7 +332,7 @@ class Entry extends BaseController
 		$comp['baseline']['photo'] = $filename;
 		$data = $entry;
 		$data['comp'] = $comp;
-		$data['followup_count'] = $number_of_responses-1;
+		$data['followup_count'] = $number_of_responses - 1;
 		$data['baseline']['photo_file'] = $baseline['photo'] ?? null;
 		$data['media_directory'] = "https://dashboard.africawatersolutions.org/aws.api/writable/uploads/";
 		if ($data) {
@@ -389,8 +389,8 @@ class Entry extends BaseController
 			$query['updated_at'] = array('$lte' => $last_date);
 		}
 
-		                $date = '2022-11-01 12:00:00';
-                                $query['responses.created_at'] = array('$gte' => $date);
+		$date = '2022-11-01 12:00:00';
+		$query['responses.created_at'] = array('$gte' => $date);
 
 		// $emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
 		// echo json_encode($query); exi
@@ -455,10 +455,10 @@ class Entry extends BaseController
 			$entry['creator_id'] = $user_map[$entry['responses'][0]['creator_id'] ?? "72"];
 
 			$new_data[] = $entry;
-			
-			}
-		
-	
+
+		}
+
+
 
 
 
@@ -484,8 +484,8 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
-		
-		 $user_map = $utility->mobile_user_mapper();
+
+		$user_map = $utility->mobile_user_mapper();
 
 		$query['form_id'] = $params['form_id'];
 
@@ -498,14 +498,14 @@ class Entry extends BaseController
 			$query['responses.created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
 		}
 
-		if(!isset($params['year'])){
-		                $date ='2023-01-01 12:43:12';
-				$query['responses.created_at'] = array('$gte' => $date);
+		if (!isset($params['year'])) {
+			$date = '2023-01-01 12:43:12';
+			$query['responses.created_at'] = array('$gte' => $date);
 
-		}else {
-			 $date = $params['year'].'-01-01 12:43:12';
-                        $date_to = $params['year'].'-12-30 12:43:12';
-                        $query['responses.created_at'] = array('$gte' => $date, '$lte' => $date_to);
+		} else {
+			$date = $params['year'] . '-01-01 12:43:12';
+			$date_to = $params['year'] . '-12-30 12:43:12';
+			$query['responses.created_at'] = array('$gte' => $date, '$lte' => $date_to);
 		}
 
 		$project = [
@@ -557,11 +557,11 @@ class Entry extends BaseController
 			if (isset($entry['responses'][0]['qn9'])) {
 				$entry['village'] = $entry['responses'][0]['qn9'];
 			}
-			
+
 			$entry['number_of_responses'] = $number_of_responses;
 			//get the last creator
-			if($number_of_responses>1){
-				$last_follower = $entry['responses'][$number_of_responses-1][0]['creator_id']??$entry['responses'][$number_of_responses-1]['creator_id'];
+			if ($number_of_responses > 1) {
+				$last_follower = $entry['responses'][$number_of_responses - 1][0]['creator_id'] ?? $entry['responses'][$number_of_responses - 1]['creator_id'];
 				$entry['last_follower'] = $user_map[$last_follower];
 			}
 			$user_map = $utility->mobile_user_mapper();
@@ -838,12 +838,12 @@ class Entry extends BaseController
 
 	public function form_entries_report()
 	{
-		ini_set('memory_limit','512M');
+		ini_set('memory_limit', '512M');
 		// ini_set('memory_limit','1024M');
 		$utility = new Utility();
 		$params = $this->request->getGet();
 
-       		 $client = new MongoDB();
+		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
 		$query['form_id'] = $params['form_id'];
@@ -859,14 +859,14 @@ class Entry extends BaseController
 		}
 
 		if (isset($params['startdate']) && isset($params['enddate'])) {
-			if($params['entry_data'] == "baseline")
+			if ($params['entry_data'] == "baseline")
 				$query['responses.created_at'] = ['$gte' => $params['startdate'], '$lte' => $params['enddate']];
 
-			if($params['entry_data']=="followup"){
+			if ($params['entry_data'] == "followup") {
 				$query['$or'] = [];
 
 				for ($i = 1; $i <= 6; $i++) {
-    					$query['$or'][] = ["responses.$i.created_at" => ['$gte' => $params['startdate'], '$lte' => $params['enddate']]];
+					$query['$or'][] = ["responses.$i.created_at" => ['$gte' => $params['startdate'], '$lte' => $params['enddate']]];
 				}
 			}
 
@@ -877,9 +877,9 @@ class Entry extends BaseController
 			'projection' => array(
 				'_id' => 0,
 				'response_id' => 1,
-				 'responses' => 1,
-				 'entry_form_id' => 1,
-				'responses' => ($params["entry_data"] == "baseline")?(array('$slice' => array(0, 1))):(array('$slice' => array(1, 6)))
+				'responses' => 1,
+				'entry_form_id' => 1,
+				'responses' => ($params["entry_data"] == "baseline") ? (array('$slice' => array(0, 1))) : (array('$slice' => array(1, 6)))
 				// 'responses' =>  ['$elemMatch' => ['created_at' => ['$gte' => $params['startdate'], '$lte' => $params['enddate']]]]
 			)
 		);
@@ -895,26 +895,26 @@ class Entry extends BaseController
 
 
 		if ($params['entry_data'] == "followup") {
-		    $newEntries = []; // Create a new array to hold the updated entries
+			$newEntries = []; // Create a new array to hold the updated entries
 
-   			 foreach ($data['entries'] as $entry) {
-       				 $newResponses = []; // Create a new array to hold the updated responses for each entry
+			foreach ($data['entries'] as $entry) {
+				$newResponses = []; // Create a new array to hold the updated responses for each entry
 
-       			 	foreach ($entry->responses as $response) {
-           				 if (($response[0]['created_at'] > $params['startdate']) && ($response[0]['created_at'] < $params['enddate'])) {
-                				$newResponses[] = $response; // Add the response to the new array if it satisfies the condition
-            			}
-        	}
+				foreach ($entry->responses as $response) {
+					if (($response[0]['created_at'] > $params['startdate']) && ($response[0]['created_at'] < $params['enddate'])) {
+						$newResponses[] = $response; // Add the response to the new array if it satisfies the condition
+					}
+				}
 
-        	$entry->responses = $newResponses; // Replace the responses of the current entry with the updated responses
-        	$newEntries[] = $entry; // Add the updated entry to the new array
-    		}
+				$entry->responses = $newResponses; // Replace the responses of the current entry with the updated responses
+				$newEntries[] = $entry; // Add the updated entry to the new array
+			}
 
-  		  $data['entries'] = $newEntries; // Replace the original entries with the updated entries
+			$data['entries'] = $newEntries; // Replace the original entries with the updated entries
 		}
 
 		$response = [
-			'status'   => 200,
+			'status' => 200,
 			'data' => $data
 		];
 
@@ -932,6 +932,18 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
+		$entry_list = $collection->aggregate([
+			['$match' => ['form_id' => '11']],
+			['$unwind' => ['path' => '$responses']],
+			['$unwind' => ['path' => '$responses']],
+			['$match' => ['responses.entity_type' => 'followup', 'responses.created_at' => ['$gt' => '2023']]],
+			['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => '$$ROOT']]],
+			['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]],
+			['$project' => ['response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'title' => '$document.title', 'sub_title' => '$document.sub_title', 'responses' => '$document.responses', 'created_at' => '$document.created_at', 'updated_at' => '$document.updated_at']]
+		])->toArray();
+
+		var_dump($entry_list);
+
 		$query['form_id'] = $params['form_id'];
 
 		if (isset($params['project'])) {
@@ -940,26 +952,26 @@ class Entry extends BaseController
 		}
 
 		if (isset($params['startdate']) && isset($params['enddate'])) {
-			if($params['data_type'] == "baseline")
+			if ($params['data_type'] == "baseline")
 				$query['responses.created_at'] = ['$gte' => $params['startdate'], '$lte' => $params['enddate']];
 
-                        if($params['data_type']=="followup"){
-                                $query['$or'] = [];
+			if ($params['data_type'] == "followup") {
+				$query['$or'] = [];
 
-                                for ($i = 1; $i <= 6; $i++) {
-                                        $query['$or'][] = ["responses.$i.created_at" => ['$gte' => $params['startdate'], '$lte' => $params['enddate']]];
-                                }
-                        }
+				for ($i = 1; $i <= 6; $i++) {
+					$query['$or'][] = ["responses.$i.created_at" => ['$gte' => $params['startdate'], '$lte' => $params['enddate']]];
+				}
+			}
 
-                        //$emb_doc_filter['created_at'] = array('$gte' => $params['startdate'], '$lte' => $params['enddate']);
-                }
+			//$emb_doc_filter['created_at'] = array('$gte' => $params['startdate'], '$lte' => $params['enddate']);
+		}
 
 		$project = array(
 			'projection' => array(
 				// '_id' => 0,
 				// 'response_id' => 1,
 				// 'entry_form_id' => 1,
-				'responses' => ($params["data_type"] == "baseline")?(array('$slice' => array(0, 1))):(array('$slice' => array(1, 6)))
+				'responses' => ($params["data_type"] == "baseline") ? (array('$slice' => array(0, 1))) : (array('$slice' => array(1, 6)))
 			)
 		);
 
@@ -998,80 +1010,80 @@ class Entry extends BaseController
 
 			if ($entry_list = $collection->find($query, $project)->toArray()) {
 				$group_result[$group_index]['name'] = $result->name;
-				if($params['data_type']=="baseline"){
+				if ($params['data_type'] == "baseline") {
 					$group_result[$group_index]['entries'] = count($entry_list);
 				} else {
 					$group_result[$group_index]['entries'] = 0;
 				}
 				// Reset Counter
 				$answer_counter = $header['answer_counter'];
-                if ($params['data_type'] == "followup") {
-                    $newEntries = []; // Create a new array to hold the updated entries
+				if ($params['data_type'] == "followup") {
+					$newEntries = []; // Create a new array to hold the updated entries
 
-                         foreach ($entry_list as $entry) {
-                                 $newResponses = []; // Create a new array to hold the updated responses for each entry
+					foreach ($entry_list as $entry) {
+						$newResponses = []; // Create a new array to hold the updated responses for each entry
 
-                                foreach ($entry->responses as $response) {
-                                         if (($response[0]['created_at'] > $params['startdate']) && ($response[0]['created_at'] < $params['enddate'])) {
-                                                $newResponses[] = $response; // Add the response to the new array if it satisfies the condition
-                                }
-                }
+						foreach ($entry->responses as $response) {
+							if (($response[0]['created_at'] > $params['startdate']) && ($response[0]['created_at'] < $params['enddate'])) {
+								$newResponses[] = $response; // Add the response to the new array if it satisfies the condition
+							}
+						}
 
-                $entry->responses = $newResponses; // Replace the responses of the current entry with the updated responses
-                $newEntries[] = $entry; // Add the updated entry to the new array
-                }
+						$entry->responses = $newResponses; // Replace the responses of the current entry with the updated responses
+						$newEntries[] = $entry; // Add the updated entry to the new array
+					}
 
-                  $entry_list = $newEntries; // Replace the original entries with the updated entries
-		}
+					$entry_list = $newEntries; // Replace the original entries with the updated entries
+				}
 				foreach ($entry_list as $entry) {
-					if($params['data_type']=="followup"){
+					if ($params['data_type'] == "followup") {
 						$group_result[$group_index]['entries'] += count($entry->responses);
 						//var_dump($entry->responses[0][0]['qn4']);
-						foreach ($entry->responses as $sub_entry){
-						    foreach ($qn_keys as $key) {
-                                                        if (isset($sub_entry[0][$key])) {
-                                                                if (is_numeric($sub_entry[0][$key])) {
-                                                                        $answer_counter[$key]['Total'] += $sub_entry[0][$key];
-                                                                } else {
-                                                                        if (is_array($sub_entry[0][$key]) || is_object($sub_entry[0][$key])) {
-                                                                                foreach ($sub_entry[0][$key] as $item) {
-                                                                                        $answer_counter[$key][$item] += 1;
-                                                                                }
-                                                                        } else {
-                                                                                if (!isset($answer_counter[$key][$sub_entry[0][$key]])) {
-                                                                                        $answer_counter[$key][$sub_entry[0][$key]] = 0;
-                                                                                }
+						foreach ($entry->responses as $sub_entry) {
+							foreach ($qn_keys as $key) {
+								if (isset($sub_entry[0][$key])) {
+									if (is_numeric($sub_entry[0][$key])) {
+										$answer_counter[$key]['Total'] += $sub_entry[0][$key];
+									} else {
+										if (is_array($sub_entry[0][$key]) || is_object($sub_entry[0][$key])) {
+											foreach ($sub_entry[0][$key] as $item) {
+												$answer_counter[$key][$item] += 1;
+											}
+										} else {
+											if (!isset($answer_counter[$key][$sub_entry[0][$key]])) {
+												$answer_counter[$key][$sub_entry[0][$key]] = 0;
+											}
 
-                                                                                $answer_counter[$key][$sub_entry[0][$key]] += 1;
-                                                                        }
-                                                                }
-                                                        }
-                                                }
+											$answer_counter[$key][$sub_entry[0][$key]] += 1;
+										}
+									}
+								}
+							}
 						}
 					} else {
-					if (isset($entry->responses[0])) {
-						$response_set = $entry->responses[0];
-						foreach ($qn_keys as $key) {
-							if (isset($response_set[$key])) {
-								if (is_numeric($response_set[$key])) {
-									$answer_counter[$key]['Total'] += $response_set[$key];
-								} else {
-									if (is_array($response_set[$key]) || is_object($response_set[$key])) {
-										foreach ($response_set[$key] as $item) {
-											$answer_counter[$key][$item] += 1;
-										}
+						if (isset($entry->responses[0])) {
+							$response_set = $entry->responses[0];
+							foreach ($qn_keys as $key) {
+								if (isset($response_set[$key])) {
+									if (is_numeric($response_set[$key])) {
+										$answer_counter[$key]['Total'] += $response_set[$key];
 									} else {
-										if (!isset($answer_counter[$key][$response_set[$key]])) {
-                                                                                        $answer_counter[$key][$response_set[$key]] = 0;
-                                                                                }
+										if (is_array($response_set[$key]) || is_object($response_set[$key])) {
+											foreach ($response_set[$key] as $item) {
+												$answer_counter[$key][$item] += 1;
+											}
+										} else {
+											if (!isset($answer_counter[$key][$response_set[$key]])) {
+												$answer_counter[$key][$response_set[$key]] = 0;
+											}
 
-                                                                                $answer_counter[$key][$response_set[$key]] += 1;
+											$answer_counter[$key][$response_set[$key]] += 1;
+										}
 									}
 								}
 							}
 						}
 					}
-				}
 					$group_result[$group_index]['aggregate'] = $answer_counter;
 				}
 				$group_index++;
@@ -1133,7 +1145,7 @@ class Entry extends BaseController
 	}
 
 	// create entry followup
-		public function create_entry_followup()
+	public function create_entry_followup()
 	{
 		$params = $this->request->getPost();
 		$params['responses'] = array(json_decode($params['responses']));
@@ -1408,5 +1420,3 @@ class Entry extends BaseController
 
 
 }
-
-
