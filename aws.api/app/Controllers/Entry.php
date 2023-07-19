@@ -932,18 +932,6 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
-		$entry_list = $collection->aggregate([
-			['$match' => ['form_id' => '11']],
-			['$unwind' => ['path' => '$responses']],
-			['$unwind' => ['path' => '$responses']],
-			['$match' => ['responses.entity_type' => 'followup', 'responses.created_at' => ['$gt' => '2023']]],
-			['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => '$$ROOT']]],
-			['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]],
-			['$project' => ['response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'title' => '$document.title', 'sub_title' => '$document.sub_title', 'responses' => '$document.responses', 'created_at' => '$document.created_at', 'updated_at' => '$document.updated_at']]
-		])->toArray();
-
-		var_dump($entry_list);
-
 		$query['form_id'] = $params['form_id'];
 
 		if (isset($params['project'])) {
