@@ -34,8 +34,8 @@ class Entry extends BaseController
 
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			/*				$district_list = $utility->region_district_array($params['region_id']);
-					 $query['responses.qn4'] = ['$in' => $district_list];
-					 */
+							  $query['responses.qn4'] = ['$in' => $district_list];
+							  */
 		}
 
 
@@ -920,7 +920,6 @@ class Entry extends BaseController
 
 		return $this->respond($response);
 	}
-
 	public function form_entries_aggregated_report()
 	{
 		ini_set('memory_limit', '512M');
@@ -932,156 +931,69 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
-		$query['form_id'] = $params['form_id'];
-
-		if (isset($params['project'])) {
-			$query['responses.qn148'] = $params['project'];
-			// $emb_doc_filter['project'] = $params['project'];
-		}
-
-		if (isset($params['startdate']) && isset($params['enddate'])) {
-			if ($params['data_type'] == "baseline")
-				$query['responses.created_at'] = ['$gte' => $params['startdate'], '$lte' => $params['enddate']];
-
-			if ($params['data_type'] == "followup") {
-				$query['$or'] = [];
-
-				for ($i = 1; $i <= 6; $i++) {
-					$query['$or'][] = ["responses.$i.created_at" => ['$gte' => $params['startdate'], '$lte' => $params['enddate']]];
-				}
-			}
-
-			//$emb_doc_filter['created_at'] = array('$gte' => $params['startdate'], '$lte' => $params['enddate']);
-		}
-
-		$project = array(
-			'projection' => array(
-				// '_id' => 0,
-				// 'response_id' => 1,
-				// 'entry_form_id' => 1,
-				'responses' => ($params["data_type"] == "baseline") ? (array('$slice' => array(0, 1))) : (array('$slice' => array(1, 6)))
-			)
-		);
-
-		$header = $utility->form_subheader_mapper($params['form_id']);
-		$qn_keys = $header['qn_keys'];
-
-		// Fetch Groups
 		if ($params['group_by'] == 'village') {
 			$results = $this->db->table('village_view')->where('region_id', $params['region_id'])->get()->getResult();
+			$orArray = array_map(function ($value) {
+				return ["district" => $value];
+			}, array_column($results, 'name'));
+			$group_stage_query = "responses.qn9";
 		} elseif ($params['group_by'] == 'parish') {
 			$results = $this->db->table('parish_view')->where('region_id', $params['region_id'])->get()->getResult();
+			$orArray = array_map(function ($value) {
+				return ["district" => $value];
+			}, array_column($results, 'name'));
+			$group_stage_query = "responses.qn8";
+		} elseif ($params['group_by'] == 'sub_county') {
+			$results = $this->db->table('sub_county_view')->where('region_id', $params['region_id'])->get()->getResult();
+			$orArray = array_map(function ($value) {
+				return ["district" => $value];
+			}, array_column($results, 'name'));
+			$group_stage_query = "responses.qn7";
 		} elseif ($params['group_by'] == 'district') {
 			$results = $this->db->table('district_view')->where('region_id', $params['region_id'])->get()->getResult();
+			$orArray = array_map(function ($value) {
+				return ["district" => $value];
+			}, array_column($results, 'name'));
+			$group_stage_query = "responses.qn4";
 		}
+		$header = $utility->form_subheader_mapper($params['form_id']);
 
-		$group_result = [];
-		$group_index = 0;
-		foreach ($results as $result) {
-
-			// Build query filter array based on targeted group_by
-			if ($params['group_by'] == 'village') {
-				$query['responses.qn4'] = $result->district;
-				$query['responses.qn7'] = $result->sub_county;
-				$query['responses.qn8'] = $result->parish;
-				$query['responses.qn9'] = $result->name;
-			} elseif ($params['group_by'] == 'parish') {
-				$query['responses.qn4'] = $result->district;
-				$query['responses.qn7'] = $result->sub_county;
-				$query['responses.qn8'] = $result->name;
-			} elseif ($params['group_by'] == 'sub_county') {
-				$query['responses.qn4'] = $result->district;
-				$query['responses.qn7'] = $result->name;
-			} elseif ($params['group_by'] == 'district') {
-				$query['responses.qn4'] = $result->name;
-			}
-
-			if ($entry_list = $collection->find($query, $project)->toArray()) {
-				$group_result[$group_index]['name'] = $result->name;
-				if ($params['data_type'] == "baseline") {
-					$group_result[$group_index]['entries'] = count($entry_list);
-				} else {
-					$group_result[$group_index]['entries'] = 0;
-				}
-				// Reset Counter
-				$answer_counter = $header['answer_counter'];
-				if ($params['data_type'] == "followup") {
-					$newEntries = []; // Create a new array to hold the updated entries
-
-					foreach ($entry_list as $entry) {
-						$newResponses = []; // Create a new array to hold the updated responses for each entry
-
-						foreach ($entry->responses as $response) {
-							if (($response[0]['created_at'] > $params['startdate']) && ($response[0]['created_at'] < $params['enddate'])) {
-								$newResponses[] = $response; // Add the response to the new array if it satisfies the condition
-							}
-						}
-
-						$entry->responses = $newResponses; // Replace the responses of the current entry with the updated responses
-						$newEntries[] = $entry; // Add the updated entry to the new array
-					}
-
-					$entry_list = $newEntries; // Replace the original entries with the updated entries
-				}
-				foreach ($entry_list as $entry) {
-					if ($params['data_type'] == "followup") {
-						$group_result[$group_index]['entries'] += count($entry->responses);
-						//var_dump($entry->responses[0][0]['qn4']);
-						foreach ($entry->responses as $sub_entry) {
-							foreach ($qn_keys as $key) {
-								if (isset($sub_entry[0][$key])) {
-									if (is_numeric($sub_entry[0][$key])) {
-										$answer_counter[$key]['Total'] += $sub_entry[0][$key];
-									} else {
-										if (is_array($sub_entry[0][$key]) || is_object($sub_entry[0][$key])) {
-											foreach ($sub_entry[0][$key] as $item) {
-												$answer_counter[$key][$item] += 1;
-											}
-										} else {
-											if (!isset($answer_counter[$key][$sub_entry[0][$key]])) {
-												$answer_counter[$key][$sub_entry[0][$key]] = 0;
-											}
-
-											$answer_counter[$key][$sub_entry[0][$key]] += 1;
-										}
-									}
-								}
-							}
-						}
-					} else {
-						if (isset($entry->responses[0])) {
-							$response_set = $entry->responses[0];
-							foreach ($qn_keys as $key) {
-								if (isset($response_set[$key])) {
-									if (is_numeric($response_set[$key])) {
-										$answer_counter[$key]['Total'] += $response_set[$key];
-									} else {
-										if (is_array($response_set[$key]) || is_object($response_set[$key])) {
-											foreach ($response_set[$key] as $item) {
-												$answer_counter[$key][$item] += 1;
-											}
-										} else {
-											if (!isset($answer_counter[$key][$response_set[$key]])) {
-												$answer_counter[$key][$response_set[$key]] = 0;
-											}
-
-											$answer_counter[$key][$response_set[$key]] += 1;
-										}
-									}
-								}
-							}
-						}
-					}
-					$group_result[$group_index]['aggregate'] = $answer_counter;
-				}
-				$group_index++;
-			}
-
-		}
+		$entry_list = $collection->aggregate(
+			[
+				['$match' => ['form_id' => $params['form_id']]],
+				['$unwind' => ['path' => '$responses']],
+				['$unwind' => ['path' => '$responses']],
+				[
+					'$match' => [
+						'responses.entity_type' => $params['data_type'],
+						'responses.qn148' => $params['project'],
+						'$and' => [
+							['responses.created_at' => ['$gt' => $params['startdate']]],
+							['responses.created_at' => ['$lt' => $params['enddate']]]
+						]
+					]
+				],
+				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
+				['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]],
+				['$project' => ['response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'title' => '$document.title', 'sub_title' => '$document.sub_title', 'district' => '$document.' . $group_stage_query, 'responses' => ['$objectToArray' => ['qn154' => ['$toInt' => '$document.responses.qn154'], 'qn155' => '$document.responses.qn155', 'qn412' => '$document.responses.qn412', 'qn157' => ['$toInt' => '$document.responses.qn157'], 'qn159' => ['$toInt' => '$document.responses.qn159'], 'qn219' => '$document.responses.qn219', 'qn162' => '$document.responses.qn162', 'qn167' => '$document.responses.qn167', 'qn168' => '$document.responses.qn168', 'qn174' => '$document.responses.qn174', 'qn171' => '$document.responses.qn171', 'qn173' => '$document.responses.qn173', 'qn221' => '$document.responses.qn221', 'qn179' => '$document.responses.qn179', 'qn181' => '$document.responses.qn181', 'qn223' => '$document.responses.qn223', 'qn183' => '$document.responses.qn183', 'qn184' => '$document.responses.qn184', 'qn189' => '$document.responses.qn189', 'qn191' => '$document.responses.qn191', 'qn193' => '$document.responses.qn193', 'qn194' => '$document.responses.qn194', 'qn217' => '$document.responses.qn217', 'qn225' => '$document.responses.qn225', 'qn197' => '$document.responses.qn197', 'qn206' => '$document.responses.qn206', 'qn414' => '$document.responses.qn414', 'qn424' => '$document.responses.qn424', 'qn416' => '$document.responses.qn416', 'qn418' => ['$toInt' => '$document.responses.qn418'], 'qn420' => '$document.responses.qn420', 'qn421' => '$document.responses.qn421', 'qn198' => ['$toInt' => '$document.responses.qn198'], 'qn201' => ['$toInt' => '$document.responses.qn201']]]]],
+				['$match' => ['$or' => $orArray]],
+				['$unwind' => ['path' => '$responses']],
+				['$unwind' => ['path' => '$responses.v']],
+				['$group' => ['_id' => ['district' => '$district', 'k' => '$responses.k', 'responses' => '$responses.v'], 'sum' => ['$sum' => ['$cond' => ['if' => ['$isNumber' => '$responses.v'], 'then' => '$responses.v', 'else' => 0]]], 'count' => ['$sum' => 1]]],
+				['$group' => ['_id' => ['district' => '$_id.district', 'question' => '$_id.k'], 'entries' => ['$push' => ['k' => '$_id.responses', 'v' => '$count']], 'Total' => ['$sum' => '$sum']]],
+				['$addFields' => ['entries' => ['$cond' => [['$gt' => ['$Total', 0]], ['Total' => '$Total'], '$entries']]]],
+				['$unwind' => ['path' => '$entries']],
+				['$match' => ['$expr' => ['$eq' => [['$type' => '$entries.k'], 'string']]]],
+				['$group' => ['_id' => ['district' => '$_id.district', 'question' => '$_id.question'], 'entries' => ['$push' => ['k' => '$entries.k', 'v' => '$entries.v']], 'Total' => ['$sum' => '$sum']]],
+				['$addFields' => ['entries' => ['$cond' => ['if' => ['$isArray' => '$entries'], 'then' => ['$arrayToObject' => '$entries'], 'else' => '$entries']]]],
+				['$group' => ['_id' => '$_id.district', 'entries' => ['$sum' => '$entries'], 'aggregate' => ['$push' => ['k' => '$_id.question', 'v' => '$entries']]]],
+				['$project' => ['_id' => 0, 'name' => '$_id', 'entries' => '$entries', 'aggregate' => ['$arrayToObject' => '$aggregate']]]
+			]
+		);
 
 		$data['main_header'] = $header['main_header'];
 		$data['sub_header'] = $header['sub_header'];
-		$data['data_rows'] = $group_result;
+		$data['data_rows'] = $entry_list->toArray();
 
 		$response = [
 			'status' => 200,
@@ -1089,10 +1001,6 @@ class Entry extends BaseController
 		];
 		return $this->respond($response);
 	}
-
-
-
-
 
 	// create entry
 
