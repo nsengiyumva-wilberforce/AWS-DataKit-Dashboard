@@ -956,6 +956,7 @@ class Entry extends BaseController
 			}, array_column($results, 'name'));
 			$group_stage_query = "responses.qn4";
 		}
+		//handle case for all projects in a region
 		$header = $utility->form_subheader_mapper($params['form_id']);
 		$answer_counter = $header['answer_counter'];
 		$entry_list = $collection->aggregate(
@@ -965,7 +966,7 @@ class Entry extends BaseController
 				['$unwind' => ['path' => '$responses']],
 				[
 					'$match' => [
-						'responses.entity_type' => $params['data_type'],
+						'responses.entity_type' => ['$or'=>["Water Schoool Canada", "WISE", "PICTET Group Foundation"]],
 						'responses.qn148' => $params['project'],
 						'$and' => [
 							['responses.created_at' => ['$gt' => $params['startdate']]],
@@ -1033,7 +1034,6 @@ class Entry extends BaseController
 		];
 		return $this->respond($response);
 	}
-
 
 
 
