@@ -569,7 +569,8 @@ $result = json_decode($this->custom->run_curl_get($url));
 		$query_data['field_id'] = $params['field_id'];
 		$query_data['group_by'] = $params['group_by'];
 		$query_data['data_type'] = $params['data_type'];
-		if ($params['project'] != 'all') { $query_data['project'] = $params['project']; }
+		$query_data['project'] = $params['project'] ?? 'all';
+		// if ($params['project'] != 'all') { $query_data['project'] = $params['project']; }
 
 		$dates = explode('-', $params['dates']);
 		$query_data['startdate'] = $this->custom->date_maker(trim($dates[0]));
