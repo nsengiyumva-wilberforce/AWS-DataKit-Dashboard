@@ -995,7 +995,7 @@ class Entry extends BaseController
 		foreach ($entry_list as $key => $entry) {
 			$new_object = []; // Create an empty array to store the new objects
 			$new_object['name'] = $entry['name'];
-			$new_object['entries'] = $entry['entries'];
+			$new_object['entries'] = $entry->aggregate->qn155->Male+$entry->aggregate->qn155->Female;
 			$new_object['aggregate'] = $answer_counter;
 			$new_array[] = $new_object; // Push the new object to the $new_array
 
