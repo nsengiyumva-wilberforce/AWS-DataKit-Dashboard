@@ -956,7 +956,12 @@ class Entry extends BaseController
 			}, array_column($results, 'name'));
 			$group_stage_query = "responses.qn4";
 		}
-		//handle case for all projects in a region
+		if ($params['project'] == "all") {
+			$projects = [['responses.qn148' => 'Water School Canada'], ['responses.qn148' => 'Wise'], ['responses.qn148' => 'PICTET GGroup Foundation']];
+		} else {
+			$projects = [['responses.qn148' => $params['project']]];
+		}
+		//handle case for all projects in a
 		$header = $utility->form_subheader_mapper($params['form_id']);
 		$answer_counter = $header['answer_counter'];
 		$entry_list = $collection->aggregate(
@@ -966,8 +971,8 @@ class Entry extends BaseController
 				['$unwind' => ['path' => '$responses']],
 				[
 					'$match' => [
-						'responses.entity_type' => ['$or'=>["Water Schoool Canada", "WISE", "PICTET Group Foundation"]],
-						'responses.qn148' => $params['project'],
+						'responses.entity_type' => $params['data_type'],
+						'$or' => $projects,
 						'$and' => [
 							['responses.created_at' => ['$gt' => $params['startdate']]],
 							['responses.created_at' => ['$lt' => $params['enddate']]]
@@ -992,31 +997,30 @@ class Entry extends BaseController
 				['$project' => ['_id' => 0, 'name' => '$_id', 'entries' => '$entries', 'aggregate' => ['$arrayToObject' => '$aggregate']]]
 			]
 		)->toArray();
-		
+
 		foreach ($entry_list as $key => $entry) {
 			$new_object = []; // Create an empty array to store the new objects
 			$new_object['name'] = $entry['name'];
-			if(isset($entry->aggregate->qn155->Male)){
+			if (isset($entry->aggregate->qn155->Male)) {
 				$males = $entry->aggregate->qn155->Male;
-			}else{
+			} else {
 				$males = 0;
 			}
-			if(isset($entry->aggregate->qn155->Female)){
+			if (isset($entry->aggregate->qn155->Female)) {
 				$females = $entry->aggregate->qn155->Female;
-			}else{
+			} else {
 				$females = 0;
 			}
 			$new_object['entries'] = $males + $females;
 			$new_object['aggregate'] = $answer_counter;
 			$new_array[] = $new_object; // Push the new object to the $new_array
 
-			foreach($answer_counter as $key_1=>$value)
-			{
+			foreach ($answer_counter as $key_1 => $value) {
 				foreach ($entry->aggregate as $key_2 => $value_2) {
-					if($key_1==$key_2){
-						foreach($value as $key_3=>$value_3){
-							foreach($value_2 as $key_4 => $value_4){
-								if($key_3 == $key_4){
+					if ($key_1 == $key_2) {
+						foreach ($value as $key_3 => $value_3) {
+							foreach ($value_2 as $key_4 => $value_4) {
+								if ($key_3 == $key_4) {
 									$new_array[$key]['aggregate'][$key_1][$key_3] = $value_4;
 								}
 							}
