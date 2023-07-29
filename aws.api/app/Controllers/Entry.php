@@ -920,7 +920,7 @@ class Entry extends BaseController
 
 		return $this->respond($response);
 	}
-public function form_entries_aggregated_report()
+	public function form_entries_aggregated_report()
 	{
 		ini_set('memory_limit', '512M');
 		// ini_set('memory_limit','1024M');
@@ -995,7 +995,7 @@ public function form_entries_aggregated_report()
 		foreach ($entry_list as $key => $entry) {
 			$new_object = []; // Create an empty array to store the new objects
 			$new_object['name'] = $entry['name'];
-			$new_object['entries'] = ($entry->aggregate->qn155->Male)+($entry->aggregate->qn155->Female);
+			$new_object['entries'] = $entry['entries'];
 			$new_object['aggregate'] = $answer_counter;
 			$new_array[] = $new_object; // Push the new object to the $new_array
 
@@ -1023,7 +1023,6 @@ public function form_entries_aggregated_report()
 		];
 		return $this->respond($response);
 	}
-
 
 
 
