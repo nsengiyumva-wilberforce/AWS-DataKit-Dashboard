@@ -991,7 +991,8 @@ class Entry extends BaseController
 				['$project' => ['_id' => 0, 'name' => '$_id', 'entries' => '$entries', 'aggregate' => ['$arrayToObject' => '$aggregate']]]
 			]
 		)->toArray();
-		
+				var_dump($entry_list);
+		exit();
 		foreach ($entry_list as $key => $entry) {
 			$new_object = []; // Create an empty array to store the new objects
 			$new_object['name'] = $entry['name'];
