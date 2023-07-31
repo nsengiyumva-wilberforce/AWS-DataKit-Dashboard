@@ -846,72 +846,45 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
-		$query['form_id'] = $params['form_id'];
+		$aggregation = [];
 
-		if (isset($params['region_id'])) {
+		$aggregation[] = ['$match' => ['form_id' => $params['form_id']]];
+		$aggregation[] = ['$unwind' => '$responses'];
+		$aggregation[] = ['$unwind' => '$responses'];
+
+
+		if ($params['region_id']!="all") {
+			$orRegionArray = [];
 			$district_list = $utility->region_district_array($params['region_id']);
-			$query['responses.qn4'] = ['$in' => $district_list];
-		}
-
-		if (isset($params['project'])) {
-			$query['responses.qn148'] = $params['project'];
-			// $emb_doc_filter['project'] = $params['project'];
-		}
-
-		if (isset($params['startdate']) && isset($params['enddate'])) {
-			if ($params['entry_data'] == "baseline")
-				$query['responses.created_at'] = ['$gte' => $params['startdate'], '$lte' => $params['enddate']];
-
-			if ($params['entry_data'] == "followup") {
-				$query['$or'] = [];
-
-				for ($i = 1; $i <= 6; $i++) {
-					$query['$or'][] = ["responses.$i.created_at" => ['$gte' => $params['startdate'], '$lte' => $params['enddate']]];
-				}
+			foreach ($district_list as $district) {
+				//push $district to $orRegionArray array with key responses.qn4
+				array_push($orRegionArray, ['responses.qn4' => $district]);
 			}
 
-			//$emb_doc_filter['created_at'] = array('$gte' => $params['startdate'], '$lte' => $params['enddate']);
+		$aggregation[] = [ '$match' => [ 'responses.entity_type' => $params['entry_data'], '$or' => $orRegionArray] ];
+		} else {
+			//get records per region
+			
 		}
 
-		$project = array(
-			'projection' => array(
-				'_id' => 0,
-				'response_id' => 1,
-				'responses' => 1,
-				'entry_form_id' => 1,
-				'responses' => ($params["entry_data"] == "baseline") ? (array('$slice' => array(0, 1))) : (array('$slice' => array(1, 6)))
-				// 'responses' =>  ['$elemMatch' => ['created_at' => ['$gte' => $params['startdate'], '$lte' => $params['enddate']]]]
-			)
-		);
+		if ($params['project'] != "all") {
+			$projects = [['responses.qn148' => $params['project']]];
+			$aggregation[] = [ '$match' => [
+					'$or' => $projects,
+					'$and' => [['responses.created_at' => ['$gt' => $params['startdate']]], ['responses.created_at' => ['$lt' => $params['enddate']]]]
+				]];
+		}
+
+		$aggregation[] = ['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]];
+		$aggregation[] = ['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]];
+		$aggregation[] = ['$project' => ['_id' => 0, 'response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'responses' => '$document.responses', 'created_at' => '$document.created_at', 'updated_at' => '$response.updated_at']];
 
 
 
-
-
+		$entry_list = $collection->aggregate($aggregation);
 
 		$data['headers'] = $utility->question_mapper($params['form_id']);
-		$data['entries'] = $collection->find($query, $project)->toArray();
-		$data['entry_data'] = $params['entry_data'];
-
-
-		if ($params['entry_data'] == "followup") {
-			$newEntries = []; // Create a new array to hold the updated entries
-
-			foreach ($data['entries'] as $entry) {
-				$newResponses = []; // Create a new array to hold the updated responses for each entry
-
-				foreach ($entry->responses as $response) {
-					if (($response[0]['created_at'] > $params['startdate']) && ($response[0]['created_at'] < $params['enddate'])) {
-						$newResponses[] = $response; // Add the response to the new array if it satisfies the condition
-					}
-				}
-
-				$entry->responses = $newResponses; // Replace the responses of the current entry with the updated responses
-				$newEntries[] = $entry; // Add the updated entry to the new array
-			}
-
-			$data['entries'] = $newEntries; // Replace the original entries with the updated entries
-		}
+		$data['entries'] = $entry_list->toArray();
 
 		$response = [
 			'status' => 200,

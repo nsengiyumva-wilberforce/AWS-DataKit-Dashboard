@@ -503,28 +503,21 @@ $result = json_decode($this->custom->run_curl_get($url));
 	{
 		$params = $this->input->post(NULL, TRUE);
 		// $this->custom->print($params); die();
-		if ($params['region_id'] != 'all') { $query_data['region_id'] = $params['region_id']; }
+		$query_data['region_id'] = $params['region_id'];
 		$query_data['form_id'] = $params['form_id'];
 		$query_data['entry_data'] = $params['entry_data'];
-		if ($params['project'] != 'all') { $query_data['project'] = $params['project']; }
+		$query_data['project'] = $params['project']; 
 
 		$dates = explode('-', $params['dates']);
 		$query_data['startdate'] = $this->custom->date_maker(trim($dates[0]));
 		$query_data['enddate'] = $this->custom->date_maker(trim($dates[1]));
 
-
-
 		$url = API_BASE_URL.'report/entries?'.http_build_query($query_data);
-		ini_set('memory_limit','3056M');
 		$result = json_decode($this->custom->run_curl_get($url));
-		$data['entries'] = $result->data ?? [];
-		//var_dump($data['entries']->entries[0]->responses);
-		//$data['entries']['entry_data'] = $params['entry_data'];
-		// $this->custom->print($data); die();
+		$data['entries'] = $result->data;
 		$table = $this->load->view('pages/ajax-row-data-report', $data, TRUE);
 		echo $table;
 	}
-
 
 
 
