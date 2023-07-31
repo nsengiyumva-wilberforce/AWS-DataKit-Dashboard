@@ -931,7 +931,8 @@ class Entry extends BaseController
 					]
 				]
 			];
-		} else {
+
+		} else{
 			$aggregation[] = [
 				'$match' => [
 					'responses.entity_type' => $params['data_type'],
@@ -943,6 +944,7 @@ class Entry extends BaseController
 			];
 		}
 
+		
 		$aggregation[] = ['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]];
 		$aggregation[] = ['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]];
 
@@ -972,13 +974,23 @@ class Entry extends BaseController
 			$group_stage_query = "responses.qn4";
 		}
 		$aggregation[] = ['$project' => ['response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'title' => '$document.title', 'sub_title' => '$document.sub_title', 'district' => '$document.' . $group_stage_query, 'responses' => ['$objectToArray' => ['qn154' => ['$toInt' => '$document.responses.qn154'], 'qn155' => '$document.responses.qn155', 'qn412' => '$document.responses.qn412', 'qn157' => ['$toInt' => '$document.responses.qn157'], 'qn159' => ['$toInt' => '$document.responses.qn159'], 'qn219' => '$document.responses.qn219', 'qn162' => '$document.responses.qn162', 'qn167' => '$document.responses.qn167', 'qn168' => '$document.responses.qn168', 'qn174' => '$document.responses.qn174', 'qn171' => '$document.responses.qn171', 'qn173' => '$document.responses.qn173', 'qn221' => '$document.responses.qn221', 'qn179' => '$document.responses.qn179', 'qn181' => '$document.responses.qn181', 'qn223' => '$document.responses.qn223', 'qn183' => '$document.responses.qn183', 'qn184' => '$document.responses.qn184', 'qn189' => '$document.responses.qn189', 'qn191' => '$document.responses.qn191', 'qn193' => '$document.responses.qn193', 'qn194' => '$document.responses.qn194', 'qn217' => '$document.responses.qn217', 'qn225' => '$document.responses.qn225', 'qn197' => '$document.responses.qn197', 'qn206' => '$document.responses.qn206', 'qn414' => '$document.responses.qn414', 'qn424' => '$document.responses.qn424', 'qn416' => '$document.responses.qn416', 'qn418' => ['$toInt' => '$document.responses.qn418'], 'qn420' => '$document.responses.qn420', 'qn421' => '$document.responses.qn421', 'qn198' => ['$toInt' => '$document.responses.qn198'], 'qn201' => ['$toInt' => '$document.responses.qn201']]]]];
-
+		$aggregation[] = ['$match' => ['$or' => $orArray]];
+		$aggregation[] = ['$unwind' => ['path' => '$responses']];
+		$aggregation[] = ['$unwind' => ['path' => '$responses.v']];
+		$aggregation[] = ['$group' => ['_id' => ['district' => '$district', 'k' => '$responses.k', 'responses' => '$responses.v'], 'sum' => ['$sum' => ['$cond' => ['if' => ['$isNumber' => '$responses.v'], 'then' => '$responses.v', 'else' => 0]]], 'count' => ['$sum' => 1]]];
+		$aggregation[] = ['$group' => ['_id' => ['district' => '$_id.district', 'question' => '$_id.k'], 'entries' => ['$push' => ['k' => '$_id.responses', 'v' => '$count']], 'Total' => ['$sum' => '$sum']]];
+		$aggregation[] = ['$addFields' => ['entries' => ['$cond' => [['$gt' => ['$Total', 0]], ['Total' => '$Total'], '$entries']]]];
+		$aggregation[] = ['$unwind' => ['path' => '$entries']];
+		$aggregation[] = ['$match' => ['$expr' => ['$or' => [['$eq' => [['$type' => '$entries.k'], 'string']], ['$and' => [['$eq' => [['$type' => '$entries.Total'], 'int']], ['$ne' => ['$entries.Total', 0]]]]]]]];
+		$aggregation[] = ['$group' => ['_id' => ['district' => '$_id.district', 'question' => '$_id.question'], 'entries' => ['$push' => ['k' => '$entries.k', 'v' => '$entries.v']], 'Total' => ['$sum' => '$Total']]];
+		$aggregation[] = ['$addFields' => ['entries' => ['$cond' => [['$gt' => ['$Total', 0]], ['Total' => '$Total'], '$entries']]]];
+		$aggregation[] = ['$addFields' => ['entries' => ['$cond' => ['if' => ['$isArray' => '$entries'], 'then' => ['$arrayToObject' => '$entries'], 'else' => '$entries']]]];
+		$aggregation[] = ['$group' => ['_id' => '$_id.district', 'entries' => ['$count' => (object) []], 'aggregate' => ['$push' => ['k' => '$_id.question', 'v' => '$entries']]]];
+		$aggregation[] = ['$project' => ['_id' => 0, 'name' => '$_id', 'entries' => '$entries', 'aggregate' => ['$arrayToObject' => '$aggregate']]];
 		//handle case for all projects in a
 		$header = $utility->form_subheader_mapper($params['form_id']);
 		$answer_counter = $header['answer_counter'];
-		$entry_list = $collection->aggregate(
-			$aggregation
-		)->toArray();
+		$entry_list = $collection->aggregate($aggregation)->toArray();
 
 		foreach ($entry_list as $key => $entry) {
 			$new_object = []; // Create an empty array to store the new objects
