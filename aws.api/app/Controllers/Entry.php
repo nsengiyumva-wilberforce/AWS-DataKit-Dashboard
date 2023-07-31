@@ -853,7 +853,7 @@ class Entry extends BaseController
 		$aggregation[] = ['$unwind' => '$responses'];
 
 
-		if ($params['region_id']!="all") {
+		if ($params['region_id'] != "all") {
 			$orRegionArray = [];
 			$district_list = $utility->region_district_array($params['region_id']);
 			foreach ($district_list as $district) {
@@ -861,18 +861,26 @@ class Entry extends BaseController
 				array_push($orRegionArray, ['responses.qn4' => $district]);
 			}
 
-		$aggregation[] = [ '$match' => [ 'responses.entity_type' => $params['entry_data'], '$or' => $orRegionArray] ];
+			$aggregation[] = ['$match' => ['responses.entity_type' => $params['entry_data'], '$or' => $orRegionArray]];
 		} else {
 			//get records per region
-			
+
 		}
 
 		if ($params['project'] != "all") {
 			$projects = [['responses.qn148' => $params['project']]];
-			$aggregation[] = [ '$match' => [
+			$aggregation[] = [
+				'$match' => [
 					'$or' => $projects,
 					'$and' => [['responses.created_at' => ['$gt' => $params['startdate']]], ['responses.created_at' => ['$lt' => $params['enddate']]]]
-				]];
+				]
+			];
+		} else {
+			$aggregation[] = [
+				'$match' => [
+					'$and' => [['responses.created_at' => ['$gt' => $params['startdate']]], ['responses.created_at' => ['$lt' => $params['enddate']]]]
+				]
+			];
 		}
 
 		$aggregation[] = ['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]];
