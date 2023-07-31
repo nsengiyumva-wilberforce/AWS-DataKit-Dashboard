@@ -34,8 +34,8 @@ class Entry extends BaseController
 
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			/*				$district_list = $utility->region_district_array($params['region_id']);
-					 $query['responses.qn4'] = ['$in' => $district_list];
-					 */
+							  $query['responses.qn4'] = ['$in' => $district_list];
+							  */
 		}
 
 
@@ -932,7 +932,7 @@ class Entry extends BaseController
 				]
 			];
 
-		} else{
+		} else {
 			$aggregation[] = [
 				'$match' => [
 					'responses.entity_type' => $params['data_type'],
@@ -944,7 +944,7 @@ class Entry extends BaseController
 			];
 		}
 
-		
+
 		$aggregation[] = ['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]];
 		$aggregation[] = ['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]];
 
