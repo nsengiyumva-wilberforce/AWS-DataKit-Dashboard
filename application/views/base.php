@@ -284,17 +284,49 @@
 		});
 		</script>
 		<?php endforeach; ?>
-
-
-
-
-
-
-		
-
-
-
-
+		<script>
+				Highcharts.chart('barchart-container', {
+					chart: {
+						type: 'column'
+					},
+					title: {
+						text: 'Regional Baseline Vs Mnitoring for 2023',
+						align: 'left'
+					},
+					xAxis: {
+						categories: <?= $baseline_keys; ?>,
+						crosshair: true,
+						accessibility: {
+							description: 'Regions'
+						}
+					},
+					yAxis: {
+						min: 0,
+						title: {
+							text: 'House Holds (1000)'
+						}
+					},
+					tooltip: {
+						valueSuffix: ' (1000 MT)'
+					},
+					plotOptions: {
+						column: {
+							pointPadding: 0.2,
+							borderWidth: 0
+						}
+					},
+					series: [
+						{
+							name: 'Baselined',
+							data: <?= $baseline ?>
+						},
+						{
+							name: 'Monitored',
+							data: <?= $followup ?>
+						}
+					]
+				});
+			</script>
 		<?php endif; ?>
 
 

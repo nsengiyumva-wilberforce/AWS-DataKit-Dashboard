@@ -174,6 +174,7 @@ $routes->group('admin-user', function($routes){
 
 
 $routes->add('entry-geodata', 'Entry::form_entry_geodata');
+$routes->add('entries/group_by_region', 'Entry::group_by_region');
 $routes->add('form-entries', 'Entry::form_entries');
 $routes->add('compiled-entry', 'Entry::compiled_entry');
 // $routes->add('entry-element', 'Entry::entry-element');

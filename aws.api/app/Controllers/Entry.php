@@ -34,8 +34,8 @@ class Entry extends BaseController
 
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			/*				$district_list = $utility->region_district_array($params['region_id']);
-							  $query['responses.qn4'] = ['$in' => $district_list];
-							  */
+									   $query['responses.qn4'] = ['$in' => $district_list];
+									   */
 		}
 
 
@@ -1345,7 +1345,100 @@ class Entry extends BaseController
 		return $this->respond($data);
 	}
 
+	public function group_by_region()
+	{
+		ini_set('memory_limit', '512M');
+		// ini_set('memory_limit','1024M');
+		$utility = new Utility();
+		$params = $this->request->getGet();
+
+		$client = new MongoDB();
+		$collection = $client->aws->entries;
+
+		$aggregation = [];
+
+		$aggregation[] = ['$match' => ['form_id' => $params['form_id']]];
+		$aggregation[] = ['$unwind' => '$responses'];
+		$aggregation[] = ['$unwind' => '$responses'];
+
+		$central = $this->db->table('district_view')->where('region_id', 1)->get()->getResult();
+		$centralArray = array_map(function ($value) {
+			return $value;
+		}, array_column($central, 'name'));
+
+		$southWestern = $this->db->table('district_view')->where('region_id', 3)->get()->getResult();
+		$southWesternArray = array_map(function ($value) {
+			return $value;
+		}, array_column($southWestern, 'name'));
+
+		$eastern = $this->db->table('district_view')->where('region_id', 2)->get()->getResult();
+		$easternArray = array_map(function ($value) {
+			return $value;
+		}, array_column($eastern, 'name'));
+
+		$westNile = $this->db->table('district_view')->where('region_id', 4)->get()->getResult();
+		$westNileArray = array_map(function ($value) {
+			return $value;
+		}, array_column($westNile, 'name'));
 
 
+		$entry_list = $collection->aggregate(
+			[
+				['$match' => ['form_id' => $params['form_id']]],
+				['$unwind' => ['path' => '$responses']],
+				['$unwind' => ['path' => '$responses']],
+				[
+					'$match' => [
+						'responses.entity_type' => $params['data_type'],
+						'$and' => [
+							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']],
+							['responses.created_at' => ['$lt' => '2023-06-01T00:00:00.000Z']]
+						]
+					]
+				],
+				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
+				['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]],
+				[
+					'$addFields' => [
+						'document.region' => [
+							'$cond' => [
+								['$in' => ['$document.responses.qn4', $centralArray]],
+								'Central',
+								[
+									'$cond' => [
+										['$in' => ['$document.responses.qn4', $easternArray]],
+										'Eastern',
+										[
+											'$cond' => [
+												['$in' => ['$document.responses.qn4', $southWesternArray]],
+												'South Western',
+												[
+													'$cond' => [
+														['$in' => ['$document.responses.qn4', $westNileArray]],
+														'West Nile',
+														'Other'
+													]
+												]
+											]
+										]
+									]
+								]
+							]
+						]
+					]
+				],
+				['$group' => ['_id' => '$document.region', 'count' => ['$count' => (object) []]]],
+				['$project' => ['_id' => 0, 'region' => '$_id', 'count' => '$count']]
+			]
+		);
 
+		$data['entries'] = $entry_list->toArray();
+
+		$response = [
+			'status' => 200,
+			'data' => $data
+		];
+
+		return $this->respond($response);
+	}
 }

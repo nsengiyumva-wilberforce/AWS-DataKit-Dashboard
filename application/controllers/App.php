@@ -103,11 +103,33 @@ public function question_library()
 			$url = API_BASE_URL.'overview-counter';
 			$result = json_decode($this->custom->run_curl_get($url));
 			$counter = $result->data;
+
+			$baseline_url = API_BASE_URL . 'entries/group_by_region?data_type=baseline&form_id=11';
+			$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
+			$baseline_data = $baseline_result->data->entries;
+			$baseline = [];
+			$baseline_keys = [];
+			foreach ($baseline_data as $key => $value) {
+				array_push($baseline_keys, $value->region);
+				array_push($baseline, $value->count);
+			}
+
+			$followup_url = API_BASE_URL . 'entries/group_by_region?data_type=followup&form_id=11';
+			$followup_result = json_decode($this->custom->run_curl_get($followup_url));
+			$followup_data = $followup_result->data->entries;
+			$followup = [];
+			foreach ($followup_data as $key => $value) {
+				array_push($followup, $value->count);
+			}
+
 			$data['dashboard'] = $url;
 
 			$data['counter'] = $counter;
 			$data['storage'] = $storage;
 			$data['charts'] = $charts;
+			$data['baseline'] = json_encode($baseline);
+			$data['followup'] = json_encode($followup);
+			$data['baseline_keys'] = json_encode($baseline_keys);
 			$data['page'] = 'pages/dashboard';
 			$data['page_name'] = 'dashboard';
 			// $this->custom->print($data); die();	
