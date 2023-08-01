@@ -1428,7 +1428,8 @@ class Entry extends BaseController
 					]
 				],
 				['$group' => ['_id' => '$document.region', 'count' => ['$count' => (object) []]]],
-				['$project' => ['_id' => 0, 'region' => '$_id', 'count' => '$count']]
+				['$project' => ['_id' => 0, 'region' => '$_id', 'count' => '$count']],
+				['$sort' => ['region' => 1]]
 			]
 		);
 

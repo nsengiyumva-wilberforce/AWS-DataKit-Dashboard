@@ -294,7 +294,12 @@
 						align: 'left'
 					},
 					xAxis: {
-						categories: <?= $baseline_keys; ?>,
+						categories: [
+							'Central',
+							'Eastern',
+							'South Western',
+							'West Nile'
+						],
 						crosshair: true,
 						accessibility: {
 							description: 'Regions'
