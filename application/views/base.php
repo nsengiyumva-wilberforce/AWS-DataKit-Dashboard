@@ -328,6 +328,9 @@
 
 		<?php if ($page_name == 'insights'): ?>
 			<script src="https://code.highcharts.com/highcharts.js"></script>
+			<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+			<script type="text/javascript"
+				src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 			<script>
 				$(document).ready(function () {
 					$('input[name="dates"]').daterangepicker({
