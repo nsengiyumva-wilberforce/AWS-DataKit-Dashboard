@@ -92,6 +92,13 @@
 							</a>
 						</li>
 						<li class="nav-item">
+							<a class="nav-link <?= $page_name == 'insights' ? 'active' : '' ?>"
+								href="<?= base_url('insights') ?>">
+								<i data-feather="eye"></i>
+								Insights
+							</a>
+						</li>
+						<li class="nav-item">
 							<a class="nav-link <?= $page_name == 'maps' ? 'active' : '' ?>"
 								href="<?= base_url('maps') ?>">
 								<i data-feather="map"></i>
