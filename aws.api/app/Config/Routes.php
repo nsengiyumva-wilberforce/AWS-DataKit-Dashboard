@@ -174,7 +174,12 @@ $routes->group('admin-user', function($routes){
 
 
 $routes->add('entry-geodata', 'Entry::form_entry_geodata');
-$routes->add('entries/group_by_region', 'Entry::group_by_region');
+$routes->add('entries/group-by-region', 'Entry::group_by_region');
+$routes->add('entries/group-by-latrine-coverage', 'Entry::group_by_latrine_coverage');
+$routes->add('entries/group_by_sanitation_category', 'Entry::group_by_sanitation_category');
+$routes->add('entries/group-by-duration-of-water-collection', 'Entry::group_by_duration_of_water_collection');
+$routes->add('entries/group-by-water-treatment', 'Entry::group_by_water_treatment');
+$routes->add('entries/group-by-family-savings', 'Entry::group_by_family_savings');
 $routes->add('form-entries', 'Entry::form_entries');
 $routes->add('compiled-entry', 'Entry::compiled_entry');
 // $routes->add('entry-element', 'Entry::entry-element');
