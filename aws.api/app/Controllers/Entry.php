@@ -1442,4 +1442,194 @@ class Entry extends BaseController
 
 		return $this->respond($response);
 	}
+
+	public function group_by_latrine_coverage()
+	{
+		ini_set('memory_limit', '512M');
+		// ini_set('memory_limit','1024M');
+		$params = $this->request->getGet();
+
+		$client = new MongoDB();
+		$collection = $client->aws->entries;
+
+		$latrine_coverage = $collection->aggregate(
+			[
+				['$match' => ['form_id' => '11']],
+				['$unwind' => ['path' => '$responses']],
+				['$unwind' => ['path' => '$responses']],
+				[
+					'$match' => [
+						'responses.entity_type' => $params['data_type'],
+						'$and' => [
+							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']], 
+							['responses.created_at' => ['$lt' => '2024-01-01T00:00:00.000Z']]]
+					]
+				],
+				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
+				['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]],
+				['$project' => ['response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'title' => '$document.title', 'sub_title' => '$document.sub_title', 'district' => '$document.responses.qn4', 'responses' => ['qn219' => '$document.responses.qn219']]],
+				['$group' => ['_id' => '$responses.qn219', 'count' => ['$count' => (object) []]]],
+				['$sort' => ['_id' => -1]]
+			]
+		)->toArray();
+
+		$data['entries'] = $latrine_coverage;
+		$response = [
+			'status' => 200,
+			'data' => $data
+		];
+		return $this->respond($response);
+	}
+
+	public function group_by_sanitation_category()
+	{
+		ini_set('memory_limit', '512M');
+		// ini_set('memory_limit','1024M');
+		$params = $this->request->getGet();
+
+		$client = new MongoDB();
+		$collection = $client->aws->entries;
+
+		$latrine_coverage = $collection->aggregate(
+			[
+				['$match' => ['form_id' => '11']],
+				['$unwind' => ['path' => '$responses']],
+				['$unwind' => ['path' => '$responses']],
+				[
+					'$match' => [
+						'responses.entity_type' => $params['data_type'],
+						'$and' => [
+							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']], 
+							['responses.created_at' => ['$lt' => '2024-01-01T00:00:00.000Z']]]
+					]
+				],
+				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
+				['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]],
+				['$project' => ['response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'title' => '$document.title', 'sub_title' => '$document.sub_title', 'district' => '$document.responses.qn4', 'responses' => ['qn162' => '$document.responses.qn162']]],
+				['$group' => ['_id' => '$responses.qn162', 'count' => ['$count' => (object) []]]],
+				['$sort' => ['_id' => -1]]
+			]
+		)->toArray();
+
+		$data['entries'] = $latrine_coverage;
+		$response = [
+			'status' => 200,
+			'data' => $data
+		];
+		return $this->respond($response);
+	}
+	
+	public function group_by_duration_of_water_collection()
+	{
+		ini_set('memory_limit', '512M');
+		// ini_set('memory_limit','1024M');
+		$params = $this->request->getGet();
+
+		$client = new MongoDB();
+		$collection = $client->aws->entries;
+
+		$latrine_coverage = $collection->aggregate(
+			[
+				['$match' => ['form_id' => '11']],
+				['$unwind' => ['path' => '$responses']],
+				['$unwind' => ['path' => '$responses']],
+				[
+					'$match' => [
+						'responses.entity_type' => $params['data_type'],
+						'$and' => [
+							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']], 
+							['responses.created_at' => ['$lt' => '2024-01-01T00:00:00.000Z']]]
+					]
+				],
+				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
+				['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]],
+				['$project' => ['response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'title' => '$document.title', 'sub_title' => '$document.sub_title', 'district' => '$document.responses.qn4', 'responses' => ['qn197' => '$document.responses.qn197']]],
+				['$group' => ['_id' => '$responses.qn197', 'count' => ['$count' => (object) []]]],
+				['$sort' => ['_id' => -1]]
+			]
+		)->toArray();
+
+		$data['entries'] = $latrine_coverage;
+		$response = [
+			'status' => 200,
+			'data' => $data
+		];
+		return $this->respond($response);
+	}
+
+	public function group_by_water_treatment()
+	{
+		ini_set('memory_limit', '512M');
+		// ini_set('memory_limit','1024M');
+		$params = $this->request->getGet();
+
+		$client = new MongoDB();
+		$collection = $client->aws->entries;
+
+		$latrine_coverage = $collection->aggregate(
+			[
+				['$match' => ['form_id' => '11']],
+				['$unwind' => ['path' => '$responses']],
+				['$unwind' => ['path' => '$responses']],
+				[
+					'$match' => [
+						'responses.entity_type' => $params['data_type'],
+						'$and' => [
+							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']], 
+							['responses.created_at' => ['$lt' => '2024-01-01T00:00:00.000Z']]]
+					]
+				],
+				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
+				['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]],
+				['$project' => ['response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'title' => '$document.title', 'sub_title' => '$document.sub_title', 'district' => '$document.responses.qn4', 'responses' => ['qn189' => '$document.responses.qn189']]],
+				['$group' => ['_id' => '$responses.qn189', 'count' => ['$count' => (object) []]]],
+				['$sort' => ['_id' => -1]]
+			]
+		)->toArray();
+
+		$data['entries'] = $latrine_coverage;
+		$response = [
+			'status' => 200,
+			'data' => $data
+		];
+		return $this->respond($response);
+	}
+
+	public function group_by_family_savings()
+	{
+		ini_set('memory_limit', '512M');
+		// ini_set('memory_limit','1024M');
+		$params = $this->request->getGet();
+
+		$client = new MongoDB();
+		$collection = $client->aws->entries;
+
+		$latrine_coverage = $collection->aggregate(
+			[
+				['$match' => ['form_id' => '11']],
+				['$unwind' => ['path' => '$responses']],
+				['$unwind' => ['path' => '$responses']],
+				[
+					'$match' => [
+						'responses.entity_type' => $params['data_type'],
+						'$and' => [
+							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']], 
+							['responses.created_at' => ['$lt' => '2024-01-01T00:00:00.000Z']]]
+					]
+				],
+				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
+				['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]],
+				['$project' => ['response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'title' => '$document.title', 'sub_title' => '$document.sub_title', 'district' => '$document.responses.qn4', 'responses' => ['qn420' => '$document.responses.qn420']]],
+				['$group' => ['_id' => '$responses.qn420', 'count' => ['$count' => (object) []]]],
+				['$sort' => ['_id' => -1]]
+			]
+		)->toArray();
+
+		$data['entries'] = $latrine_coverage;
+		$response = [
+			'status' => 200,
+			'data' => $data
+		];
+		return $this->respond($response);
+	}
 }
