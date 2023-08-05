@@ -82,7 +82,36 @@
 
 <div class="row">
 	<div class="col-6 mb-5 chart-wrapper">
-		<div id="barchart-container">
+		<div id="barchart-container-region">
+			<!-- bar chart area container -->
+		</div>
+	</div>
+
+	<div class="col-6 mb-5 chart-wrapper-">
+		<div id="barchart-container-latrine-coverage">
+			<!-- bar chart area container -->
+		</div>
+	</div>
+
+	<div class="col-6 mb-5 chart-wrapper-">
+		<div id="barchart-container-sanitation-category">
+			<!-- bar chart area container -->
+		</div>
+	</div>
+	<div class="col-6 mb-5 chart-wrapper-">
+		<div id="barchart-duration-of-water-collection">
+			<!-- bar chart area container -->
+		</div>
+	</div>
+
+	<div class="col-6 mb-5 chart-wrapper-">
+		<div id="barchart-water-treatment">
+			<!-- bar chart area container -->
+		</div>
+	</div>
+
+	<div class="col-6 mb-5 chart-wrapper-">
+		<div id="barchart-family-savings">
 			<!-- bar chart area container -->
 		</div>
 	</div>

@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class App extends CI_Controller {
+class App extends CI_Controller
+{
 
 	// private $API_BASE_URLS = 'http://127.0.0.1/aws-api/';
 	// private $API_BASE_URLS = 'http://127.0.0.1/aws-api/index.php/app/';
@@ -14,35 +15,39 @@ class App extends CI_Controller {
 	// }
 
 
-public function question_library()
-        {
-			if (!$this->session->has_userdata('logged_in')) { redirect(); }
+	public function question_library()
+	{
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-			$url = API_BASE_URLS.'get_questions';
-			$result = $this->custom->run_curl_get($url);
-			$obj_array = json_decode($result);
-			$question_list = $obj_array->data;
-	
-			$data['question_list'] = $question_list;
-			$data['page'] = 'pages/question-library';
-			$data['page_name'] = 'question-library';
-			$this->load->view('base', $data);
-        }
+		$url = API_BASE_URLS . 'get_questions';
+		$result = $this->custom->run_curl_get($url);
+		$obj_array = json_decode($result);
+		$question_list = $obj_array->data;
 
- public function entry($entry_id)
-        {             
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
-		$url = API_BASE_URL.'entry?response_id='.$entry_id.'&format=json';	
-                $result =json_decode($this->custom->run_curl_get($url));
-                $data['entry'] = $result->data;
-                $data['page'] = 'pages/entry';
-                $data['page_name'] = 'entry';
+		$data['question_list'] = $question_list;
+		$data['page'] = 'pages/question-library';
+		$data['page_name'] = 'question-library';
+		$this->load->view('base', $data);
+	}
 
-//echo  json_encode( $result);
+	public function entry($entry_id)
+	{
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
+		$url = API_BASE_URL . 'entry?response_id=' . $entry_id . '&format=json';
+		$result = json_decode($this->custom->run_curl_get($url));
+		$data['entry'] = $result->data;
+		$data['page'] = 'pages/entry';
+		$data['page_name'] = 'entry';
 
-                // $this->custom->print($data); die();
-                $this->load->view('base', $data);
-        }
+		//echo  json_encode( $result);
+
+		// $this->custom->print($data); die();
+		$this->load->view('base', $data);
+	}
 
 
 
@@ -56,9 +61,9 @@ public function question_library()
 
 	public function authenticate()
 	{
-        $params = $this->input->post(NULL, TRUE);
+		$params = $this->input->post(NULL, TRUE);
 		$params['format'] = 'json';
-		$url = API_BASE_URL.'admin-user/authenticate';
+		$url = API_BASE_URL . 'admin-user/authenticate';
 
 		//$url = API_BASE_URLS.'admin-authenticate';
 		$result = json_decode($this->custom->run_curl_post($url, $params));
@@ -67,7 +72,7 @@ public function question_library()
 		if ($result->status) {
 			$user = $result->data;
 			$permissions = json_decode($user->permission_list);
-			$user_data['name'] = $user->first_name.' '.$user->last_name;
+			$user_data['name'] = $user->first_name . ' ' . $user->last_name;
 			$user_data['region_id'] = $user->region_id;
 			$user_data['region_code'] = $user->region_code;
 			$user_data['permissions'] = $permissions;
@@ -80,7 +85,7 @@ public function question_library()
 			// redirect('login');
 			redirect();
 		}
-		
+
 	}
 
 
@@ -89,53 +94,144 @@ public function question_library()
 		//CHECK FOR SESSION
 		if ($this->session->has_userdata('logged_in')) {
 
-			$url = API_BASE_URLS.'server-disk-space';
+			$url = API_BASE_URLS . 'server-disk-space';
 			$result = json_decode($this->custom->run_curl_get($url));
 			$storage_info = $result->data ?? [];
 			$storage = $this->custom->storage_size($storage_info, ['/dev/vda1', 'udev']);
- 			$data['storageurl'] = $url;
+			$data['storageurl'] = $url;
 
-			$url = API_BASE_URL.'charts';
+			$url = API_BASE_URL . 'charts';
 			$result = json_decode($this->custom->run_curl_get($url));
 			$charts = $result->data ?? [];
 			$data['charturl'] = $url;
 
-			$url = API_BASE_URL.'overview-counter';
+			$url = API_BASE_URL . 'overview-counter';
 			$result = json_decode($this->custom->run_curl_get($url));
 			$counter = $result->data;
 
-			$baseline_url = API_BASE_URL . 'entries/group_by_region?data_type=baseline&form_id=11';
+			$baseline_url = API_BASE_URL . 'entries/group-by-region?data_type=baseline&form_id=11';
 			$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
 			$baseline_data = $baseline_result->data->entries;
-			$baseline = [];
+			$baseline_region = [];
 			$baseline_keys = [];
 			foreach ($baseline_data as $key => $value) {
-				array_push($baseline_keys, $value->region);
-				array_push($baseline, $value->count);
+				array_push($baseline_region, $value->count);
 			}
 
-			$followup_url = API_BASE_URL . 'entries/group_by_region?data_type=followup&form_id=11';
+			$followup_url = API_BASE_URL . 'entries/group-by-region?data_type=followup&form_id=11';
 			$followup_result = json_decode($this->custom->run_curl_get($followup_url));
 			$followup_data = $followup_result->data->entries;
-			$followup = [];
+			$followup_region = [];
 			foreach ($followup_data as $key => $value) {
-				array_push($followup, $value->count);
+				array_push($followup_region, $value->count);
 			}
 
-			$data['dashboard'] = $url;
+			$baseline_url = API_BASE_URL . 'entries/group-by-latrine-coverage?data_type=baseline&form_id=11';
+			$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
+			$baseline_data = $baseline_result->data->entries;
+			$baseline_latrine_coverage = [];
+			$baseline_keys = [];
+			foreach ($baseline_data as $key => $value) {
+				array_push($baseline_latrine_coverage, $value->count);
+			}
+						
+			$followup_url = API_BASE_URL . 'entries/group-by-latrine-coverage?data_type=followup&form_id=11';
+			$followup_result = json_decode($this->custom->run_curl_get($followup_url));
+			$followup_data = $followup_result->data->entries;
+			$followup_latrine_coverage = [];
+			foreach ($followup_data as $key => $value) {
+				array_push($followup_latrine_coverage, $value->count);
+			}
+
+			$baseline_url = API_BASE_URL . 'entries/group_by_sanitation_category?data_type=baseline&form_id=11';
+			$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
+			$baseline_data = $baseline_result->data->entries;
+			$baseline_sanitation_category = [];
+			$baseline_keys = [];
+			foreach ($baseline_data as $key => $value) {
+				array_push($baseline_sanitation_category, $value->count);
+			}
+			
+			$followup_url = API_BASE_URL . 'entries/group_by_sanitation_category?data_type=followup&form_id=11';
+			$followup_result = json_decode($this->custom->run_curl_get($followup_url));
+			$followup_data = $followup_result->data->entries;
+			$followup_sanitation_category = [];
+			foreach ($followup_data as $key => $value) {
+				array_push($followup_sanitation_category, $value->count);
+			}
+
+			$baseline_url = API_BASE_URL . 'entries/group-by-duration-of-water-collection?data_type=baseline&form_id=11';
+			$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
+			$baseline_data = $baseline_result->data->entries;
+			$baseline_water_collection = [];
+			$baseline_keys = [];
+			foreach ($baseline_data as $key => $value) {
+				array_push($baseline_water_collection, $value->count);
+			}
+			
+			$followup_url = API_BASE_URL . 'entries/group-by-duration-of-water-collection?data_type=followup&form_id=11';
+			$followup_result = json_decode($this->custom->run_curl_get($followup_url));
+			$followup_data = $followup_result->data->entries;
+			$followup_water_collection = [];
+			foreach ($followup_data as $key => $value) {
+				array_push($followup_water_collection, $value->count);
+			}
+
+			$baseline_url = API_BASE_URL . 'entries/group-by-water-treatment?data_type=baseline&form_id=11';
+			$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
+			$baseline_data = $baseline_result->data->entries;
+			$baseline_water_treatment = [];
+			$baseline_keys = [];
+			foreach ($baseline_data as $key => $value) {
+				array_push($baseline_water_treatment, $value->count);
+			}
+			
+			$followup_url = API_BASE_URL . 'entries/group-by-water-treatment?data_type=followup&form_id=11';
+			$followup_result = json_decode($this->custom->run_curl_get($followup_url));
+			$followup_data = $followup_result->data->entries;
+			$followup_water_treatment = [];
+			foreach ($followup_data as $key => $value) {
+				array_push($followup_water_treatment, $value->count);
+			}
+
+			$baseline_url = API_BASE_URL . 'entries/group-by-family-savings?data_type=baseline&form_id=11';
+			$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
+			$baseline_data = $baseline_result->data->entries;
+			$baseline_family_savings = [];
+			$baseline_keys = [];
+			foreach ($baseline_data as $key => $value) {
+				array_push($baseline_family_savings, $value->count);
+			}
+			
+			$followup_url = API_BASE_URL . 'entries/group-by-family-savings?data_type=followup&form_id=11';
+			$followup_result = json_decode($this->custom->run_curl_get($followup_url));
+			$followup_data = $followup_result->data->entries;
+			$followup_family_savings = [];
+			foreach ($followup_data as $key => $value) {
+				array_push($followup_family_savings, $value->count);
+			}
 
 			$data['counter'] = $counter;
 			$data['storage'] = $storage;
 			$data['charts'] = $charts;
-			$data['baseline'] = json_encode($baseline);
-			$data['followup'] = json_encode($followup);
-			$data['baseline_keys'] = json_encode($baseline_keys);
+			$data['baseline_region'] = json_encode($baseline_region);
+			$data['followup_region'] = json_encode($followup_region);
+			$data['baseline_latrine_coverage'] = json_encode($baseline_latrine_coverage);
+			$data['followup_latrine_coverage'] = json_encode($followup_latrine_coverage);
+			$data['baseline_sanitation_category'] = json_encode($baseline_sanitation_category);
+			$data['followup_sanitation_category'] = json_encode($followup_sanitation_category);
+			$data['baseline_water_collection'] = json_encode($baseline_water_collection);
+			$data['followup_water_collection'] = json_encode($followup_water_collection);
+			$data['baseline_water_treatment'] = json_encode($baseline_water_treatment);
+			$data['followup_water_treatment'] = json_encode($followup_water_treatment);
+			$data['baseline_family_savings'] = json_encode($baseline_family_savings);
+			$data['followup_family_savings'] = json_encode($followup_family_savings);
 			$data['page'] = 'pages/dashboard';
 			$data['page_name'] = 'dashboard';
 			// $this->custom->print($data); die();	
-		
-//print json_encode($data);
-	$this->load->view('base', $data);
+
+			//print json_encode($data);
+			$this->load->view('base', $data);
 		} else {
 			$this->load->view('login');
 		}
@@ -145,18 +241,20 @@ public function question_library()
 	public function dashboard()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'server-disk-space';
+		$url = API_BASE_URLS . 'server-disk-space';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$storage_info = $result->data ?? [];
-		$storage = $this->custom->storage_size($storage_info, ['/dev/sda1', '/dev/sdb']);		
+		$storage = $this->custom->storage_size($storage_info, ['/dev/sda1', '/dev/sdb']);
 
-		$url = API_BASE_URL.'charts';
+		$url = API_BASE_URL . 'charts';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$charts = $result->data ?? [];
 
-		$url = API_BASE_URLS.'dasboard-overview-counter?format=json';
+		$url = API_BASE_URLS . 'dasboard-overview-counter?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$counter = $result->data;
 
@@ -173,9 +271,11 @@ public function question_library()
 	public function forms()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-forms-basic?format=json';
+		$url = API_BASE_URLS . 'get-forms-basic?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$forms = $obj_array->data;
@@ -189,14 +289,16 @@ public function question_library()
 	public function form_builder($form_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URL.'form?form_id='.$form_id.'&format=json';
+		$url = API_BASE_URL . 'form?form_id=' . $form_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$result = json_decode($this->custom->run_curl_get($url));
 		$data['form'] = $result->data;
 
-		$url = API_BASE_URL.'question?form_id='.$form_id;
+		$url = API_BASE_URL . 'question?form_id=' . $form_id;
 		$result = json_decode($this->custom->run_curl_get($url));
 		$question_list = $result->data;
 
@@ -209,9 +311,11 @@ public function question_library()
 	public function form_settings($form_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URL.'form?form_id='.$form_id.'&settings=true&format=json';
+		$url = API_BASE_URL . 'form?form_id=' . $form_id . '&settings=true&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$data['form'] = $result->data;
 		$data['page'] = 'pages/form-settings';
@@ -223,12 +327,14 @@ public function question_library()
 	public function form($form_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-form?form_id='.$form_id.'&format=json';
+		$url = API_BASE_URLS . 'get-form?form_id=' . $form_id . '&format=json';
 		// $url = API_BASE_URLS.'get-forms-basic?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
-		$data['form'] = $result->data;		
+		$data['form'] = $result->data;
 		$data['page'] = 'pages/form';
 		$data['page_name'] = 'form';
 		$this->load->view('base', $data);
@@ -239,9 +345,11 @@ public function question_library()
 	public function maps()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-forms-basic?format=json';
+		$url = API_BASE_URLS . 'get-forms-basic?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$forms = $obj_array->data;
@@ -257,23 +365,25 @@ public function question_library()
 	public function map($form_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-form?form_id='.$form_id.'&format=json';
+		$url = API_BASE_URLS . 'get-form?form_id=' . $form_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$form = $result->data;
-		$report_title = 'Maps > '.$form->title;
+		$report_title = 'Maps > ' . $form->title;
 
-		$url = API_BASE_URL.'entry/showmaps?form_id='.$form_id.'&format=json';
+		$url = API_BASE_URL . 'entry/showmaps?form_id=' . $form_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
-//print json_encode($result);		
+		//print json_encode($result);		
 
-// print_r($result); die();
+		// print_r($result); die();
 		$data['report_title'] = $report_title;
 		$data['geodata'] = $result->data ?? [];
 		$data['page'] = 'pages/map';
 		$data['page_name'] = 'map';
-$data['form_id'] = $form_id;
+		$data['form_id'] = $form_id;
 		// $this->custom->print($data); die();
 		$this->load->view('base', $data);
 	}
@@ -283,9 +393,11 @@ $data['form_id'] = $form_id;
 	public function entries()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URL.'forms?format=json';
+		$url = API_BASE_URL . 'forms?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$forms = $obj_array->data;
@@ -298,26 +410,28 @@ $data['form_id'] = $form_id;
 
 	public function form_entries($form_id)
 	{
-				//CHECK FOR SESSION
-                //CHECK FOR SESSION
-                if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		//CHECK FOR SESSION
+		//CHECK FOR SESSION
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
 
-                $url = API_BASE_URL.'forms?form_id='.$form_id.'&format=json';
-                $result = json_decode($this->custom->run_curl_get($url));
-                $form = $result->data;
-                $report_title = 'Entries > '.$form->title;
+		$url = API_BASE_URL . 'forms?form_id=' . $form_id . '&format=json';
+		$result = json_decode($this->custom->run_curl_get($url));
+		$form = $result->data;
+		$report_title = 'Entries > ' . $form->title;
 
-                $url = API_BASE_URL.'regions?format=json';
-                $result = json_decode($this->custom->run_curl_get($url));
-                $regions = $result->data;
+		$url = API_BASE_URL . 'regions?format=json';
+		$result = json_decode($this->custom->run_curl_get($url));
+		$regions = $result->data;
 
-                ini_set('memory_limit','1024M');
-                $query_param = $_SESSION['region_id'] != 0 ? '&region_id='.$_SESSION['region_id'] : '';
+		ini_set('memory_limit', '1024M');
+		$query_param = $_SESSION['region_id'] != 0 ? '&region_id=' . $_SESSION['region_id'] : '';
 
-                $url = API_BASE_URL.'entry/getRegionalEntries?form_id='.$form_id.$query_param.'&format=json';
+		$url = API_BASE_URL . 'entry/getRegionalEntries?form_id=' . $form_id . $query_param . '&format=json';
 
-                $result = json_decode($this->custom->run_curl_get($url));
+		$result = json_decode($this->custom->run_curl_get($url));
 		$data['report_title'] = $report_title;
 		$data['regions'] = $regions ?? [];
 		$data['entries'] = $result->data ?? [];
@@ -332,9 +446,11 @@ $data['form_id'] = $form_id;
 	public function reports()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-forms-basic?format=json';
+		$url = API_BASE_URLS . 'get-forms-basic?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$forms = $obj_array->data;
@@ -349,22 +465,24 @@ $data['form_id'] = $form_id;
 	public function entries_report($form_id, $entry_data)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-form?form_id='.$form_id.'&format=json';
+		$url = API_BASE_URLS . 'get-form?form_id=' . $form_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$form = $result->data;
-		$report_title = 'Reports > '.$form->title.' > '.ucfirst($entry_data);
+		$report_title = 'Reports > ' . $form->title . ' > ' . ucfirst($entry_data);
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$regions = $result->data;
 
-		$url = API_BASE_URLS.'get-projects?format=json';
+		$url = API_BASE_URLS . 'get-projects?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$projects = $result->data;
 
-// $url2 = API_BASE_URL.'entry/paginator?form_id='.$form_id.'&format=json';
+		// $url2 = API_BASE_URL.'entry/paginator?form_id='.$form_id.'&format=json';
 //                 $result2 = json_decode($this->custom->run_curl_get($url2));
 // //
 // //$total=0;
@@ -372,8 +490,8 @@ $data['form_id'] = $form_id;
 // //print($url2);
 // 		$data['regions'] = $regions ?? [];
 // 		$data['projects'] = $projects ?? [];
-		
-// //
+
+		// //
 // $data['pages'] = ceil($total/PER_PAGE);
 		$data['regions'] = $regions ?? [];
 		$data['projects'] = $projects ?? [];
@@ -388,21 +506,23 @@ $data['form_id'] = $form_id;
 	public function aggregated_report($form_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-form?form_id='.$form_id.'&format=json';
+		$url = API_BASE_URLS . 'get-form?form_id=' . $form_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$form = $result->data;
-		$report_title = 'Reports > '.$form->title.' > Aggregated';
+		$report_title = 'Reports > ' . $form->title . ' > Aggregated';
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
-		$regions = $obj_array->data;	
+		$regions = $obj_array->data;
 
-		$url = API_BASE_URLS.'get-projects?format=json';
+		$url = API_BASE_URLS . 'get-projects?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
-		$projects = $result->data;				
+		$projects = $result->data;
 
 		$data['regions'] = $regions;
 		$data['projects'] = $projects ?? [];
@@ -418,21 +538,23 @@ $data['form_id'] = $form_id;
 	public function edit_entry($entry_id, $target)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URL.'entry?response_id='.$entry_id.'&format=json';
-		$result =json_decode($this->custom->run_curl_get($url));
+		$url = API_BASE_URL . 'entry?response_id=' . $entry_id . '&format=json';
+		$result = json_decode($this->custom->run_curl_get($url));
 		$entry = $result->data;
-		$url = API_BASE_URLS.'get-form?form_id='.$entry->form_id.'&format=json';
+		$url = API_BASE_URLS . 'get-form?form_id=' . $entry->form_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$form = $result->data;
 
-		$url = API_BASE_URL.'app-lists?format=json';
+		$url = API_BASE_URL . 'app-lists?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$app_lists = $result->data;
 
 		$data['app_lists'] = $app_lists;
-		$data['form'] = $form;	
+		$data['form'] = $form;
 		$data['entry'] = $entry;
 		$data['target'] = $target;
 		$data['page'] = 'pages/form-edit-entry';
@@ -444,11 +566,13 @@ $data['form_id'] = $form_id;
 	public function entry_followups($entry_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
 		//$url = API_BASE_URLS.'get-clean-response?response_id='.$entry_id.'&followups=1&format=json';
-		$url = API_BASE_URL.'entry?response_id='.$entry_id.'&format=json';
-		$result =json_decode($this->custom->run_curl_get($url));
+		$url = API_BASE_URL . 'entry?response_id=' . $entry_id . '&format=json';
+		$result = json_decode($this->custom->run_curl_get($url));
 		$data['entry'] = $result->data;
 		$data['page'] = 'pages/entry-followups';
 		$data['page_name'] = 'entry-followups';
@@ -459,9 +583,11 @@ $data['form_id'] = $form_id;
 	public function mobile_users()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
-        //$url = 'http://157.245.19.48/aws.api/public/users?format=json';
-		$url = API_BASE_URLS.'get-users?format=json';
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
+		//$url = 'http://157.245.19.48/aws.api/public/users?format=json';
+		$url = API_BASE_URLS . 'get-users?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$data['users'] = $result->data;
 		$data['page'] = 'pages/mobile-users';
@@ -473,8 +599,10 @@ $data['form_id'] = $form_id;
 	public function mobile_user($user_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
-                $url = 'http://157.245.19.48/aws.api/public/users?user_id='.$user_id.'&format=json';
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
+		$url = 'http://157.245.19.48/aws.api/public/users?user_id=' . $user_id . '&format=json';
 		//$url = API_BASE_URLS.'get-user?user_id='.$user_id.'&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$data['user'] = $result->data;
@@ -487,9 +615,11 @@ $data['form_id'] = $form_id;
 	public function dashboard_users()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URL.'admin-users?format=json';
+		$url = API_BASE_URL . 'admin-users?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$data['users'] = $result->data;
 		$data['page'] = 'pages/dashboard-users';
@@ -501,9 +631,11 @@ $data['form_id'] = $form_id;
 	public function dashboard_user($user_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URL.'admin-users?user_id='.$user_id.'&format=json';
+		$url = API_BASE_URL . 'admin-users?user_id=' . $user_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$data['user'] = $result->data;
 		$data['page'] = 'pages/dashboard-user';
@@ -515,10 +647,12 @@ $data['form_id'] = $form_id;
 	public function settings()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
 		$user_id = 1;
-		$url = API_BASE_URLS.'get-admin-user?user_id='.$user_id.'&format=json';
+		$url = API_BASE_URLS . 'get-admin-user?user_id=' . $user_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$data['user'] = $result->data;
 		$data['page'] = 'pages/settings';
@@ -535,12 +669,14 @@ $data['form_id'] = $form_id;
 	public function add_mobile_user()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$regions = $result->data;
-		
+
 		$data['regions'] = $regions;
 		$data['form_action'] = 'data-form/add-mobile-user';
 		$data['action'] = 'Add';
@@ -554,19 +690,21 @@ $data['form_id'] = $form_id;
 	public function edit_mobile_user($user_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-user?user_id='.$user_id.'&format=json';
+		$url = API_BASE_URLS . 'get-user?user_id=' . $user_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$user = $result->data;
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$regions = $result->data;
-		
+
 		$data['user'] = $user;
 		$data['regions'] = $regions;
-		$data['form_action'] = 'data-form/edit-mobile-user/'.$user_id;
+		$data['form_action'] = 'data-form/edit-mobile-user/' . $user_id;
 		$data['action'] = 'Edit';
 		$data['page'] = 'pages/form-mobile-user';
 		$data['page_name'] = 'edit-mobile-user';
@@ -578,7 +716,7 @@ $data['form_id'] = $form_id;
 	{
 		$params['user_id'] = $user_id;
 		// $url = API_BASE_URLS.'soft-delete-admin-user/'.$params['user_id'];
-		$url = API_BASE_URLS.'delete-user/'.$params['user_id'];
+		$url = API_BASE_URLS . 'delete-user/' . $params['user_id'];
 		$result = $this->custom->run_curl_post($url, $params);
 		// $user = json_decode($result);
 		redirect('mobile-users');
@@ -590,18 +728,20 @@ $data['form_id'] = $form_id;
 	public function add_dashboard_user()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-roles?format=json';
+		$url = API_BASE_URLS . 'get-roles?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$roles = $result->data;
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$regions = $result->data;
-		
+
 		$data['regions'] = $regions;
-		$data['roles'] = $roles;		
+		$data['roles'] = $roles;
 		$data['form_action'] = 'data-form/add-dashboard-user';
 		$data['action'] = 'Add';
 		$data['page'] = 'pages/form-dashboard-user';
@@ -614,24 +754,26 @@ $data['form_id'] = $form_id;
 	public function edit_dashboard_user($user_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URL.'admin-users?user_id='.$user_id.'&format=json';
+		$url = API_BASE_URL . 'admin-users?user_id=' . $user_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$user = $result->data;
 
-		$url = API_BASE_URLS.'get-roles?format=json';
+		$url = API_BASE_URLS . 'get-roles?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$roles = $result->data;
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$regions = $result->data;
-		
+
 		$data['user'] = $user;
 		$data['regions'] = $regions;
 		$data['roles'] = $roles;
-		$data['form_action'] = 'data-form/edit-dashboard-user/'.$user_id;
+		$data['form_action'] = 'data-form/edit-dashboard-user/' . $user_id;
 		$data['action'] = 'Edit';
 		$data['page'] = 'pages/form-dashboard-user';
 		$data['page_name'] = 'edit-dashboard-user';
@@ -644,7 +786,7 @@ $data['form_id'] = $form_id;
 	{
 		$params['user_id'] = $user_id;
 		// $url = API_BASE_URLS.'soft-delete-admin-user/'.$params['user_id'];
-		$url = API_BASE_URL.'admin-user/delete';
+		$url = API_BASE_URL . 'admin-user/delete';
 		var_dump($url);
 		$result = $this->custom->run_curl_post($url, $params);
 		// $user = json_decode($result);
@@ -656,9 +798,11 @@ $data['form_id'] = $form_id;
 	public function admin_roles()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-roles?format=json';
+		$url = API_BASE_URLS . 'get-roles?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$roles = $result->data;
 
@@ -688,17 +832,19 @@ $data['form_id'] = $form_id;
 	public function add_chart()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-forms-basic?format=json';
+		$url = API_BASE_URLS . 'get-forms-basic?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$forms = $obj_array->data;
 
 		foreach ($forms as $form) {
-			$source[] =  array('value' => $form->form_id, 'label' => $form->title);
+			$source[] = array('value' => $form->form_id, 'label' => $form->title);
 		}
-		$data['forms'] = $source ?? [];		
+		$data['forms'] = $source ?? [];
 		$data['form_action'] = 'create-chart';
 		$data['action'] = 'Add';
 		$data['page'] = 'pages/data-form-chart';
@@ -710,27 +856,29 @@ $data['form_id'] = $form_id;
 	public function edit_chart($chart_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-forms-basic?format=json';
+		$url = API_BASE_URLS . 'get-forms-basic?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$forms = $obj_array->data ?? [];
 
-		$url = API_BASE_URL.'charts?chart_id='.$chart_id.'&format=json';
+		$url = API_BASE_URL . 'charts?chart_id=' . $chart_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$chart = $result->data;
-		
+
 		foreach ($forms as $form) {
-			$source[] =  array('value' => $form->form_id, 'label' => $form->title);
+			$source[] = array('value' => $form->form_id, 'label' => $form->title);
 			if (in_array($form->form_id, json_decode($chart->form_list))) {
 				$selected_forms[] = array('value' => $form->form_id, 'label' => $form->title);
 			}
 		}
-		$data['forms'] = $source ?? [];		
-		$data['selected_forms'] = $selected_forms ?? [];		
+		$data['forms'] = $source ?? [];
+		$data['selected_forms'] = $selected_forms ?? [];
 		$data['chart'] = $chart;
-		$data['form_action'] = 'update-chart/'.$chart_id;
+		$data['form_action'] = 'update-chart/' . $chart_id;
 		$data['action'] = 'Edit';
 		$data['page'] = 'pages/data-form-chart';
 		$data['page_name'] = 'edit-chart';
@@ -741,9 +889,11 @@ $data['form_id'] = $form_id;
 	public function organisations()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-organisations?format=json';
+		$url = API_BASE_URLS . 'get-organisations?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$organisations = $result->data;
 
@@ -757,7 +907,9 @@ $data['form_id'] = $form_id;
 	public function add_organisation()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
 		$data['action'] = 'Add';
 		$data['page_name'] = 'add-organisation';
@@ -765,14 +917,16 @@ $data['form_id'] = $form_id;
 		$data['form_action'] = 'create-organisation';
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
-	}	
+	}
 
 	public function edit_organisation($organisation_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-organisation?organisation_id='.$organisation_id.'&format=json';
+		$url = API_BASE_URLS . 'get-organisation?organisation_id=' . $organisation_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$organisation = $obj_array->data;
@@ -781,7 +935,7 @@ $data['form_id'] = $form_id;
 		$data['page_name'] = 'edit-organisation';
 		$data['page'] = 'pages/data-form-organisation';
 		$data['organisation'] = $organisation;
-		$data['form_action'] = 'update-organisation/'.$region_id;
+		$data['form_action'] = 'update-organisation/' . $region_id;
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
 	}
@@ -789,9 +943,11 @@ $data['form_id'] = $form_id;
 	public function regions()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$regions = $result->data;
 
@@ -805,7 +961,9 @@ $data['form_id'] = $form_id;
 	public function add_region()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
 		$data['action'] = 'Add';
 		$data['page_name'] = 'add-region';
@@ -813,14 +971,16 @@ $data['form_id'] = $form_id;
 		$data['form_action'] = 'create-region';
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
-	}	
+	}
 
 	public function edit_region($region_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-region?region_id='.$region_id.'&format=json';
+		$url = API_BASE_URLS . 'get-region?region_id=' . $region_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$region = $obj_array->data;
@@ -829,7 +989,7 @@ $data['form_id'] = $form_id;
 		$data['page_name'] = 'edit-region';
 		$data['page'] = 'pages/data-form-region';
 		$data['region'] = $region;
-		$data['form_action'] = 'update-region/'.$region_id;
+		$data['form_action'] = 'update-region/' . $region_id;
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
 	}
@@ -838,9 +998,11 @@ $data['form_id'] = $form_id;
 	public function districts()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-districts?format=json';
+		$url = API_BASE_URLS . 'get-districts?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$districts = $result->data;
 
@@ -854,12 +1016,14 @@ $data['form_id'] = $form_id;
 	public function add_district()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
-		$regions = $obj_array->data;		
+		$regions = $obj_array->data;
 
 		$data['action'] = 'Add';
 		$data['page_name'] = 'add-district';
@@ -868,19 +1032,21 @@ $data['form_id'] = $form_id;
 		$data['form_action'] = 'create-district';
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
-	}	
+	}
 
 	public function edit_district($district_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-district?district_id='.$district_id.'&format=json';
+		$url = API_BASE_URLS . 'get-district?district_id=' . $district_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$district = $obj_array->data;
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$regions = $obj_array->data;
@@ -890,7 +1056,7 @@ $data['form_id'] = $form_id;
 		$data['page'] = 'pages/data-form-district';
 		$data['district'] = $district;
 		$data['regions'] = $regions;
-		$data['form_action'] = 'update-district/'.$district_id;
+		$data['form_action'] = 'update-district/' . $district_id;
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
 	}
@@ -898,9 +1064,11 @@ $data['form_id'] = $form_id;
 	public function sub_counties()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-sub-counties?format=json';
+		$url = API_BASE_URLS . 'get-sub-counties?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$sub_counties = $result->data;
 
@@ -914,9 +1082,11 @@ $data['form_id'] = $form_id;
 	public function add_sub_county()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$regions = $obj_array->data;
@@ -928,24 +1098,26 @@ $data['form_id'] = $form_id;
 		$data['form_action'] = 'create-sub-county';
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
-	}	
+	}
 
 	public function edit_sub_county($sub_county_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-sub-county?sub_county_id='.$sub_county_id.'&format=json';
+		$url = API_BASE_URLS . 'get-sub-county?sub_county_id=' . $sub_county_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$sub_county = $obj_array->data;
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$regions = $obj_array->data;
 
-		$url = API_BASE_URLS.'get-districts?region_id='.$sub_county->region_id.'&format=json';
+		$url = API_BASE_URLS . 'get-districts?region_id=' . $sub_county->region_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$districts = $obj_array->data;
@@ -956,7 +1128,7 @@ $data['form_id'] = $form_id;
 		$data['sub_county'] = $sub_county;
 		$data['regions'] = $regions;
 		$data['districts'] = $districts;
-		$data['form_action'] = 'update-sub-county/'.$sub_county_id;
+		$data['form_action'] = 'update-sub-county/' . $sub_county_id;
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
 	}
@@ -965,9 +1137,11 @@ $data['form_id'] = $form_id;
 	public function parishes()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-parishes?format=json';
+		$url = API_BASE_URLS . 'get-parishes?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$parishes = $result->data;
 
@@ -981,9 +1155,11 @@ $data['form_id'] = $form_id;
 	public function add_parish()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$regions = $obj_array->data;
@@ -995,32 +1171,34 @@ $data['form_id'] = $form_id;
 		$data['form_action'] = 'create-parish';
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
-	}	
+	}
 
 	public function edit_parish($parish_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-parish?parish_id='.$parish_id.'&format=json';
+		$url = API_BASE_URLS . 'get-parish?parish_id=' . $parish_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$parish = $obj_array->data;
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$regions = $obj_array->data;
 
-		$url = API_BASE_URLS.'get-districts?region_id='.$parish->region_id.'&format=json';
+		$url = API_BASE_URLS . 'get-districts?region_id=' . $parish->region_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$districts = $obj_array->data;
 
-		$url = API_BASE_URLS.'get-sub-counties?district_id='.$parish->district_id.'&format=json';
+		$url = API_BASE_URLS . 'get-sub-counties?district_id=' . $parish->district_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
-		$sub_counties = $obj_array->data;		
+		$sub_counties = $obj_array->data;
 
 		$data['action'] = 'Edit';
 		$data['page_name'] = 'edit-parish';
@@ -1029,7 +1207,7 @@ $data['form_id'] = $form_id;
 		$data['regions'] = $regions;
 		$data['districts'] = $districts;
 		$data['sub_counties'] = $sub_counties;
-		$data['form_action'] = 'update-parish/'.$parish_id;
+		$data['form_action'] = 'update-parish/' . $parish_id;
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
 	}
@@ -1037,9 +1215,11 @@ $data['form_id'] = $form_id;
 	public function villages()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-villages?format=json';
+		$url = API_BASE_URLS . 'get-villages?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$villages = $result->data;
 
@@ -1053,9 +1233,11 @@ $data['form_id'] = $form_id;
 	public function add_village()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$regions = $obj_array->data;
@@ -1067,34 +1249,36 @@ $data['form_id'] = $form_id;
 		$data['form_action'] = 'create-village';
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
-	}	
+	}
 
 	public function edit_village($village_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-village?village_id='.$village_id.'&format=json';
+		$url = API_BASE_URLS . 'get-village?village_id=' . $village_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$village = $obj_array->data;
 
-		$url = API_BASE_URLS.'get-regions?format=json';
+		$url = API_BASE_URLS . 'get-regions?format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$regions = $obj_array->data;
 
-		$url = API_BASE_URLS.'get-districts?region_id='.$village->region_id.'&format=json';
+		$url = API_BASE_URLS . 'get-districts?region_id=' . $village->region_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$districts = $obj_array->data;
 
-		$url = API_BASE_URLS.'get-sub-counties?district_id='.$village->district_id.'&format=json';
+		$url = API_BASE_URLS . 'get-sub-counties?district_id=' . $village->district_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
-		$sub_counties = $obj_array->data;	
+		$sub_counties = $obj_array->data;
 
-		$url = API_BASE_URLS.'get-parishes?sub_county_id='.$village->sub_county_id.'&format=json';
+		$url = API_BASE_URLS . 'get-parishes?sub_county_id=' . $village->sub_county_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$parishes = $obj_array->data;
@@ -1107,7 +1291,7 @@ $data['form_id'] = $form_id;
 		$data['districts'] = $districts;
 		$data['sub_counties'] = $sub_counties;
 		$data['parishes'] = $parishes;
-		$data['form_action'] = 'update-village/'.$village_id;
+		$data['form_action'] = 'update-village/' . $village_id;
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
 	}
@@ -1115,9 +1299,11 @@ $data['form_id'] = $form_id;
 	public function projects()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-projects?format=json';
+		$url = API_BASE_URLS . 'get-projects?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$projects = $result->data ?? [];
 
@@ -1131,7 +1317,9 @@ $data['form_id'] = $form_id;
 	public function add_project()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
 		$data['action'] = 'Add';
 		$data['page_name'] = 'add-project';
@@ -1139,14 +1327,16 @@ $data['form_id'] = $form_id;
 		$data['form_action'] = 'create-project';
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
-	}	
+	}
 
 	public function edit_project($project_id)
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) { redirect(); }
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
 
-		$url = API_BASE_URLS.'get-project?project_id='.$project_id.'&format=json';
+		$url = API_BASE_URLS . 'get-project?project_id=' . $project_id . '&format=json';
 		$result = $this->custom->run_curl_get($url);
 		$obj_array = json_decode($result);
 		$project = $obj_array->data;
@@ -1155,7 +1345,7 @@ $data['form_id'] = $form_id;
 		$data['page_name'] = 'edit-project';
 		$data['page'] = 'pages/data-form-project';
 		$data['project'] = $project;
-		$data['form_action'] = 'update-project/'.$project_id;
+		$data['form_action'] = 'update-project/' . $project_id;
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
 	}

@@ -285,7 +285,7 @@
 		</script>
 		<?php endforeach; ?>
 		<script>
-				Highcharts.chart('barchart-container', {
+				Highcharts.chart('barchart-container-region', {
 					chart: {
 						type: 'column'
 					},
@@ -322,12 +322,253 @@
 					},
 					series: [
 						{
-							name: 'Baselined',
-							data: <?= $baseline ?>
+							name: 'Baseline',
+							data: <?= $baseline_region ?>
 						},
 						{
-							name: 'Monitored',
-							data: <?= $followup ?>
+							name: 'Monitoring',
+							data: <?= $followup_region ?>
+						}
+					]
+				});
+
+				Highcharts.chart('barchart-container-latrine-coverage', {
+					chart: {
+						type: 'column'
+					},
+					title: {
+						text: 'latrine Coverage',
+						align: 'left'
+					},
+					xAxis: {
+						categories: [
+							'Yes',
+							'No (uses field)',
+							'No (shares a latrine)',
+							'null'
+						],
+						crosshair: true,
+						accessibility: {
+							description: 'Regions'
+						}
+					},
+					yAxis: {
+						min: 0,
+						title: {
+							text: 'House Holds (1000)'
+						}
+					},
+					tooltip: {
+						valueSuffix: ' (1000 MT)'
+					},
+					plotOptions: {
+						column: {
+							pointPadding: 0.2,
+							borderWidth: 0
+						}
+					},
+					series: [
+						{
+							name: 'Baseline',
+							data: <?= $baseline_latrine_coverage ?>
+						},
+						{
+							name: 'Monitoring',
+							data: <?= $followup_latrine_coverage ?>
+						}
+					]
+				});
+
+				Highcharts.chart('barchart-container-sanitation-category', {
+					chart: {
+						type: 'column'
+					},
+					title: {
+						text: 'Sanitation Categories',
+						align: 'left'
+					},
+					xAxis: {
+						categories: [
+							'un-recommendable facility',
+							'Shares latrine',
+							'Recommendable facility',
+							'Open defecation (Field)',
+							'null'
+						],
+						crosshair: true,
+						accessibility: {
+							description: 'Regions'
+						}
+					},
+					yAxis: {
+						min: 0,
+						title: {
+							text: 'House Holds (1000)'
+						}
+					},
+					tooltip: {
+						valueSuffix: ' (1000 MT)'
+					},
+					plotOptions: {
+						column: {
+							pointPadding: 0.2,
+							borderWidth: 0
+						}
+					},
+					series: [
+						{
+							name: 'Baseline',
+							data: <?= $baseline_sanitation_category ?>
+						},
+						{
+							name: 'Monitoring',
+							data: <?= $followup_sanitation_category ?>
+						}
+					]
+				});
+
+				Highcharts.chart('barchart-duration-of-water-collection', {
+					chart: {
+						type: 'column'
+					},
+					title: {
+						text: 'Duration of Water Collection',
+						align: 'left'
+					},
+					xAxis: {
+						categories: [
+							'1 hour',
+							'<10 minutes',
+							'31-60 minutes',
+							'10-30 minutes',
+							'null'
+						],
+						crosshair: true,
+						accessibility: {
+							description: 'Regions'
+						}
+					},
+					yAxis: {
+						min: 0,
+						title: {
+							text: 'House Holds (1000)'
+						}
+					},
+					tooltip: {
+						valueSuffix: ' (1000 MT)'
+					},
+					plotOptions: {
+						column: {
+							pointPadding: 0.2,
+							borderWidth: 0
+						}
+					},
+					series: [
+						{
+							name: 'Baseline',
+							data: <?= $baseline_water_collection ?>
+						},
+						{
+							name: 'Monitoring',
+							data: <?= $followup_water_collection ?>
+						}
+					]
+				});
+
+				Highcharts.chart('barchart-water-treatment', {
+					chart: {
+						type: 'column'
+					},
+					title: {
+						text: 'Drinking Water Treatment',
+						align: 'left'
+					},
+					xAxis: {
+						categories: [
+							'SODIS',
+							'None',
+							'Filter',
+							'Chlorination',
+							'Boiling',
+							'null'
+						],
+						crosshair: true,
+						accessibility: {
+							description: 'Regions'
+						}
+					},
+					yAxis: {
+						min: 0,
+						title: {
+							text: 'House Holds (1000)'
+						}
+					},
+					tooltip: {
+						valueSuffix: ' (1000 MT)'
+					},
+					plotOptions: {
+						column: {
+							pointPadding: 0.2,
+							borderWidth: 0
+						}
+					},
+					series: [
+						{
+							name: 'Baseline',
+							data: <?= $baseline_water_treatment ?>
+						},
+						{
+							name: 'Monitoring',
+							data: <?= $followup_water_treatment ?>
+						}
+					]
+				});
+
+				Highcharts.chart('barchart-family-savings', {
+					chart: {
+						type: 'column'
+					},
+					title: {
+						text: 'Family Savings',
+						align: 'left'
+					},
+					xAxis: {
+						categories: [
+							'Nothing',
+							'More than 6$(>22,000)',
+							'More than 1$- 3$ (3600 -10,900)',
+							'3$ - 6$ (11,000 - 22,000)',
+							'1 dollar and less (3600 & less)',
+							'null'
+						],
+						crosshair: true,
+						accessibility: {
+							description: 'Regions'
+						}
+					},
+					yAxis: {
+						min: 0,
+						title: {
+							text: 'House Holds (1000)'
+						}
+					},
+					tooltip: {
+						valueSuffix: ' (1000 MT)'
+					},
+					plotOptions: {
+						column: {
+							pointPadding: 0.2,
+							borderWidth: 0
+						}
+					},
+					series: [
+						{
+							name: 'Baseline',
+							data: <?= $baseline_family_savings ?>
+						},
+						{
+							name: 'Monitoring',
+							data: <?= $followup_family_savings ?>
 						}
 					]
 				});
