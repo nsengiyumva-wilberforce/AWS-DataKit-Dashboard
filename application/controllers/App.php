@@ -108,6 +108,7 @@ class App extends CI_Controller
 			$url = API_BASE_URL . 'overview-counter';
 			$result = json_decode($this->custom->run_curl_get($url));
 			$counter = $result->data;
+			$data['dashboard'] = $url;
 
 			$baseline_url = API_BASE_URL . 'entries/group-by-region?data_type=baseline&form_id=11';
 			$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
@@ -229,7 +230,6 @@ class App extends CI_Controller
 			$data['page'] = 'pages/dashboard';
 			$data['page_name'] = 'dashboard';
 			// $this->custom->print($data); die();	
-
 			//print json_encode($data);
 			$this->load->view('base', $data);
 		} else {
