@@ -637,6 +637,20 @@
 								}
 					]
 				});
+
+				
+				$(document).on('submit', '#form-insights', function(event){
+					event.preventDefault();
+					$('#loader').show();
+					$(this).ajaxSubmit({
+						success: function(response){
+							$('#loader').hide();
+							$('#graphs').html(response);
+						}
+					})
+
+					return false
+				})
 			</script>
 		<?php endif; ?>
 
