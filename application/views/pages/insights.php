@@ -1,0 +1,49 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Data Insights</h1>
+</div>
+
+
+<div class="row">
+    <br />
+    <div class="col text-center">
+        <!-- <h2>Overview</h2> -->
+        <!-- <p>counter to count up to a target number</p> -->
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-6 mb-5 chart-wrapper">
+        <div id="barchart-container-region">
+            <!-- bar chart area container -->
+        </div>
+    </div>
+
+    <div class="col-6 mb-5 chart-wrapper-">
+        <div id="barchart-container-latrine-coverage">
+            <!-- bar chart area container -->
+        </div>
+    </div>
+
+    <div class="col-6 mb-5 chart-wrapper-">
+        <div id="barchart-container-sanitation-category">
+            <!-- bar chart area container -->
+        </div>
+    </div>
+    <div class="col-6 mb-5 chart-wrapper-">
+        <div id="barchart-duration-of-water-collection">
+            <!-- bar chart area container -->
+        </div>
+    </div>
+
+    <div class="col-6 mb-5 chart-wrapper-">
+        <div id="barchart-water-treatment">
+            <!-- bar chart area container -->
+        </div>
+    </div>
+
+    <div class="col-6 mb-5 chart-wrapper-">
+        <div id="barchart-family-savings">
+            <!-- bar chart area container -->
+        </div>
+    </div>
+</div>

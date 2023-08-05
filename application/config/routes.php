@@ -76,6 +76,9 @@ $route['reports'] = 'app/reports';
 $route['report/form/(:any)/data/aggregated'] = 'app/aggregated_report/$1';
 $route['report/form/(:any)/data/(:any)'] = 'app/entries_report/$1/$2';
 
+$route['insights'] = 'app/insights';
+
+
 $route['ajax-entries-report/(:any)/(:any)/(:any)/(:any)'] = 'ajax/ajax_entries_report/$1/$2/$3/$4';
 
 $route['maps'] = 'app/maps';
