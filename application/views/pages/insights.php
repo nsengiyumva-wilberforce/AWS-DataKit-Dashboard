@@ -1,8 +1,10 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Data Insights</h1>
 </div>
-
-
+<form class="form-inline mr-2" id="form-insights" action="<?= base_url('ajax/ajax-insights') ?>" method="POST">
+    <input type="text" name="dates" class="form-control my-1 mr-sm-2">
+    <button type="submit" class="btn btn-outline-secondary btn-sm my-1 mr-sm-2">Go</button>
+</form>
 <div class="row">
     <br />
     <div class="col text-center">
@@ -11,7 +13,7 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row" id="graphs">
     <div class="col-6 mb-5 chart-wrapper">
         <div id="barchart-container-region">
             <!-- bar chart area container -->

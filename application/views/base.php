@@ -329,6 +329,16 @@
 		<?php if ($page_name == 'insights'): ?>
 			<script src="https://code.highcharts.com/highcharts.js"></script>
 			<script>
+				$(document).ready(function () {
+					$('input[name="dates"]').daterangepicker({
+						opens: 'left',
+						autoApply: true,
+						startDate: '01/01/2023',
+						endDate: '06/01/2023'
+					});
+				});
+			</script>
+			<script>
 				Highcharts.chart('barchart-container-region', {
 					chart: {
 						renderTo: 'barchart-container-region',

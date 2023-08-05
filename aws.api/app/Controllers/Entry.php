@@ -1354,6 +1354,13 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
+		if(isset($params['startdate']) && isset($params['enddate'])){
+			$startdate = $params['startdate'];
+			$enddate = $params['enddate'];
+		} else {
+			$startdate = '2023-01-01T00:00:00.000Z';
+			$enddate = '2023-06-06T00:00:00.000Z';
+		}
 
 		$aggregation = [];
 
@@ -1391,8 +1398,8 @@ class Entry extends BaseController
 					'$match' => [
 						'responses.entity_type' => $params['data_type'],
 						'$and' => [
-							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']],
-							['responses.created_at' => ['$lt' => '2023-06-01T00:00:00.000Z']]
+							['responses.created_at' => ['$gt' => $startdate]],
+							['responses.created_at' => ['$lt' => $enddate]]
 						]
 					]
 				],
@@ -1451,6 +1458,13 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
+		if(isset($params['startdate']) && isset($params['enddate'])){
+			$startdate = $params['startdate'];
+			$enddate = $params['enddate'];
+		} else {
+			$startdate = '2023-01-01T00:00:00.000Z';
+			$enddate = '2023-06-06T00:00:00.000Z';
+		}
 
 		$latrine_coverage = $collection->aggregate(
 			[
@@ -1461,8 +1475,8 @@ class Entry extends BaseController
 					'$match' => [
 						'responses.entity_type' => $params['data_type'],
 						'$and' => [
-							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']], 
-							['responses.created_at' => ['$lt' => '2024-01-01T00:00:00.000Z']]]
+							['responses.created_at' => ['$gt' => $startdate]], 
+							['responses.created_at' => ['$lt' => $enddate]]]
 					]
 				],
 				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
@@ -1489,6 +1503,13 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
+		if(isset($params['startdate']) && isset($params['enddate'])){
+			$startdate = $params['startdate'];
+			$enddate = $params['enddate'];
+		} else {
+			$startdate = '2023-01-01T00:00:00.000Z';
+			$enddate = '2023-06-06T00:00:00.000Z';
+		}
 
 		$latrine_coverage = $collection->aggregate(
 			[
@@ -1499,8 +1520,8 @@ class Entry extends BaseController
 					'$match' => [
 						'responses.entity_type' => $params['data_type'],
 						'$and' => [
-							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']], 
-							['responses.created_at' => ['$lt' => '2024-01-01T00:00:00.000Z']]]
+							['responses.created_at' => ['$gt' => $startdate]], 
+							['responses.created_at' => ['$lt' => $enddate]]]
 					]
 				],
 				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
@@ -1527,6 +1548,13 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
+		if(isset($params['startdate']) && isset($params['enddate'])){
+			$startdate = $params['startdate'];
+			$enddate = $params['enddate'];
+		} else {
+			$startdate = '2023-01-01T00:00:00.000Z';
+			$enddate = '2023-06-06T00:00:00.000Z';
+		}
 
 		$latrine_coverage = $collection->aggregate(
 			[
@@ -1537,8 +1565,8 @@ class Entry extends BaseController
 					'$match' => [
 						'responses.entity_type' => $params['data_type'],
 						'$and' => [
-							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']], 
-							['responses.created_at' => ['$lt' => '2024-01-01T00:00:00.000Z']]]
+							['responses.created_at' => ['$gt' => $startdate]], 
+							['responses.created_at' => ['$lt' => $enddate]]]
 					]
 				],
 				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
@@ -1566,6 +1594,14 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
+		if(isset($params['startdate']) && isset($params['enddate'])){
+			$startdate = $params['startdate'];
+			$enddate = $params['enddate'];
+		} else {
+			$startdate = '2023-01-01T00:00:00.000Z';
+			$enddate = '2023-06-06T00:00:00.000Z';
+		}
+
 		$latrine_coverage = $collection->aggregate(
 			[
 				['$match' => ['form_id' => '11']],
@@ -1575,8 +1611,8 @@ class Entry extends BaseController
 					'$match' => [
 						'responses.entity_type' => $params['data_type'],
 						'$and' => [
-							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']], 
-							['responses.created_at' => ['$lt' => '2024-01-01T00:00:00.000Z']]]
+							['responses.created_at' => ['$gt' => $startdate]], 
+							['responses.created_at' => ['$lt' => $enddate]]]
 					]
 				],
 				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
@@ -1604,6 +1640,14 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
+		if(isset($params['startdate']) && isset($params['enddate'])){
+			$startdate = $params['startdate'];
+			$enddate = $params['enddate'];
+		} else {
+			$startdate = '2023-01-01T00:00:00.000Z';
+			$enddate = '2023-06-06T00:00:00.000Z';
+		}
+
 		$latrine_coverage = $collection->aggregate(
 			[
 				['$match' => ['form_id' => '11']],
@@ -1613,8 +1657,8 @@ class Entry extends BaseController
 					'$match' => [
 						'responses.entity_type' => $params['data_type'],
 						'$and' => [
-							['responses.created_at' => ['$gt' => '2023-01-01T00:00:00.000Z']], 
-							['responses.created_at' => ['$lt' => '2024-01-01T00:00:00.000Z']]]
+							['responses.created_at' => ['$gt' => $startdate]], 
+							['responses.created_at' => ['$lt' => $enddate]]]
 					]
 				],
 				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
