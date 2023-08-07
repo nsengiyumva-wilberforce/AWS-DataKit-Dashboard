@@ -14,6 +14,12 @@
 </div>
 
 <div class="row" id="graphs">
+<div class="col-12 mb-5 chart-wrapper">
+        <div id="bubblechart-container">
+            <!-- bubble chart area container -->
+        </div>
+    </div>
+    
     <div class="col-6 mb-5 chart-wrapper">
         <div id="barchart-container-region">
             <!-- bar chart area container -->
