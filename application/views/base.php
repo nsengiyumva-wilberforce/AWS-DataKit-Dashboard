@@ -379,7 +379,8 @@
 								style: {
 									color: 'black',
 									textOutline: 'none',
-									fontWeight: 'normal'
+									fontWeight: 'normal',
+									fontSize: '20px', // Adjust the font size as needed
 								}
 							}
 						}
