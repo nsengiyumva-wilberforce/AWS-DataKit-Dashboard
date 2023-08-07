@@ -356,7 +356,7 @@
 					},
 					tooltip: {
 						useHTML: true,
-						pointFormat: '<b>{point.name}:</b> {point.value}m CO<sub>2</sub>'
+						pointFormat: '<b>{point.name}:</b> {point.value}HH'
 					},
 					plotOptions: {
 						packedbubble: {
