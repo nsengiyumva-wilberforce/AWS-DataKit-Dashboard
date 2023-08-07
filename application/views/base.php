@@ -348,10 +348,10 @@
 				Highcharts.chart('bubblechart-container', {
 					chart: {
 						type: 'packedbubble',
-						height: '100%'
+						height: '70%'
 					},
 					title: {
-						text: 'Entries per District',
+						text: 'Monitoring per District',
 						align: 'left'
 					},
 					tooltip: {
