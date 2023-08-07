@@ -376,9 +376,9 @@
 							text: 'House Holds (1000)'
 						}
 					},
-					// tooltip: {
-					// 	valueSuffix: ' (1000 MT)'
-					// },
+					tooltip: {
+					 	valueSuffix: 'HH'
+					 },
 					plotOptions: {
 						column: {
 							pointPadding: 0.2,
@@ -424,7 +424,7 @@
 						}
 					},
 					tooltip: {
-						valueSuffix: ' (1000 MT)'
+						valueSuffix: 'HH'
 					},
 					plotOptions: {
 						column: {
@@ -472,7 +472,7 @@
 						}
 					},
 					tooltip: {
-						valueSuffix: ' (1000 MT)'
+						valueSuffix: 'HH'
 					},
 					plotOptions: {
 						column: {
@@ -520,7 +520,7 @@
 						}
 					},
 					tooltip: {
-						valueSuffix: ' (1000 MT)'
+						valueSuffix: 'HH'
 					},
 					plotOptions: {
 						column: {
@@ -569,7 +569,7 @@
 						}
 					},
 					tooltip: {
-						valueSuffix: ' (1000 MT)'
+						valueSuffix: 'HH'
 					},
 					plotOptions: {
 						column: {
@@ -618,7 +618,7 @@
 						}
 					},
 					tooltip: {
-						valueSuffix: ' (1000 MT)'
+						valueSuffix: 'HH'
 					},
 					plotOptions: {
 						column: {
