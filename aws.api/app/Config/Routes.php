@@ -180,9 +180,9 @@ $routes->add('entries/group_by_sanitation_category', 'Entry::group_by_sanitation
 $routes->add('entries/group-by-duration-of-water-collection', 'Entry::group_by_duration_of_water_collection');
 $routes->add('entries/group-by-water-treatment', 'Entry::group_by_water_treatment');
 $routes->add('entries/group-by-family-savings', 'Entry::group_by_family_savings');
+$routes->add('entries/group-by-region-and-districts', 'Entry::group_by_region_and_districts');
 $routes->add('form-entries', 'Entry::form_entries');
 $routes->add('compiled-entry', 'Entry::compiled_entry');
-// $routes->add('entry-element', 'Entry::entry-element');
 $routes->add('report/entries', 'Entry::form_entries_report');
 $routes->add('report/user-data-submission', 'User::data_submission');
 $routes->add('aggregated-report/entries', 'Entry::form_entries_aggregated_report');

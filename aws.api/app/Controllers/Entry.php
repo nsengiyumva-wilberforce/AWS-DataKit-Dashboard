@@ -1676,4 +1676,99 @@ class Entry extends BaseController
 		];
 		return $this->respond($response);
 	}
+
+	public function group_by_region_and_districts()
+	{
+		// ini_set('memory_limit','1024M');
+		$params = $this->request->getGet();
+
+		$client = new MongoDB();
+		$collection = $client->aws->entries;
+
+		if (isset($params['startdate']) && isset($params['enddate'])) {
+			$startdate = $params['startdate'];
+			$enddate = $params['enddate'];
+		} else {
+			$startdate = '2023-01-01T00:00:00.000Z';
+			$enddate = '2023-06-06T00:00:00.000Z';
+		}
+
+		$central = $this->db->table('district_view')->where('region_id', 1)->get()->getResult();
+		$centralArray = array_map(function ($value) {
+			return $value;
+		}, array_column($central, 'name'));
+
+		$southWestern = $this->db->table('district_view')->where('region_id', 3)->get()->getResult();
+		$southWesternArray = array_map(function ($value) {
+			return $value;
+		}, array_column($southWestern, 'name'));
+
+		$eastern = $this->db->table('district_view')->where('region_id', 2)->get()->getResult();
+		$easternArray = array_map(function ($value) {
+			return $value;
+		}, array_column($eastern, 'name'));
+
+		$westNile = $this->db->table('district_view')->where('region_id', 4)->get()->getResult();
+		$westNileArray = array_map(function ($value) {
+			return $value;
+		}, array_column($westNile, 'name'));
+
+		$aggregate = $collection->aggregate(
+			[
+				['$match' => ['form_id' => $params['form_id']]],
+				['$unwind' => ['path' => '$responses']],
+				['$unwind' => ['path' => '$responses']],
+				[
+					'$match' => [
+						'responses.entity_type' => $params['data_type'],
+						'$and' => [
+							['responses.created_at' => ['$gt' => $startdate]],
+							['responses.created_at' => ['$lt' => $enddate]]
+						]
+					]
+				],
+				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
+				['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]],
+				[
+					'$addFields' => [
+						'document.region' => [
+							'$cond' => [
+								['$in' => ['$document.responses.qn4', $centralArray]],
+								'Central',
+								[
+									'$cond' => [
+										['$in' => ['$document.responses.qn4', $easternArray]],
+										'Eastern',
+										[
+											'$cond' => [
+												['$in' => ['$document.responses.qn4', $southWesternArray]],
+												'South Western',
+												[
+													'$cond' => [
+														['$in' => ['$document.responses.qn4', $westNileArray]],
+														'West Nile',
+														'Other'
+													]
+												]
+											]
+										]
+									]
+								]
+							]
+						]
+					]
+				],
+				['$group' => ['_id' => ['region' => '$document.region', 'district' => '$document.responses.qn4'], 'count' => ['$count' => (object) []]]],
+				['$group' => ['_id' => '$_id.region', 'districts' => ['$push' => ['name' => '$_id.district', 'value' => '$count']]]],
+				['$project' => ['_id' => 0, 'name' => '$_id', 'data' => '$districts']]
+			]
+		)->toArray();
+		
+		$response = [
+			'status' => 200,
+			'data' => $aggregate
+		];
+
+		return $this->respond($response);
+	}
 }

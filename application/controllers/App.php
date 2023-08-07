@@ -409,6 +409,10 @@ class App extends CI_Controller
 		$followup_data = $followup_result->data->entries;
 		$followup_family_savings = array_column($followup_data, 'count');
 
+		
+		$region_and_district_url = API_BASE_URL . 'entries/group-by-region-and-districts?data_type=followup&form_id=11';
+		$region_and_district_result = json_decode($this->custom->run_curl_get($region_and_district_url))->data;
+
 		$data['baseline_region'] = json_encode($baseline_region);
 		$data['followup_region'] = json_encode($followup_region);
 		$data['baseline_latrine_coverage'] = json_encode($baseline_latrine_coverage);
@@ -421,6 +425,8 @@ class App extends CI_Controller
 		$data['followup_water_treatment'] = json_encode($followup_water_treatment);
 		$data['baseline_family_savings'] = json_encode($baseline_family_savings);
 		$data['followup_family_savings'] = json_encode($followup_family_savings);
+		$data['region_and_district'] = json_encode($region_and_district_result);
+		
 		$data['page'] = 'pages/insights';
 		$data['page_name'] = 'insights';
 		// $this->custom->print($data); die();	
