@@ -352,104 +352,62 @@ class App extends CI_Controller
 		$baseline_url = API_BASE_URL . 'entries/group-by-region?data_type=baseline&form_id=11';
 		$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
 		$baseline_data = $baseline_result->data->entries;
-		$baseline_region = [];
-		$baseline_keys = [];
-		foreach ($baseline_data as $key => $value) {
-			array_push($baseline_region, $value->count);
-		}
+		$baseline_region = array_column($baseline_data, 'count');
 
 		$followup_url = API_BASE_URL . 'entries/group-by-region?data_type=followup&form_id=11';
 		$followup_result = json_decode($this->custom->run_curl_get($followup_url));
 		$followup_data = $followup_result->data->entries;
-		$followup_region = [];
-		foreach ($followup_data as $key => $value) {
-			array_push($followup_region, $value->count);
-		}
+		$followup_region = array_column($followup_data, 'count');
 
 		$baseline_url = API_BASE_URL . 'entries/group-by-latrine-coverage?data_type=baseline&form_id=11';
 		$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
 		$baseline_data = $baseline_result->data->entries;
-		$baseline_latrine_coverage = [];
-		$baseline_keys = [];
-		foreach ($baseline_data as $key => $value) {
-			array_push($baseline_latrine_coverage, $value->count);
-		}
+		$baseline_latrine_coverage = array_column($baseline_data, 'count');
 					
 		$followup_url = API_BASE_URL . 'entries/group-by-latrine-coverage?data_type=followup&form_id=11';
 		$followup_result = json_decode($this->custom->run_curl_get($followup_url));
 		$followup_data = $followup_result->data->entries;
-		$followup_latrine_coverage = [];
-		foreach ($followup_data as $key => $value) {
-			array_push($followup_latrine_coverage, $value->count);
-		}
+		$followup_latrine_coverage = array_column($followup_data, 'count');
 
 		$baseline_url = API_BASE_URL . 'entries/group_by_sanitation_category?data_type=baseline&form_id=11';
 		$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
 		$baseline_data = $baseline_result->data->entries;
-		$baseline_sanitation_category = [];
-		$baseline_keys = [];
-		foreach ($baseline_data as $key => $value) {
-			array_push($baseline_sanitation_category, $value->count);
-		}
+		$baseline_sanitation_category = array_column($baseline_data, 'count');
 		
 		$followup_url = API_BASE_URL . 'entries/group_by_sanitation_category?data_type=followup&form_id=11';
 		$followup_result = json_decode($this->custom->run_curl_get($followup_url));
 		$followup_data = $followup_result->data->entries;
-		$followup_sanitation_category = [];
-		foreach ($followup_data as $key => $value) {
-			array_push($followup_sanitation_category, $value->count);
-		}
+		$followup_sanitation_category = array_column($followup_data, 'count');
 
 		$baseline_url = API_BASE_URL . 'entries/group-by-duration-of-water-collection?data_type=baseline&form_id=11';
 		$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
 		$baseline_data = $baseline_result->data->entries;
-		$baseline_water_collection = [];
-		$baseline_keys = [];
-		foreach ($baseline_data as $key => $value) {
-			array_push($baseline_water_collection, $value->count);
-		}
+		$baseline_water_collection = array_column($baseline_data, 'count');
 		
 		$followup_url = API_BASE_URL . 'entries/group-by-duration-of-water-collection?data_type=followup&form_id=11';
 		$followup_result = json_decode($this->custom->run_curl_get($followup_url));
 		$followup_data = $followup_result->data->entries;
-		$followup_water_collection = [];
-		foreach ($followup_data as $key => $value) {
-			array_push($followup_water_collection, $value->count);
-		}
+		$followup_water_collection = array_column($followup_data, 'count');
 
 		$baseline_url = API_BASE_URL . 'entries/group-by-water-treatment?data_type=baseline&form_id=11';
 		$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
 		$baseline_data = $baseline_result->data->entries;
-		$baseline_water_treatment = [];
-		$baseline_keys = [];
-		foreach ($baseline_data as $key => $value) {
-			array_push($baseline_water_treatment, $value->count);
-		}
+		$baseline_water_treatment = array_column($baseline_data, 'count');
 		
 		$followup_url = API_BASE_URL . 'entries/group-by-water-treatment?data_type=followup&form_id=11';
 		$followup_result = json_decode($this->custom->run_curl_get($followup_url));
 		$followup_data = $followup_result->data->entries;
-		$followup_water_treatment = [];
-		foreach ($followup_data as $key => $value) {
-			array_push($followup_water_treatment, $value->count);
-		}
+		$followup_water_treatment = array_column($followup_data, 'count');
 
 		$baseline_url = API_BASE_URL . 'entries/group-by-family-savings?data_type=baseline&form_id=11';
 		$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
 		$baseline_data = $baseline_result->data->entries;
-		$baseline_family_savings = [];
-		$baseline_keys = [];
-		foreach ($baseline_data as $key => $value) {
-			array_push($baseline_family_savings, $value->count);
-		}
-		
+		$baseline_family_savings = array_column($baseline_data, 'count');
+
 		$followup_url = API_BASE_URL . 'entries/group-by-family-savings?data_type=followup&form_id=11';
 		$followup_result = json_decode($this->custom->run_curl_get($followup_url));
 		$followup_data = $followup_result->data->entries;
-		$followup_family_savings = [];
-		foreach ($followup_data as $key => $value) {
-			array_push($followup_family_savings, $value->count);
-		}
+		$followup_family_savings = array_column($followup_data, 'count');
 
 		$data['baseline_region'] = json_encode($baseline_region);
 		$data['followup_region'] = json_encode($followup_region);
