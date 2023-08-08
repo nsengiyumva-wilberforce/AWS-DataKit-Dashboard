@@ -578,8 +578,7 @@ $result = json_decode($this->custom->run_curl_get($url));
 		$baseline_url = API_BASE_URL . 'entries/group-by-family-savings?data_type=baseline&form_id=11&startdate='.$startdate.'&enddate='.$enddate;
 		$baseline_result = json_decode($this->custom->run_curl_get($baseline_url));
 		$baseline_data = $baseline_result->data->entries;
-		$baseline_family_savings = [];
-		$baseline_keys = array_column($baseline_data, 'family_savings');
+		$baseline_family_savings = array_column($baseline_data, 'family_savings');
 		
 		$followup_url = API_BASE_URL . 'entries/group-by-family-savings?data_type=followup&form_id=11&startdate='.$startdate.'&enddate='.$enddate;
 		$followup_result = json_decode($this->custom->run_curl_get($followup_url));
