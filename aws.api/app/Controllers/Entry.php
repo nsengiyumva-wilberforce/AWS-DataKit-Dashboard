@@ -1720,7 +1720,6 @@ class Entry extends BaseController
 				['$unwind' => ['path' => '$responses']],
 				[
 					'$match' => [
-						'responses.entity_type' => $params['data_type'],
 						'$and' => [
 							['responses.created_at' => ['$gt' => $startdate]],
 							['responses.created_at' => ['$lt' => $enddate]]
@@ -1758,12 +1757,12 @@ class Entry extends BaseController
 						]
 					]
 				],
-				['$group' => ['_id' => ['region' => '$document.region', 'district' => '$document.responses.qn4'], 'count' => ['$count' => (object) []]]],
-				['$group' => ['_id' => '$_id.region', 'districts' => ['$push' => ['name' => '$_id.district', 'value' => '$count']]]],
+				['$group' => ['_id' => ['region' => '$document.region', 'district' => '$document.responses.qn4'], 'baseline' => ['$sum' => ['$cond' => [['$eq' => ['$document.responses.entity_type', 'baseline']], 1, 0]]], 'followup' => ['$sum' => ['$cond' => [['$eq' => ['$document.responses.entity_type', 'followup']], 1, 0]]]]],
+				['$group' => ['_id' => '$_id.region', 'districts' => ['$push' => ['name' => '$_id.district', 'value' => '$baseline', 'followup' => '$followup']]]],
 				['$project' => ['_id' => 0, 'name' => '$_id', 'data' => '$districts']]
 			]
 		)->toArray();
-		
+
 		$response = [
 			'status' => 200,
 			'data' => $aggregate
