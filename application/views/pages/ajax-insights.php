@@ -64,10 +64,10 @@
         },
         plotOptions: {
             packedbubble: {
-                minSize: '30%',
+                minSize: '5%',
                 maxSize: '120%',
                 zMin: 0,
-                zMax: 1000,
+                zMax: 3000,
                 layoutAlgorithm: {
                     splitSeries: false,
                     gravitationalConstant: 0.02
