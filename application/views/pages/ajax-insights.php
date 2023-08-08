@@ -12,7 +12,6 @@
             <!-- bubble chart area container -->
         </div>
     </div>
-
     <div class="col-6 mb-5 chart-wrapper">
         <div id="barchart-container-region">
             <!-- bar chart area container -->
@@ -53,10 +52,10 @@
     Highcharts.chart('bubblechart-container', {
         chart: {
             type: 'packedbubble',
-            height: '70%'
+            height: '100%'
         },
         title: {
-            text: 'Monitoring per District',
+            text: 'Entries per District',
             align: 'left'
         },
         tooltip: {
@@ -65,10 +64,10 @@
         },
         plotOptions: {
             packedbubble: {
-                minSize: '10%',
-                maxSize: '100%',
-                zMin: 10,
-                zMax: 2000,
+                minSize: '30%',
+                maxSize: '120%',
+                zMin: 0,
+                zMax: 1000,
                 layoutAlgorithm: {
                     splitSeries: false,
                     gravitationalConstant: 0.02
@@ -85,7 +84,8 @@
                         color: 'black',
                         textOutline: 'none',
                         fontWeight: 'normal',
-                        fontSize: '20px', // Adjust the font size as needed
+                        fontSize: '30px', // Adjust the font size as needed
+
                     }
                 }
             }
