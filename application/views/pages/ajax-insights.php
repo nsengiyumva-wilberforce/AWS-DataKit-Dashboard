@@ -7,6 +7,12 @@
 </div>
 
 <div class="row" id="graphs">
+    <div class="col-12 mb-5 chart-wrapper">
+        <div id="bubblechart-container">
+            <!-- bubble chart area container -->
+        </div>
+    </div>
+
     <div class="col-6 mb-5 chart-wrapper">
         <div id="barchart-container-region">
             <!-- bar chart area container -->
@@ -44,6 +50,49 @@
 </div>
 
 <script>
+    Highcharts.chart('bubblechart-container', {
+        chart: {
+            type: 'packedbubble',
+            height: '70%'
+        },
+        title: {
+            text: 'Monitoring per District',
+            align: 'left'
+        },
+        tooltip: {
+            useHTML: true,
+            pointFormat: '<b>{point.name}:</b> {point.value}HH'
+        },
+        plotOptions: {
+            packedbubble: {
+                minSize: '10%',
+                maxSize: '100%',
+                zMin: 10,
+                zMax: 2000,
+                layoutAlgorithm: {
+                    splitSeries: false,
+                    gravitationalConstant: 0.02
+                },
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}',
+                    filter: {
+                        property: 'y',
+                        operator: '>',
+                        value: 250
+                    },
+                    style: {
+                        color: 'black',
+                        textOutline: 'none',
+                        fontWeight: 'normal',
+                        fontSize: '20px', // Adjust the font size as needed
+                    }
+                }
+            }
+        },
+        series: <?= $region_and_district ?>
+                    });
+
     Highcharts.chart('barchart-container-region', {
         chart: {
             renderTo: 'barchart-container-region',
@@ -91,11 +140,11 @@
             {
                 name: 'Baseline',
                 data: <?= $baseline_region ?>
-            },
+                                        },
             {
                 name: 'Monitoring',
                 data: <?= $followup_region ?>
-            }
+                                        }
         ]
     });
 
@@ -138,11 +187,11 @@
             {
                 name: 'Baseline',
                 data: <?= $baseline_latrine_coverage ?>
-            },
+                                        },
             {
                 name: 'Monitoring',
                 data: <?= $followup_latrine_coverage ?>
-            }
+                                        }
         ]
     });
 
@@ -186,11 +235,11 @@
             {
                 name: 'Baseline',
                 data: <?= $baseline_sanitation_category ?>
-            },
+                                        },
             {
                 name: 'Monitoring',
                 data: <?= $followup_sanitation_category ?>
-            }
+                                        }
         ]
     });
 
@@ -234,11 +283,11 @@
             {
                 name: 'Baseline',
                 data: <?= $baseline_water_collection ?>
-                                },
+                                                },
             {
                 name: 'Monitoring',
                 data: <?= $followup_water_collection ?>
-                                }
+                                                }
         ]
     });
 
@@ -283,11 +332,11 @@
             {
                 name: 'Baseline',
                 data: <?= $baseline_water_treatment ?>
-                                },
+                                                },
             {
                 name: 'Monitoring',
                 data: <?= $followup_water_treatment ?>
-                                }
+                                                }
         ]
     });
 
@@ -332,11 +381,23 @@
             {
                 name: 'Baseline',
                 data: <?= $baseline_family_savings ?>
-                                },
+                                                },
             {
                 name: 'Monitoring',
                 data: <?= $followup_family_savings ?>
-                                }
+                                                }
         ]
     });
+    $(document).on('submit', '#form-insights', function (event) {
+        event.preventDefault();
+        $('#loader').show();
+        $(this).ajaxSubmit({
+            success: function (response) {
+                $('#loader').hide();
+                $('#graphs').html(response);
+            }
+        })
+
+        return false
+    })
 </script>
