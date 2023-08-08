@@ -60,7 +60,7 @@
         },
         tooltip: {
             useHTML: true,
-            pointFormat: '<b>{point.name}:</b> {point.value}HH'
+            pointFormat: '<b>{point.name}:</b><br><b>Baseline:{point.value}HH</b><br><b>Monitoring: {point.followup}HH</b>'
         },
         plotOptions: {
             packedbubble: {
