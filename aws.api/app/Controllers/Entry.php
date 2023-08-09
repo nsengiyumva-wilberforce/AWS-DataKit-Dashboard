@@ -1690,7 +1690,7 @@ class Entry extends BaseController
 			$enddate = $params['enddate'];
 		} else {
 			$startdate = '2023-01-01T00:00:00.000Z';
-			$enddate = '2023-06-06T00:00:00.000Z';
+			$enddate = '2023-06-30T00:00:00.000Z';
 		}
 
 		$central = $this->db->table('district_view')->where('region_id', 1)->get()->getResult();
