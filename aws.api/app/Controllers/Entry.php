@@ -1358,7 +1358,7 @@ class Entry extends BaseController
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
-			$startdate = '2023-01-01T00:00:00.000Z';
+			$startdate = '2022-11-01T00:00:00.000Z';
 			$enddate = '2023-06-30T00:00:00.000Z';
 		}
 
@@ -1462,7 +1462,7 @@ class Entry extends BaseController
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
-			$startdate = '2023-01-01T00:00:00.000Z';
+			$startdate = '2022-11-01T00:00:00.000Z';
 			$enddate = '2023-06-30T00:00:00.000Z';
 		}
 
@@ -1507,7 +1507,7 @@ class Entry extends BaseController
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
-			$startdate = '2023-01-01T00:00:00.000Z';
+			$startdate = '2022-11-01T00:00:00.000Z';
 			$enddate = '2023-06-30T00:00:00.000Z';
 		}
 
@@ -1552,7 +1552,7 @@ class Entry extends BaseController
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
-			$startdate = '2023-01-01T00:00:00.000Z';
+			$startdate = '2022-11-01T00:00:00.000Z';
 			$enddate = '2023-06-30T00:00:00.000Z';
 		}
 
@@ -1598,7 +1598,7 @@ class Entry extends BaseController
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
-			$startdate = '2023-01-01T00:00:00.000Z';
+			$startdate = '2022-11-01T00:00:00.000Z';
 			$enddate = '2023-06-30T00:00:00.000Z';
 		}
 
@@ -1644,7 +1644,7 @@ class Entry extends BaseController
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
-			$startdate = '2023-01-01T00:00:00.000Z';
+			$startdate = '2022-11-01T00:00:00.000Z';
 			$enddate = '2023-06-30T00:00:00.000Z';
 		}
 
@@ -1689,7 +1689,7 @@ class Entry extends BaseController
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
-			$startdate = '2023-01-01T00:00:00.000Z';
+			$startdate = '2022-11-01T00:00:00.000Z';
 			$enddate = '2023-06-30T00:00:00.000Z';
 		}
 
