@@ -84,6 +84,7 @@
 								</a>
 							</li>
 						<?php endif; ?>
+						<?php if ($this->session->permissions->view_reports): ?>
 						<li class="nav-item">
 							<a class="nav-link <?= $page_name == 'reports' ? 'active' : '' ?>"
 								href="<?= base_url('reports') ?>">
@@ -91,6 +92,7 @@
 								Reports
 							</a>
 						</li>
+						<?php endif; ?>
 						<li class="nav-item">
 							<a class="nav-link <?= $page_name == 'insights' ? 'active' : '' ?>"
 								href="<?= base_url('insights') ?>">
