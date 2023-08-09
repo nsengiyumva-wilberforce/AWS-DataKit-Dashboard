@@ -339,7 +339,7 @@
 					$('input[name="dates"]').daterangepicker({
 						opens: 'left',
 						autoApply: true,
-						startDate: '01/01/2023',
+						startDate: '11/01/2022',
 						endDate: '06/30/2023'
 					});
 				});
