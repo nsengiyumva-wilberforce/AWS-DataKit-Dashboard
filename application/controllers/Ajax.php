@@ -627,7 +627,7 @@ $result = json_decode($this->custom->run_curl_get($url));
 			array_push($followup_family_savings, $value->count);
 		}
 
-		$region_and_district_url = API_BASE_URL . 'entries/group-by-region-and-districts?data_type=followup&form_id=11';
+		$region_and_district_url = API_BASE_URL . 'entries/group-by-region-and-districts?data_type=followup&form_id=11&startdate='.$startdate.'&enddate='.$enddate;
 		$region_and_district_result = json_decode($this->custom->run_curl_get($region_and_district_url))->data;
 		
 		$data['baseline_region'] = json_encode($baseline_region);
