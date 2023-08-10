@@ -34,8 +34,8 @@ class Entry extends BaseController
 
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			/*				$district_list = $utility->region_district_array($params['region_id']);
-									   $query['responses.qn4'] = ['$in' => $district_list];
-									   */
+												$query['responses.qn4'] = ['$in' => $district_list];
+												*/
 		}
 
 
@@ -585,22 +585,6 @@ class Entry extends BaseController
 
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	public function form_entry_geodata()
 	{
 		ini_set('memory_limit', '512M');
@@ -611,53 +595,31 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
-		$query = [
-			'form_id' => $params['form_id'],
-			'responses.entity_type' => 'baseline'
-		];
+		$startdate = $params['year'] . '-01-01 00:00:00';
+		$enddate = $params['year'] . '-12-30 23:59:59';
 
-		$project = [
-			'projection' => [
-				'_id' => 0,
-				'responses' => ['$slice' => 1]
-			],
-			'limit' => 8000
-		];
-		$data = $collection->find($query, $project)->toArray();
-
-		// Form titles
-		$form_titles = $utility->form_titles($params['form_id']);
-		// Cleaning values to only return needed data
-		$marker_list = [];
-		foreach ($data as $entry) {
-
-			$coordinates_str = $entry['responses'][0]['coordinates'];
-			if (isset($coordinates_str)) {
-				$new_data['response_id'] = $entry['response_id'];
-				// $new_data['entry_form_id'] = $entry['entry_form_id'];
-				$new_data['project'] = $entry['responses'][0]['qn148'] ?? 'NIL';
-
-				$title_str = '';
-				foreach ($form_titles['title'] as $item) {
-					$title_str .= $entry['responses'][0]['qn' . $item];
-				}
-				$new_data['title'] = $title_str ?? 'Title';
-
-				$sub_title_str = '';
-				foreach ($form_titles['sub_title'] as $item) {
-					$sub_title_str .= $entry['responses'][0]['qn' . $item];
-				}
-				$new_data['sub_title'] = $sub_title_str ?? 'Sub Title';
-
-				$coordinates = explode(',', $coordinates_str);
-				$new_data['coordinates'] = ['lat' => $coordinates[0], 'lon' => $coordinates[1]];
-				$marker_list[] = $new_data;
-			}
-		}
+		$data = $collection->aggregate(
+			[
+				[
+					'$match' => [
+						'form_id' => $params['form_id'],
+						'responses.entity_type' => 'baseline',
+						'$and' => [
+							['responses.created_at' => ['$gt' => $startdate]],
+							['responses.created_at' => ['$lt' => $enddate]]
+						]
+					]
+				],
+				['$unwind' => ['path' => '$responses']],
+				['$unwind' => ['path' => '$responses']],
+				['$project' => ['response_id' => '$response_id', 'responses' => '$responses', 'coordinates_array' => ['$split' => ['$responses.coordinates', ',']]]],
+				['$project' => ['_id' => 0, 'response_id' => '$response_id', 'project' => '$responses.qn148', 'title' => '$responses.qn152', 'sub_title' => '$responses.qn9', 'coordinates' => ['lat' => ['$toDouble' => ['$arrayElemAt' => ['$coordinates_array', 0]]], 'lon' => ['$toDouble' => ['$arrayElemAt' => ['$coordinates_array', 1]]]]]],
+			]
+		)->toArray();
 
 		$response = [
 			'status' => 200,
-			'data' => $marker_list
+			'data' => $data
 		];
 		return $this->respond($response);
 	}
@@ -1354,7 +1316,7 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
-		if(isset($params['startdate']) && isset($params['enddate'])){
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1458,7 +1420,7 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
-		if(isset($params['startdate']) && isset($params['enddate'])){
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1475,8 +1437,9 @@ class Entry extends BaseController
 					'$match' => [
 						'responses.entity_type' => $params['data_type'],
 						'$and' => [
-							['responses.created_at' => ['$gt' => $startdate]], 
-							['responses.created_at' => ['$lt' => $enddate]]]
+							['responses.created_at' => ['$gt' => $startdate]],
+							['responses.created_at' => ['$lt' => $enddate]]
+						]
 					]
 				],
 				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
@@ -1503,7 +1466,7 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
-		if(isset($params['startdate']) && isset($params['enddate'])){
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1520,8 +1483,9 @@ class Entry extends BaseController
 					'$match' => [
 						'responses.entity_type' => $params['data_type'],
 						'$and' => [
-							['responses.created_at' => ['$gt' => $startdate]], 
-							['responses.created_at' => ['$lt' => $enddate]]]
+							['responses.created_at' => ['$gt' => $startdate]],
+							['responses.created_at' => ['$lt' => $enddate]]
+						]
 					]
 				],
 				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
@@ -1539,7 +1503,7 @@ class Entry extends BaseController
 		];
 		return $this->respond($response);
 	}
-	
+
 	public function group_by_duration_of_water_collection()
 	{
 		ini_set('memory_limit', '512M');
@@ -1548,7 +1512,7 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
-		if(isset($params['startdate']) && isset($params['enddate'])){
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1565,8 +1529,9 @@ class Entry extends BaseController
 					'$match' => [
 						'responses.entity_type' => $params['data_type'],
 						'$and' => [
-							['responses.created_at' => ['$gt' => $startdate]], 
-							['responses.created_at' => ['$lt' => $enddate]]]
+							['responses.created_at' => ['$gt' => $startdate]],
+							['responses.created_at' => ['$lt' => $enddate]]
+						]
 					]
 				],
 				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
@@ -1594,7 +1559,7 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
-		if(isset($params['startdate']) && isset($params['enddate'])){
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1611,8 +1576,9 @@ class Entry extends BaseController
 					'$match' => [
 						'responses.entity_type' => $params['data_type'],
 						'$and' => [
-							['responses.created_at' => ['$gt' => $startdate]], 
-							['responses.created_at' => ['$lt' => $enddate]]]
+							['responses.created_at' => ['$gt' => $startdate]],
+							['responses.created_at' => ['$lt' => $enddate]]
+						]
 					]
 				],
 				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],
@@ -1640,7 +1606,7 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
-		if(isset($params['startdate']) && isset($params['enddate'])){
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1657,8 +1623,9 @@ class Entry extends BaseController
 					'$match' => [
 						'responses.entity_type' => $params['data_type'],
 						'$and' => [
-							['responses.created_at' => ['$gt' => $startdate]], 
-							['responses.created_at' => ['$lt' => $enddate]]]
+							['responses.created_at' => ['$gt' => $startdate]],
+							['responses.created_at' => ['$lt' => $enddate]]
+						]
 					]
 				],
 				['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]],

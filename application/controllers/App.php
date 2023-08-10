@@ -262,11 +262,16 @@ class App extends CI_Controller
 
 		$url = API_BASE_URL . 'entry/showmaps?form_id=' . $form_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
-		//print json_encode($result);		
 
-		// print_r($result); die();
+		$url = API_BASE_URL . 'regions?format=json';
+		$result = json_decode($this->custom->run_curl_get($url));
+		$regions = $result->data;
+
+		$map_url = API_BASE_URL;
 		$data['report_title'] = $report_title;
 		$data['geodata'] = $result->data ?? [];
+		$data['regions'] = $regions;
+		$data['map_url'] = $map_url;
 		$data['page'] = 'pages/map';
 		$data['page_name'] = 'map';
 		$data['form_id'] = $form_id;
