@@ -56,7 +56,7 @@
 </div>
 
 
-<div class="row">
+<div class="row mt-5">
 	<?php foreach ($charts as $chart): ?>
 		<div class="col-3 mb-5 chart-wrapper">
 			<figure class="highcharts-figure">
