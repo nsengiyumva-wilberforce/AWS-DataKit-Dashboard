@@ -106,5 +106,5 @@
 
 </script>
 <script
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNz8YyPsJ0KzVAtOJpiS8-m9Mx0vwPtsA&callback=initMap&v=weekly"
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8r6EQIEBfDtlFHPfFjqB-8dlWgPJcZ5Q&callback=initMap&v=weekly"
   defer></script>
