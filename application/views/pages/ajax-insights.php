@@ -60,12 +60,12 @@
         },
         tooltip: {
             useHTML: true,
-            pointFormat: '<b>{point.name}:</b><br><b>Baseline:{point.value}HH</b><br><b>Monitoring: {point.followup}HH</b>'
+            pointFormat: '<b>{point.name}:</b> {point.value}HH<br><b>Monitoring: {point.followup}HH</b>'
         },
         plotOptions: {
             packedbubble: {
-                minSize: '5%',
-                maxSize: '120%',
+                minSize: '10%',
+                maxSize: '150%',
                 zMin: 0,
                 zMax: 3000,
                 layoutAlgorithm: {
