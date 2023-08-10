@@ -291,7 +291,12 @@
 							type: 'pie'
 						},
 						title: {
-							text: '<?= $chart->title ?>'
+							text: '<?= $chart->title ?>',
+							style: {
+								fontSize: '16px',
+								fontWeight: 'bold',
+								fontFamily: 'Times New Roman, Times, serif'
+							}
 						},
 						tooltip: {
 							pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
