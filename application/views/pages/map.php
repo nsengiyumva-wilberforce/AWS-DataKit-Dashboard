@@ -70,7 +70,7 @@
             position: latlng,
             map,
             //label: name,
-            title: "Name:"+name+"\n"+"Village"+sub_title
+            title: "Name:"+name+"\n"+"Village:"+sub_title
           });
 
 
