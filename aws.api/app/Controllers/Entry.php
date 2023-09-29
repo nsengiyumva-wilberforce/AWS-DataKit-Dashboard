@@ -324,6 +324,10 @@ class Entry extends BaseController
 			if (property_exists($entry->responses[0], 'qn152')) {
 				$entry['title'] = $entry->responses[0]->qn152;
 			}
+
+			if (property_exists($entry->responses[0], 'qn111')) {
+				$entry['title'] = $entry->responses[0]->qn111;
+			}
 		}
 
 
@@ -1090,10 +1094,16 @@ class Entry extends BaseController
 		$decoded = base64_decode($base64_string);
 		file_put_contents($file_path, $decoded);
 
-		// update response by adding filename
+		// Check if 'photo_file' field exists in the responses array at the specified index
+		if (!isset($params['responses'][$index][0]['photo_file'])) {
+			// If not, update the document structure to include 'photo_file' in the responses array
+			$entry->responses[$index][0]->photo_file = $params['filename'];
+		}
+
+		// Update the document
 		$updateResult = $collection->updateOne(
 			['response_id' => $params['response_id']],
-			['$set' => ['updated_at' => date('Y-m-d H:i:s'), 'responses.' . $index . '.photo_file' => $params['filename']]]
+			['$set' => ['updated_at' => date('Y-m-d H:i:s'), 'responses' => $entry->responses]]
 		);
 
 		if ($updateResult->getModifiedCount() > 0) {
