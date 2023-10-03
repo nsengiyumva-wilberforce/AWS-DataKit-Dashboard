@@ -328,6 +328,10 @@ class Entry extends BaseController
 			if (property_exists($entry->responses[0], 'qn111')) {
 				$entry['title'] = $entry->responses[0]->qn111;
 			}
+
+			if (property_exists($entry->responses[0], 'qn334')) {
+				$entry['title'] = $entry->responses[0]->qn334;
+			}
 		}
 
 
