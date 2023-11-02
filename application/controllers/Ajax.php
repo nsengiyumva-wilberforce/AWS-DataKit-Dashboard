@@ -374,7 +374,7 @@ $result = json_decode($this->custom->run_curl_get($url));
 	public function delete_project($project_id)
 	{
 		$params['project_id'] = $project_id;
-		$url = API_BASE_URL.'hard-delete-project/'.$params['project_id'];
+		$url = API_BASE_URLS . 'hard-delete-project/' . $params['project_id'];
 		$result = $this->custom->run_curl_post($url, $params);
 		redirect('projects');
 	}
@@ -382,7 +382,7 @@ $result = json_decode($this->custom->run_curl_get($url));
 	public function delete_organisation($organisation_id)
 	{
 		$params['organisation_id'] = $organisation_id;
-		$url = API_BASE_URL.'hard-delete-organisation/'.$params['organisation_id'];
+		$url = API_BASE_URLS . 'hard-delete-organisation/' . $params['organisation_id'];
 		$result = $this->custom->run_curl_post($url, $params);
 		redirect('organisations');
 	}
@@ -390,7 +390,7 @@ $result = json_decode($this->custom->run_curl_get($url));
 	public function delete_region($region_id)
 	{
 		$params['region_id'] = $region_id;
-		$url = API_BASE_URL.'soft-delete-region/'.$params['region_id'];
+		$url = API_BASE_URLS . 'soft-delete-region/' . $params['region_id'];
 		$result = $this->custom->run_curl_post($url, $params);
 		redirect('regions');
 	}
@@ -398,7 +398,7 @@ $result = json_decode($this->custom->run_curl_get($url));
 	public function delete_district($district_id)
 	{
 		$params['district_id'] = $district_id;
-		$url = API_BASE_URL.'soft-delete-district/'.$params['district_id'];
+		$url = API_BASE_URLS . 'soft-delete-district/' . $params['district_id'];
 		$result = $this->custom->run_curl_post($url, $params);
 		redirect('districts');
 	}
@@ -406,7 +406,7 @@ $result = json_decode($this->custom->run_curl_get($url));
 	public function delete_sub_county($sub_county_id)
 	{
 		$params['sub_county_id'] = $sub_county_id;
-		$url = API_BASE_URL.'soft-delete-sub_county/'.$params['sub_county_id'];
+		$url = API_BASE_URLS . 'soft-delete-sub_county/' . $params['sub_county_id'];
 		$result = $this->custom->run_curl_post($url, $params);
 		redirect('sub-counties');
 	}
@@ -414,7 +414,7 @@ $result = json_decode($this->custom->run_curl_get($url));
 	public function delete_parish($parish_id)
 	{
 		$params['parish_id'] = $parish_id;
-		$url = API_BASE_URL.'soft-delete-parish/'.$params['parish_id'];
+		$url = API_BASE_URLS . 'soft-delete-parish/' . $params['parish_id'];
 		$result = $this->custom->run_curl_post($url, $params);
 		redirect('parishes');
 	}
@@ -422,11 +422,10 @@ $result = json_decode($this->custom->run_curl_get($url));
 	public function delete_village($village_id)
 	{
 		$params['village_id'] = $village_id;
-		$url = API_BASE_URL.'soft-delete-village/'.$params['village_id'];
+		$url = API_BASE_URLS . 'soft-delete-village/' . $params['village_id'];
 		$result = $this->custom->run_curl_post($url, $params);
 		redirect('villages');
 	}
-
 	public function delete_response($response_id)
 	{
 		$params['response_id'] = $response_id;
