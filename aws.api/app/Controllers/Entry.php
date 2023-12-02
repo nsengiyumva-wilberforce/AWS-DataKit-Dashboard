@@ -862,6 +862,7 @@ class Entry extends BaseController
 		$entry_list = $collection->aggregate($aggregation);
 
 		$data['headers'] = $utility->question_mapper($params['form_id']);
+		$data['region'] = $this->get_region_name($params['region_id']);
 		$data['entries'] = $entry_list->toArray();
 
 		$response = [
@@ -870,6 +871,11 @@ class Entry extends BaseController
 		];
 
 		return $this->respond($response);
+	}
+	public function get_region_name($region_id)
+	{
+		$region = $this->db->table('region')->where('region_id', $region_id)->get()->getRow();
+		return $region->name;
 	}
 	public function form_entries_aggregated_report()
 	{

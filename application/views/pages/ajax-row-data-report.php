@@ -9,7 +9,16 @@
 			<tr>
 				<th>Entry ID</th>
 				<?php $cols = 1; ?>
-				<?php foreach ($entries->headers as $theader): ?>
+				<?php foreach ($entries->headers as $theader):
+					if ($cols == 3) {
+						 ?>
+						<th style="min-width: 150px;">
+							<?= "Region" ?>
+						</th>
+						<?php
+						$cols++;
+					}
+					?>
 					<th style="min-width: 150px;">
 						<?= $theader ?>
 					</th>
@@ -22,9 +31,21 @@
 			<?php foreach ($entries->entries as $entry): ?>
 				<?php $response = (array) $entry->responses; ?>
 				<tr>
-					<td style="white-space: nowrap;"><a href="<?= base_url('entry/' . $entry->response_id) ?>"><?= $entry->response_id ?></a></td>
+					<td style="white-space: nowrap;"><a href="<?= base_url('entry/' . $entry->response_id) ?>">
+							<?= $entry->response_id ?>
+						</a></td>
 					<?php if (isset($entry->responses)) { ?>
-						<?php foreach ($keys as $key): ?>
+						<?php $cols = 1; ?>
+						<?php foreach ($keys as $key): 
+							if ($cols == 3) {
+								?>
+								<td style="white-space: nowrap;">
+									<?= $entries->region ?>
+								</td>
+								<?php
+								$cols++;
+							}
+							?>
 							<td style="white-space: nowrap;">
 								<?php if (isset($response[$key])): ?>
 									<?php if (gettype($response[$key]) == 'array') { ?>
@@ -34,6 +55,7 @@
 									<?php } ?>
 								<?php endif; ?>
 							</td>
+							<?php $cols++; ?>
 						<?php endforeach; ?>
 					<?php } else { ?>
 						<?php foreach ($keys as $key): ?>
