@@ -486,7 +486,6 @@ class Entry extends BaseController
 
 	public function getRegionalEntries()
 	{
-		ini_set('memory_limit', '4G');
 		$utility = new Utility();
 		$params = $this->request->getGet();
 
