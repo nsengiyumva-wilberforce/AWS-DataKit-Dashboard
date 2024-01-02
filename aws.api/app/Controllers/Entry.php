@@ -507,7 +507,7 @@ class Entry extends BaseController
 		}
 
 		if (!isset($params['year'])) {
-			$date = '2023-01-01 12:43:12';
+			$date = '2024-01-01 12:43:12';
 			$query['responses.created_at'] = array('$gte' => $date);
 
 		} else {
