@@ -13,6 +13,7 @@
 
 			<label class="my-1 mr-2">Year</label>
 			<select name="year" id="region_id" class="custom-select my-1 mr-sm-2">
+				<option value="2024">2024</option>
 				<option value="2023">2023</option>
 				<option value="2022">2022</option>
 				<option value="2021">2021</option>
