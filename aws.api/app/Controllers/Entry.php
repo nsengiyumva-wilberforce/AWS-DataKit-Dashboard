@@ -531,6 +531,7 @@ class Entry extends BaseController
 
 		// Cleaning values to only return needed data
 		$new_data = [];
+		ini_set('memory_limit', '-1');
 		foreach ($data as $entry) {
 			$number_of_responses = count($entry['responses']);
 			$title_str = '';
