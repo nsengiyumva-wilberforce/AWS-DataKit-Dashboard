@@ -512,7 +512,7 @@ class Entry extends BaseController
 
 		} else {
 			$date = $params['year'] . '-01-01 12:00:00';
-			$date_to = $params['year'] . '-12-30 12:00:00';
+			$date_to = $params['year'] . '-06-30 12:00:00';
 			$query['responses.created_at'] = array('$gte' => $date, '$lte' => $date_to);
 		}
 
