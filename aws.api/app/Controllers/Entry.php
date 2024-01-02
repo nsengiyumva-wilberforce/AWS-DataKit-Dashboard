@@ -512,18 +512,23 @@ class Entry extends BaseController
 
 		} else {
 			$date = $params['year'] . '-01-01 12:00:00';
-			$date_to = $params['year'] . '-06-30 12:00:00';
+			$date_to = $params['year'] . '-12-30 12:00:00';
 			$query['responses.created_at'] = array('$gte' => $date, '$lte' => $date_to);
 		}
 
 		$project = [
 			'projection' => [
 				'_id' => 0,
-				//'responses' => ['$slice' => 1]
+				// 'responses' => ['$slice' => 1]
 			],
 		];
-
-		$data = $collection->find($query, $project)->toArray();
+		
+		$queryOptions = [
+			'limit' => 2000,
+		];
+		
+		$data = $collection->find($query, $project + $queryOptions)->toArray();
+		
 		$data = json_decode(json_encode($data), TRUE);
 
 		// Get form title ids
