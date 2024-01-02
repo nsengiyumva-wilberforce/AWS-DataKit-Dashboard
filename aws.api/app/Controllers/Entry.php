@@ -486,55 +486,46 @@ class Entry extends BaseController
 
 	public function getRegionalEntries()
 	{
-		ini_set('memory_limit', '-1');
+		ini_set('memory_limit', '3000M');
 		$utility = new Utility();
 		$params = $this->request->getGet();
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
-
 		$user_map = $utility->mobile_user_mapper();
 
-		$query['form_id'] = $params['form_id'];
+		$aggregation = [];
+
+		$aggregation[] = ['$match' => ['form_id' => $params['form_id']]];
 
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			$district_list = $utility->region_district_array($params['region_id']);
-			$query['responses.qn4'] = ['$in' => $district_list];
+			$aggregation[] = ['$match' => ['responses.qn4' => ['$in' => $district_list]]];
 		}
 
-		if (isset($params['start_date']) && isset($params['end_date'])) {
-			$query['responses.created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
-		}
-
-		if (!isset($params['year'])) {
-			$date = '2024-01-01 12:43:12';
-			$query['responses.created_at'] = array('$gte' => $date);
-
+		if (isset($params['year'])) {
+			$date = $params['year'] . '-01-01 12:43:12';
+			$date_to = $params['year'] . '-12-30 12:43:12';
+			$aggregation[] = ['$match' => ['responses.created_at' => array('$gte' => $date, '$lte' => $date_to)]];
 		} else {
-			$date = $params['year'] . '-01-01 12:00:00';
-			$date_to = $params['year'] . '-12-30 12:00:00';
-			$query['responses.created_at'] = array('$gte' => $date, '$lte' => $date_to);
+			$date = '2024-01-01 12:43:12';
+			$aggregation[] = ['$match' => ['responses.created_at' => array('$gte' => $date)]];
 		}
 
-		$project = [
-			'projection' => [
-				'_id' => 0,
-				//'responses' => ['$slice' => 1]
-			],
-		];
+		$aggregation[] = ['$addFields' => ['responses.district' => ['$arrayElemAt' => ['$responses.qn4', 0]], 'responses.sub_county' => ['$arrayElemAt' => ['$responses.qn7', 0]], 'responses.parish' => ['$arrayElemAt' => ['$responses.qn8', 0]], 'responses.village' => ['$arrayElemAt' => ['$responses.qn7', 0]]]];
 
-		$data = $collection->find($query, $project)->toArray();
-		$data = json_decode(json_encode($data), TRUE);
+		$data = $collection->aggregate($aggregation)->toArray();
+
 
 		// Get form title ids
 		$form_titles = $utility->form_titles($params['form_id']);
 
 		// Cleaning values to only return needed data
 		$new_data = [];
-		ini_set('memory_limit', '-1');
 		foreach ($data as $entry) {
 			$number_of_responses = count($entry['responses']);
 			$title_str = '';
+
 			foreach ($form_titles['title'] as $item) {
 				if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
 					$title_str .= $entry['responses'][0]['qn' . $item][0];
@@ -542,9 +533,11 @@ class Entry extends BaseController
 					$title_str .= $entry['responses'][0]['qn' . $item];
 				}
 			}
+
 			$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
 
 			$sub_title_str = '';
+
 			foreach ($form_titles['sub_title'] as $item) {
 				if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
 					$sub_title_str .= $entry['responses'][0]['qn' . $item][0];
@@ -552,21 +545,10 @@ class Entry extends BaseController
 					$sub_title_str .= $entry['responses'][0]['qn' . $item];
 				}
 			}
+
+
 			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
-
-			if (isset($entry['responses'][0]['qn4'])) {
-				$entry['district'] = $entry['responses'][0]['qn4'];
-			}
-			if (isset($entry['responses'][0]['qn7'])) {
-				$entry['sub_county'] = $entry['responses'][0]['qn7'];
-			}
-			if (isset($entry['responses'][0]['qn8'])) {
-				$entry['parish'] = $entry['responses'][0]['qn8'];
-			}
-			if (isset($entry['responses'][0]['qn9'])) {
-				$entry['village'] = $entry['responses'][0]['qn9'];
-			}
-
+			
 			$entry['number_of_responses'] = $number_of_responses;
 			//get the last creator
 			if ($number_of_responses > 1) {
@@ -576,7 +558,6 @@ class Entry extends BaseController
 			$user_map = $utility->mobile_user_mapper();
 			// Fetch first creator information
 
-
 			$entry['creator_id'] = $user_map[$entry['responses'][0]['creator_id'] ?? "72"];
 
 			$new_data[] = $entry;
@@ -584,14 +565,9 @@ class Entry extends BaseController
 
 		$response = [
 			'status' => 200,
-
-			//'total'   =>$total,
 			'data' => $new_data
 		];
 		return $this->respond($response);
-
-
-
 	}
 
 	public function form_entry_geodata()
