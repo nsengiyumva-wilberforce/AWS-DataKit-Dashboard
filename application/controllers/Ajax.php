@@ -480,7 +480,6 @@ $result = json_decode($this->custom->run_curl_get($url));
 		}
 
 		$url = API_BASE_URL.'entry/getRegionalEntries?year='.$year.'&form_id='.$form_id.$query_param.'&format=json';
-		var_dump($url);
 		// $this->custom->print($params,true);
 		// $this->custom->print($this->custom->run_curl_get($url),true);
 		$result = json_decode($this->custom->run_curl_get($url));
