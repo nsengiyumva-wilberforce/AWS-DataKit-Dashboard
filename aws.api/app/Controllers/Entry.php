@@ -533,25 +533,21 @@ class Entry extends BaseController
 		foreach ($data as $entry) {
 			$number_of_responses = count($entry['responses']);
 			$title_str = '';
+			$sub_title_str = '';
+
 			foreach ($form_titles['title'] as $item) {
 				if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
 					$title_str .= $entry['responses'][0]['qn' . $item][0];
-				} else {
-					$title_str .= $entry['responses'][0]['qn' . $item];
-				}
-			}
-			$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
-
-			$sub_title_str = '';
-			foreach ($form_titles['sub_title'] as $item) {
-				if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
 					$sub_title_str .= $entry['responses'][0]['qn' . $item][0];
 				} else {
+					$title_str .= $entry['responses'][0]['qn' . $item];
 					$sub_title_str .= $entry['responses'][0]['qn' . $item];
 				}
 			}
-			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
 
+			$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
+			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
+			
 			if (isset($entry['responses'][0]['qn4'])) {
 				$entry['district'] = $entry['responses'][0]['qn4'];
 			}
@@ -582,14 +578,9 @@ class Entry extends BaseController
 
 		$response = [
 			'status' => 200,
-
-			//'total'   =>$total,
 			'data' => $new_data
 		];
 		return $this->respond($response);
-
-
-
 	}
 
 	public function form_entry_geodata()
