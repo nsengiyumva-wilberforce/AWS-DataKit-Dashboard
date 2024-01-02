@@ -526,66 +526,66 @@ class Entry extends BaseController
 		$data = $collection->find($query, $project)->toArray();
 		$data = json_decode(json_encode($data), TRUE);
 
-		// Get form title ids
-		$form_titles = $utility->form_titles($params['form_id']);
+		// // Get form title ids
+		// $form_titles = $utility->form_titles($params['form_id']);
 
-		// Cleaning values to only return needed data
-		$new_data = [];
-		foreach ($data as $entry) {
-			$number_of_responses = count($entry['responses']);
-			$title_str = '';
-			foreach ($form_titles['title'] as $item) {
-				if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
-					$title_str .= $entry['responses'][0]['qn' . $item][0];
-				} else {
-					$title_str .= $entry['responses'][0]['qn' . $item];
-				}
-			}
-			$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
+		// // Cleaning values to only return needed data
+		// $new_data = [];
+		// foreach ($data as $entry) {
+		// 	$number_of_responses = count($entry['responses']);
+		// 	$title_str = '';
+		// 	foreach ($form_titles['title'] as $item) {
+		// 		if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
+		// 			$title_str .= $entry['responses'][0]['qn' . $item][0];
+		// 		} else {
+		// 			$title_str .= $entry['responses'][0]['qn' . $item];
+		// 		}
+		// 	}
+		// 	$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
 
-			$sub_title_str = '';
-			foreach ($form_titles['sub_title'] as $item) {
-				if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
-					$sub_title_str .= $entry['responses'][0]['qn' . $item][0];
-				} else {
-					$sub_title_str .= $entry['responses'][0]['qn' . $item];
-				}
-			}
-			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
+		// 	$sub_title_str = '';
+		// 	foreach ($form_titles['sub_title'] as $item) {
+		// 		if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
+		// 			$sub_title_str .= $entry['responses'][0]['qn' . $item][0];
+		// 		} else {
+		// 			$sub_title_str .= $entry['responses'][0]['qn' . $item];
+		// 		}
+		// 	}
+		// 	$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
 
-			if (isset($entry['responses'][0]['qn4'])) {
-				$entry['district'] = $entry['responses'][0]['qn4'];
-			}
-			if (isset($entry['responses'][0]['qn7'])) {
-				$entry['sub_county'] = $entry['responses'][0]['qn7'];
-			}
-			if (isset($entry['responses'][0]['qn8'])) {
-				$entry['parish'] = $entry['responses'][0]['qn8'];
-			}
-			if (isset($entry['responses'][0]['qn9'])) {
-				$entry['village'] = $entry['responses'][0]['qn9'];
-			}
+		// 	if (isset($entry['responses'][0]['qn4'])) {
+		// 		$entry['district'] = $entry['responses'][0]['qn4'];
+		// 	}
+		// 	if (isset($entry['responses'][0]['qn7'])) {
+		// 		$entry['sub_county'] = $entry['responses'][0]['qn7'];
+		// 	}
+		// 	if (isset($entry['responses'][0]['qn8'])) {
+		// 		$entry['parish'] = $entry['responses'][0]['qn8'];
+		// 	}
+		// 	if (isset($entry['responses'][0]['qn9'])) {
+		// 		$entry['village'] = $entry['responses'][0]['qn9'];
+		// 	}
 
-			$entry['number_of_responses'] = $number_of_responses;
-			//get the last creator
-			if ($number_of_responses > 1) {
-				$last_follower = $entry['responses'][$number_of_responses - 1][0]['creator_id'] ?? $entry['responses'][$number_of_responses - 1]['creator_id'];
-				$entry['last_follower'] = $user_map[$last_follower];
-			}
-			$user_map = $utility->mobile_user_mapper();
-			// Fetch first creator information
+		// 	$entry['number_of_responses'] = $number_of_responses;
+		// 	//get the last creator
+		// 	if ($number_of_responses > 1) {
+		// 		$last_follower = $entry['responses'][$number_of_responses - 1][0]['creator_id'] ?? $entry['responses'][$number_of_responses - 1]['creator_id'];
+		// 		$entry['last_follower'] = $user_map[$last_follower];
+		// 	}
+		// 	$user_map = $utility->mobile_user_mapper();
+		// 	// Fetch first creator information
 
 
-			$entry['creator_id'] = $user_map[$entry['responses'][0]['creator_id'] ?? "72"];
+		// 	$entry['creator_id'] = $user_map[$entry['responses'][0]['creator_id'] ?? "72"];
 
-			$new_data[] = $entry;
-		}
+		// 	$new_data[] = $entry;
+		// }
 
 		$response = [
 			'status' => 200,
 
 			//'total'   =>$total,
-			'data' => $new_data
+			'data' => $data
 		];
 		return $this->respond($response);
 
