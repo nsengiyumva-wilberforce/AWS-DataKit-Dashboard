@@ -495,31 +495,35 @@ class Entry extends BaseController
 
 		$user_map = $utility->mobile_user_mapper();
 
-		$aggregation = [];
+		$query['form_id'] = $params['form_id'];
 
-		$aggregation[] = ['$match' => ['form_id' => $params['form_id']]];
-
-		if (isset($params['region_id'])) {
+		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			$district_list = $utility->region_district_array($params['region_id']);
-			$aggregation[] = ['$match' => ['responses.qn4' => ['$in' => $district_list]]];
+			$query['responses.qn4'] = ['$in' => $district_list];
 		}
 
 		if (isset($params['start_date']) && isset($params['end_date'])) {
-			$aggregation[] = ['$match' => ['responses.created_at' => array('$gte' => $params['start_date'], '$lte' => $params['end_date'])]];
+			$query['responses.created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
 		}
 
-		//check if year is set or not
 		if (!isset($params['year'])) {
 			$date = '2024-01-01 12:43:12';
-			$aggregation[] = ['$match' => ['responses.created_at' => array('$gte' => $date)]];
+			$query['responses.created_at'] = array('$gte' => $date);
 
 		} else {
 			$date = $params['year'] . '-01-01 12:00:00';
 			$date_to = $params['year'] . '-12-30 12:00:00';
-			$aggregation[] = ['$match' => ['responses.created_at' => array('$gte' => $date, '$lte' => $date_to)]];
+			$query['responses.created_at'] = array('$gte' => $date, '$lte' => $date_to);
 		}
 
-		$data = $collection->aggregate($aggregation)->toArray();
+		$project = [
+			'projection' => [
+				'_id' => 0,
+				//'responses' => ['$slice' => 1]
+			],
+		];
+
+		$data = $collection->find($query, $project)->toArray();
 		$data = json_decode(json_encode($data), TRUE);
 
 		// Get form title ids
@@ -548,6 +552,19 @@ class Entry extends BaseController
 				}
 			}
 			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
+
+			if (isset($entry['responses'][0]['qn4'])) {
+				$entry['district'] = $entry['responses'][0]['qn4'];
+			}
+			if (isset($entry['responses'][0]['qn7'])) {
+				$entry['sub_county'] = $entry['responses'][0]['qn7'];
+			}
+			if (isset($entry['responses'][0]['qn8'])) {
+				$entry['parish'] = $entry['responses'][0]['qn8'];
+			}
+			if (isset($entry['responses'][0]['qn9'])) {
+				$entry['village'] = $entry['responses'][0]['qn9'];
+			}
 
 			$entry['number_of_responses'] = $number_of_responses;
 			//get the last creator
