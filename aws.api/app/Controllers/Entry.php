@@ -519,16 +519,11 @@ class Entry extends BaseController
 		$project = [
 			'projection' => [
 				'_id' => 0,
-				// 'responses' => ['$slice' => 1]
+				//'responses' => ['$slice' => 1]
 			],
 		];
-		
-		$queryOptions = [
-			'limit' => 2000,
-		];
-		
-		$data = $collection->find($query, $project + $queryOptions)->toArray();
-		
+
+		$data = $collection->find($query, $project)->toArray();
 		$data = json_decode(json_encode($data), TRUE);
 
 		// Get form title ids
