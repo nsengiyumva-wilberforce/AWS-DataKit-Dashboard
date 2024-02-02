@@ -880,9 +880,9 @@ class Entry extends BaseController
 	}catch(Exception $e){
 		$response = [
 			'status' => 500,
-			'data' => $e->getLine()
+			'data' => $e->getMessage()
 		];
-		return $this->respond($response);
+		return $this->fail($response);
 	}
 }
 	public function get_region_name($region_id)

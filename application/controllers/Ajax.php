@@ -513,8 +513,15 @@ $result = json_decode($this->custom->run_curl_get($url));
 
 		$url = API_BASE_URL.'report/entries?'.http_build_query($query_data);
 		$result = json_decode($this->custom->run_curl_get($url));
-		$data['entries'] = $result->data;
+
+		//check if status code is not 400
+		if($result->status != 400){		
+			$data['entries'] = $result->data;
+		} else {
+			$data['entries'] = [];
+		}
 		$table = $this->load->view('pages/ajax-row-data-report', $data, TRUE);
+
 		echo $table;
 		}catch(Exception $e){
 			echo $e->getMessage();
