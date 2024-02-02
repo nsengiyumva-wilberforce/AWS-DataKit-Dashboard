@@ -515,16 +515,18 @@ $result = json_decode($this->custom->run_curl_get($url));
 		$result = json_decode($this->custom->run_curl_get($url));
 
 		//check if status code is not 400
-		if($result->status != 400){		
+		if ($result && property_exists($result, 'status') && $result->status >= 200 && $result->status < 300) {
 			$data['entries'] = $result->data;
 		} else {
 			$data['entries'] = [];
 		}
+		
 		$table = $this->load->view('pages/ajax-row-data-report', $data, TRUE);
 
 		echo $table;
 		}catch(Exception $e){
-			echo $e->getMessage();
+			log_message('error', 'Error in raw_data_report: ' . $e->getMessage());
+			echo 'An error occurred. Please try again later.';
 		}
 	}
 
