@@ -7,7 +7,7 @@ use CodeIgniter\API\ResponseTrait;
 use App\Models\FormModel;
 use App\Models\QuestionModel;
 use MongoDB\Client as MongoDB;
-
+use Exception;
 use App\Libraries\Utility;
 
 class Entry extends BaseController
@@ -808,6 +808,7 @@ class Entry extends BaseController
 
 	public function form_entries_report()
 	{
+		try{
 		ini_set('memory_limit', '512M');
 		// ini_set('memory_limit','1024M');
 		$utility = new Utility();
@@ -862,7 +863,12 @@ class Entry extends BaseController
 		$entry_list = $collection->aggregate($aggregation);
 
 		$data['headers'] = $utility->question_mapper($params['form_id']);
-		$data['region'] = $this->get_region_name($params['region_id']);
+		//check if region_id is not all
+		if ($params['region_id'] != "all") {
+			$data['region'] = $this->get_region_name($params['region_id']);
+		}else {
+			$data['region'] = "All Regions";
+		}
 		$data['entries'] = $entry_list->toArray();
 
 		$response = [
@@ -871,7 +877,14 @@ class Entry extends BaseController
 		];
 
 		return $this->respond($response);
+	}catch(Exception $e){
+		$response = [
+			'status' => 500,
+			'data' => $e->getLine()
+		];
+		return $this->respond($response);
 	}
+}
 	public function get_region_name($region_id)
 	{
 		$region = $this->db->table('region')->where('region_id', $region_id)->get()->getRow();

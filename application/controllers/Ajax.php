@@ -500,8 +500,8 @@ $result = json_decode($this->custom->run_curl_get($url));
 
 	public function raw_data_report()
 	{
+		try{
 		$params = $this->input->post(NULL, TRUE);
-		// $this->custom->print($params); die();
 		$query_data['region_id'] = $params['region_id'];
 		$query_data['form_id'] = $params['form_id'];
 		$query_data['entry_data'] = $params['entry_data'];
@@ -516,6 +516,9 @@ $result = json_decode($this->custom->run_curl_get($url));
 		$data['entries'] = $result->data;
 		$table = $this->load->view('pages/ajax-row-data-report', $data, TRUE);
 		echo $table;
+		}catch(Exception $e){
+			echo $e->getMessage();
+		}
 	}
 
 	public function ajax_insights()
