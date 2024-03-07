@@ -269,7 +269,7 @@ class Entry extends BaseController
 			}
 			if (isset($qn_data[$key]) && isset($latest_followup[$key])) {
 				$comp['followup'][] = array('question' => $qn_data[$key], 'response' => $latest_followup[$key]);
-				$photo_mobile_path = explode('/', $latest_followup['photo']);
+				$photo_mobile_path = explode('/', $latest_followup['photo']??null);
 				$filename = end($photo_mobile_path);
 				$comp['followup']['photo'] = $filename;
 				$comp['has_an_array'] = 0;
@@ -335,7 +335,7 @@ class Entry extends BaseController
 		}
 
 
-		$photo_mobile_path = explode('/', $baseline['photo']);
+		$photo_mobile_path = explode('/', $baseline['photo']??null);
 		$filename = end($photo_mobile_path);
 		$comp['baseline']['photo'] = $filename;
 		$data = $entry;
@@ -383,9 +383,9 @@ class Entry extends BaseController
 			}
 		}
 
-		if (isset($params['creator_id'])) {
-			$query['responses.creator_id'] = $params['creator_id'];
-		}
+		//if (isset($params['creator_id'])) {
+		//	$query['responses.creator_id'] = $params['creator_id'];
+		//}
 
 		if (isset($params['project'])) {
 			$query['responses.qn148'] = $params['project'];
@@ -397,7 +397,7 @@ class Entry extends BaseController
 			$query['updated_at'] = array('$lte' => $last_date);
 		}
 
-		$date = '2022-11-01 12:00:00';
+		$date = '2023-11-01 00:00:00';
 		$query['responses.created_at'] = array('$gte' => $date);
 
 		// $emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
@@ -1031,6 +1031,7 @@ class Entry extends BaseController
 		$params = $this->request->getPost();
 		if (count($params)) {
 			$params['responses'] = array(json_decode($params['responses']));
+			$params['responses'][0]->updated_at = date('Y-m-d H:i:s');
 
 			$client = new MongoDB();
 			$collection = $client->aws->entries;

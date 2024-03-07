@@ -55,8 +55,8 @@ class Form extends BaseController
 				}
 
 				if (isset($params['settings']) && $params['settings'] = 1) {
-					$titles = count(json_decode($form->title_fields, true)['entry_title']);
-					$sub_titles = json_decode($form->title_fields, true)['entry_sub_title'];
+					$titles = count(json_decode($form->title_fields, true)['entry_title']??[]);
+					$sub_titles = json_decode($form->title_fields, true)['entry_sub_title']??[];
 					if ($titles) {
 						$title_fields = json_decode($form->title_fields);
 						$title_fields_ids_list = implode (", ", $title_fields->entry_title);
