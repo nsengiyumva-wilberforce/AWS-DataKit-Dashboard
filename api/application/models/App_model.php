@@ -312,7 +312,7 @@ class App_model extends CI_Model {
 	public function get_questions()
 	{
 		$this->db->select('*');
-		$this->db->from('question_library');
+		$this->db->from('question');
 		$this->db->where('active', 1);
 		$query = $this->db->get();
 		return $query->result();
