@@ -535,20 +535,28 @@ class Entry extends BaseController
 			$number_of_responses = count($entry['responses']);
 			$title_str = '';
 			foreach ($form_titles['title'] as $item) {
-				if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
-					$title_str .= $entry['responses'][0]['qn' . $item][0];
+				if (isset($entry['responses'][0]['qn' . $item]) || isset($entry['responses'][0]['qn' . $item][0])) {
+					if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
+						$title_str .= $entry['responses'][0]['qn' . $item][0];
+					} else {
+						$title_str .= $entry['responses'][0]['qn' . $item];
+					}
 				} else {
-					$title_str .= $entry['responses'][0]['qn' . $item];
+					$title_str .= 'Unknown Title';
 				}
 			}
 			$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
 
 			$sub_title_str = '';
 			foreach ($form_titles['sub_title'] as $item) {
-				if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
-					$sub_title_str .= $entry['responses'][0]['qn' . $item][0];
+				if (isset($entry['responses'][0]['qn' . $item]) || isset($entry['responses'][0]['qn' . $item][0])) {
+					if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
+						$sub_title_str .= $entry['responses'][0]['qn' . $item][0];
+					} else {
+						$sub_title_str .= $entry['responses'][0]['qn' . $item];
+					}
 				} else {
-					$sub_title_str .= $entry['responses'][0]['qn' . $item];
+					$sub_title_str = "Unknown Sub Title";
 				}
 			}
 			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
