@@ -283,52 +283,54 @@
 			<?php foreach ($charts as $chart): ?>
 				<script>
 					// Build the chart
-					Highcharts.chart('container<?= $chart->chart_id ?>', {
-						chart: {
-							plotBackgroundColor: null,
-							plotBorderWidth: null,
-							plotShadow: false,
-							type: 'pie'
-						},
-						title: {
-							text: '<?= $chart->title ?>',
-							style: {
-								fontSize: '16px',
-								fontWeight: 'bold',
-								fontFamily: 'Times New Roman, Times, serif'
-							}
-						},
-						tooltip: {
-							pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-						},
-						accessibility: {
-							point: {
-								valueSuffix: '%'
-							}
-						},
-						plotOptions: {
-							pie: {
-								allowPointSelect: true,
-								cursor: 'pointer',
-								dataLabels: {
-									enabled: false
-								},
-								showInLegend: true
-							}
-						},
-						series: [{
-							name: '<?= $chart->unit ?>',
-							colorByPoint: true,
-							innerSize: '50%',
-							data: [{
-								name: 'Actual',
-								y: <?= $chart->actual ?>
-						}, {
-								name: 'Balance',
-								y: <?= $chart->difference ?>
-						},]
-						}]
-					});
+				Highcharts.chart('container<?= $chart->chart_id ?>', {
+				chart: {
+					type: 'column'
+				},
+				title: {
+					text: '<?= $chart->title ?>',
+					style: {
+						fontSize: '20px',
+						fontWeight: 'bold',
+						fontFamily: 'Segoe UI, sans-serif'
+					}
+				},
+				xAxis: {
+					categories: ['Actual', 'Target']
+				},
+				yAxis: {
+					min: 0,
+					title: {
+						text: 'Households'
+					}
+				},
+				legend: {
+					shadow: false
+				},
+				tooltip: {
+					shared: true
+				},
+				plotOptions: {
+					column: {
+						grouping: false,
+						shadow: false,
+						borderWidth: 0
+					}
+				},
+				series: [{
+					name: '<?= $chart->unit ?>',
+					colorByPoint: true,
+					innerSize: '50%',
+					data: [{
+						name: 'Actual',
+						y: <?= $chart->actual ?>
+					}, {
+						name: 'Target',
+						y: <?= $chart->target ?>
+					}
+				]
+				}]
+			});
 				</script>
 			<?php endforeach; ?>
 		<?php endif; ?>
