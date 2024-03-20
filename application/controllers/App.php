@@ -1,6 +1,15 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+//phpmailer config
+require_once APPPATH . 'third_party/PHPMailer/src/PHPMailer.php';
+require_once APPPATH . 'third_party/PHPMailer/src/SMTP.php';
+require_once APPPATH . 'third_party/PHPMailer/src/Exception.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 class App extends CI_Controller
 {
 
@@ -9,10 +18,14 @@ class App extends CI_Controller
 	// private $API_BASE_URLS = 'http://116.203.142.9/aws-api-bak/index.php/app/';
 
 
-	// public function login()
-	// {
-	// 	$this->load->view('pages/login');
-	// }
+	public function __construct()
+	{
+		parent::__construct();
+		$this->load->model('loginModel');
+		
+		
+	}
+	
 
 
 	public function question_library()
@@ -52,74 +65,374 @@ class App extends CI_Controller
 
 
 
+	public function logout() {
+        if ($this->session->has_userdata('logged_in')) {
+            $user_data = $this->session->userdata('logged_in');
+            $uni_id = isset($user_data ['uni_id']) ? $user_data ['uni_id'] : null;
+			
+			  // Check if code is provided and validate it
+			  $uni_id = session_id();
 
-	public function logout()
+			  // Expire all codes that have expired
+			  $this->loginModel->expireTheCode($uni_id);
+	
+
+            // Check if the model instance is not null before calling the method
+            if ($this->loginModel !== null && $uni_id  !== null) {
+				var_dump($uni_id );
+                $this->loginModel ->updateLogoutTime($uni_id ); 
+                echo "logout time has been updated.";
+            } else {
+                echo "Unable to update logout time.";
+            }
+    
+            // Destroy the session
+            $this->session->unset_userdata('logged_in');
+            redirect();
+        }
+    }
+	
+	
+   
+	public function authenticate()
+{
+    $params = $this->input->post(NULL, TRUE);
+    $params['format'] = 'json';
+    $url = API_BASE_URL . 'admin-user/authenticate';
+
+    $result = json_decode($this->custom->run_curl_post($url, $params));
+
+    if ($result->status) {
+        $user = $result->data;
+        $permissions = json_decode($user->permission_list);
+        $uni_id = session_id();
+        
+		// Setting  the timezone to Africa/Nairobi
+        date_default_timezone_set('Africa/Nairobi');
+        // Separate login info and user data
+        $login_info = [
+            'uni_id' => $uni_id,
+            'agent' => $this->getUserAgentInfo(),
+            'ip' => $this->getIpAddress(),
+            'login_time' => date('Y-m-d H:i:s'),
+            'name' => $user->first_name . ' ' . $user->last_name,
+            'region_id' => $user->region_id,
+            'region_code' => $user->region_code,
+			
+        ];
+
+        // Generate code
+        $code = $this->loginModel->generateCode($uni_id);
+
+        try {
+            // Create a new PHPMailer instance
+            $mail = new PHPMailer(true);
+
+            // SMTP Configuration
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'ochwodavid0311@gmail.com';
+            $mail->Password = 'batmmscbbqpslimo';
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = 587;
+
+			
+            // Email Content
+			$mail->setFrom('ochwodavid0311@gmail.com', 'ochwo david');
+			$mail->addAddress('ochwodavid03@gmail.com', 'ochwodavid0311@gmail.com');
+			 
+			 $cid = 'large-logo'; 
+			 $filename = ''; 
+
+			// Load the image
+			$filename = 'assets/images/Logo/large-logo.png';
+			 $mail->addEmbeddedImage($filename, $cid);
+		 
+			 $data['name'] = $user->first_name . ' ' . $user->last_name;
+			 $data['code'] = $code;
+		 
+			 $mail->Subject = 'Email login pin';
+			 $mail->isHTML(true);
+		 
+			 // Use the HTML template for the email body
+			 $email_content = $this->load->view('email_template', $data, TRUE);
+		 
+			 // Reference the embedded image in the email body
+			 $email_content .= '<img src="cid:' . $cid . '" alt="Logo"><br><br>';
+		 
+			 // Set the email body
+			 $mail->Body = $email_content;
+		 
+			 // Send Email
+			 $mail->send();
+            
+            echo 'Email has been sent successfully!';
+        } catch (Exception $e) {
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+        
+        $user_data = [
+            'uni_id' => $uni_id,
+            'name' => $user->first_name . ' ' . $user->last_name,
+            'region_id' => $user->region_id,
+            'region_code' => $user->region_code,
+            'permissions' => $permissions,
+            'code' => $code, 
+            'logged_in' => TRUE
+        ];
+
+        // Save login info and set session data
+        $la_id = $this->loginModel->saveLoginInfo($login_info);
+        if ($la_id) {
+            $this->session->set_userdata('logged_in', $la_id);
+            $this->session->set_userdata($user_data);
+        }
+
+        //load the authorize view to allow the code to be input 
+        $this->load->view('authorize', $user_data);
+    } else {
+        $this->session->set_flashdata('err_msg', $result->message);
+        redirect();
+    }
+}
+
+
+	
+//get the kind of browser being used 
+	public function getUserAgentInfo()
 	{
-		$this->session->sess_destroy();
-		redirect();
+		$agent = $this->input->user_agent();
+	
+		if ($this->agent->is_browser()) {
+			$currentAgent = $this->agent->browser();
+		} elseif ($this->agent->is_robot()) {
+			$currentAgent = $this->agent->robot();
+		} elseif ($this->agent->is_mobile()) {
+			$currentAgent = $this->agent->mobile();
+		} else {
+			$currentAgent = 'unidentified user agent';
+		}
+	
+		return $currentAgent;
+	}
+	
+	
+
+	public function logActivity($login_info) {
+		// Assuming there is a model called Activity_model
+		$this->load->model('loginModel');
+	
+		// Check if the model is loaded successfully
+		if ($this->loginModel) {
+			// Call the insert method on the model
+			$this->loginModel->insert($login_info);
+		} else {
+			// Handle the case where the model failed to load
+			log_message('error', 'Activity_model failed to load');
+			// You might want to throw an exception or handle the error in an appropriate way
+		}
+	}
+	
+//getting the ip address of the device being used 
+	function getIpAddress() {
+		// Check for shared internet/ISP IP
+		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+			return $_SERVER['HTTP_CLIENT_IP'];
+		}
+	
+		// Check for IP address in proxy header
+		elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+			return $_SERVER['HTTP_X_FORWARDED_FOR'];
+		}
+	
+		// Otherwise, return the user's IP address
+		else {
+			return $_SERVER['REMOTE_ADDR'];
+		}
 	}
 
-	public function authenticate()
+	public function log_activity()
 	{
-		$params = $this->input->post(NULL, TRUE);
-		$params['format'] = 'json';
-		$url = API_BASE_URL . 'admin-user/authenticate';
-
-		//$url = API_BASE_URLS.'admin-authenticate';
-		$result = json_decode($this->custom->run_curl_post($url, $params));
-
-
-		if ($result->status) {
-			$user = $result->data;
-			$permissions = json_decode($user->permission_list);
-			$user_data['name'] = $user->first_name . ' ' . $user->last_name;
-			$user_data['region_id'] = $user->region_id;
-			$user_data['region_code'] = $user->region_code;
-			$user_data['permissions'] = $permissions;
-			$user_data['logged_in'] = TRUE;
-			$this->session->set_userdata($user_data);
-			redirect();
-		} else {
-			// echo $result->message;
-			$this->session->set_flashdata('err_msg', $result->message);
-			// redirect('login');
+		// Check if the user is logged in
+		if (!$this->session->has_userdata('logged_in')) {
 			redirect();
 		}
-
+	
+		// Retrieve login information from the model
+		$login_info = $this->loginModel->getUserLoginInfo();
+	
+		// Assign login information to the data array
+		$data['login_info'] = $login_info;
+	
+		// Define other data for the view
+		$data['page'] = 'pages/activity-log';
+		$data['page_name'] = 'activity-log';
+	
+		// Load the view with the data
+		$this->load->view('base', $data);
 	}
 
-
-	public function index()
+	public function log_activity_byId($id)
 	{
-		//CHECK FOR SESSION
-		if ($this->session->has_userdata('logged_in')) {
+		 // Check if the user is logged in
+		 if (!$this->session->has_userdata('logged_in')) {
+		
+		 	redirect();
+		 }
 
-			$url = API_BASE_URLS . 'server-disk-space';
-			$result = json_decode($this->custom->run_curl_get($url));
-			$storage_info = $result->data ?? [];
-			$storage = $this->custom->storage_size($storage_info, ['/dev/vda1', 'udev']);
-			$data['storageurl'] = $url;
+		 // Retrieve login information from the model
+		$login_info = $this->loginModel->getUserLoginInfoByID($id);
+		
+		$result = $this->loginModel->getUserLoginInfoByID($id);
+		
+		 $data['login_info'] = $login_info;
+	
+		 // Define other data for the view
+		 $data['page'] = 'pages/logs';
+		 $data['page_name'] = 'logs';
+	
+		 
+		 $this->load->view('base', $data);
+		//$this->load->view('pages/logs');
+	}
+	
 
-			$url = API_BASE_URL . 'charts';
-			$result = json_decode($this->custom->run_curl_get($url));
-			$charts = $result->data ?? [];
-			$data['charturl'] = $url;
+	public function validateCode($code)
+{
+    // Check if the user is logged in
+    if ($this->session->has_userdata('logged_in')) {
+        // Get the database ID from the session
+        //$id = $this->session->userdata('id'); // Replace 'database_id' with the actual key used to store the database ID in the session
+		$uni_id=session_id();
+        // If the database ID is available
+        if ($uni_id) {
+            // Load the loginModel
+            $this->load->model('loginModel');
+            
+            // Call the authenticateCode method of loginModel with the database ID
+            return $this->loginModel->authenticateCode($uni_id, $code);
+        } else {
+            // If the database ID is not available in the session.
+            return false;
+        }
+    } else {
+        // If the user is not logged in, return false
+        return false;
+    }
+}
 
-			$url = API_BASE_URL . 'overview-counter';
-			$result = json_decode($this->custom->run_curl_get($url));
-			$counter = $result->data;
-			$data['dashboard'] = $url;
+	public function codeValidation()
+{
+    // CHECK FOR SESSION
+    if ($this->session->has_userdata('logged_in')) {
+        $this->load->model('loginModel'); 
+        
+        // Check if code is provided and validate it
+        $uni_id = session_id();
+        $code = $this->input->post('code');
+        $uni_id = $this->input->post('uni_id');
+        
+        // Expire all codes that have expired
+        //$this->loginModel->expireTheCode($uni_id); 
 
-			$data['counter'] = $counter;
-			$data['storage'] = $storage;
-			$data['charts'] = $charts;
-			$data['page'] = 'pages/dashboard';
-			$data['page_name'] = 'dashboard';
-			// $this->custom->print($data); die();	
-			//print json_encode($data);
-			$this->load->view('base', $data);
-		} else {
-			$this->load->view('login');
+        if ($code ) {
+            if (!$this->validateCode($code)) {
+                
+                // Code is invalid, redirect to login page
+                $this->session->set_flashdata('error', 'Invalid verification code');
+                $data['code'] = $code;
+                //$data['uni_id'] = $uni_id;
+                // Load the authorize.php view and pass data to it
+                $this->load->view('authorize', $data);
+				
+            } else {
+                // Code is valid, load the dashboard view
+                echo "Code was valid";
+                redirect();
+                return;
+            }
+        } else {
+            // User is not logged in, redirect to login page
+            $this->load->view('login');
+        }
+    }
+}
+
+
+	
+public function index()
+{
+    // Check for session
+    if ($this->session->has_userdata('logged_in')) {
+        $code = $this->input->post('code');
+        $uni_id = session_id(); 
+        
+        // Check if a code is provided
+        if ($code) {
+          
+
+            // Validate the code
+            if (!$this->validateCode($code)) {
+                // Code is invalid, set flash message and redirect
+                $this->session->set_flashdata('error', 'Invalid verification code');
+                redirect();
+                return;
+            } else {
+                // Code is valid
+               
+            }
+        }
+
+        // Load dashboard data
+        $url = API_BASE_URLS . 'server-disk-space';
+        $result = json_decode($this->custom->run_curl_get($url));
+        $storage_info = $result->data ?? [];
+        $storage = $this->custom->storage_size($storage_info, ['/dev/vda1', 'udev']);
+        $data['storage'] = $storage;
+
+        $url = API_BASE_URL . 'charts';
+        $result = json_decode($this->custom->run_curl_get($url));
+        $charts = $result->data ?? [];
+        $data['charts'] = $charts;
+
+        $url = API_BASE_URL . 'overview-counter';
+        $result = json_decode($this->custom->run_curl_get($url));
+        $counter = $result->data;
+        $data['counter'] = $counter;
+
+        $data['page'] = 'pages/dashboard';
+        $data['page_name'] = 'dashboard';
+
+        $this->load->view('base', $data);
+    } else {
+        // Session not found, load login view
+        $this->load->view('login');
+    }
+}
+
+
+	public function expireCode($uni_id)
+    {
+		$uni_id=session_id();
+
+        $this->load->model('loginModel');
+        $this->loginModel->expireTheCode($uni_id);
+    }
+
+	
+
+
+	public function checkExpiredCodes() {
+		// Get current time
+		$current_time = date('Y-m-d H:i:s');
+		// Select codes that have expired
+		$this->db->where('expiration_time <', $current_time);
+		$expired_codes = $this->db->get('auth_code')->result();
+		foreach ($expired_codes as $code) {
+			// Mark code as expired
+			$this->db->where('code', $code->code);
+			$this->db->update('auth_code', array('is_expired' => TRUE));
 		}
 	}
 
