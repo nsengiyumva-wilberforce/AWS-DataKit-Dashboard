@@ -107,6 +107,13 @@
 								Maps
 							</a>
 						</li>
+						<li class="nav-item">
+							<a class="nav-link <?= $page_name == 'maps' ? 'active' : '' ?>"
+								href="<?= base_url('log_activity') ?>">
+								<i data-feather="activity"></i>
+								User log activity
+							</a>
+						</li>
 					</ul>
 
 					<?php if ($this->session->permissions->view_form): ?>
