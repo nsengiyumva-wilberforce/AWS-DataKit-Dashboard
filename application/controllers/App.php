@@ -123,6 +123,8 @@ class App extends CI_Controller
 
         // Generate code
         $code = $this->loginModel->generateCode($uni_id);
+		//extracting email from the input 
+		$email = $this->input->post('username');
 
         try {
             // Create a new PHPMailer instance
@@ -140,7 +142,7 @@ class App extends CI_Controller
 			
             // Email Content
 			$mail->setFrom('ochwodavid0311@gmail.com', 'ochwo david');
-			$mail->addAddress('ochwodavid03@gmail.com', 'ochwodavid0311@gmail.com');
+			$mail->addAddress($email, $email);
 			 
 			 $cid = 'large-logo'; 
 			 $filename = ''; 
