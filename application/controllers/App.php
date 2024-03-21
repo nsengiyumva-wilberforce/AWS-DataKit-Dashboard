@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-//phpmailer config
+//phpmailer 
 require_once APPPATH . 'third_party/PHPMailer/src/PHPMailer.php';
 require_once APPPATH . 'third_party/PHPMailer/src/SMTP.php';
 require_once APPPATH . 'third_party/PHPMailer/src/Exception.php';
@@ -19,13 +19,22 @@ class App extends CI_Controller
 
 
 	public function __construct()
-	{
-		parent::__construct();
-		$this->load->model('loginModel');
-		
-		
-	}
+{
+    parent::__construct();
+	$this->load->model('loginModel');
+    //$this->load->library('user_agent');
 	
+}
+
+
+// public function googleAuth()
+// {
+// 	if (!$this->session->has_userdata('logged_in')) {
+// 		redirect();
+// 	}
+
+// 	redirect();
+// }
 
 
 	public function question_library()
@@ -50,6 +59,7 @@ class App extends CI_Controller
 		if (!$this->session->has_userdata('logged_in')) {
 			redirect();
 		}
+		
 		$url = API_BASE_URL . 'entry?response_id=' . $entry_id . '&format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$data['entry'] = $result->data;
@@ -61,9 +71,6 @@ class App extends CI_Controller
 		// $this->custom->print($data); die();
 		$this->load->view('base', $data);
 	}
-
-
-
 
 	public function logout() {
         if ($this->session->has_userdata('logged_in')) {
@@ -126,7 +133,10 @@ class App extends CI_Controller
 		//extracting email from the input 
 		$email = $this->input->post('username');
 
+
         try {
+			
+
             // Create a new PHPMailer instance
             $mail = new PHPMailer(true);
 
@@ -438,11 +448,10 @@ public function index()
 		}
 	}
 
-
 	public function dashboard()
 	{
 		//CHECK FOR SESSION
-		if (!$this->session->has_userdata('logged_in')) {
+		if (!$this->session->has_userdata('logged_in') ) {
 			redirect();
 		}
 
@@ -468,6 +477,84 @@ public function index()
 		$this->load->view('base', $data);
 	}
 
+
+	public function dashboard_entry_edit($entry_id, $target)
+	{
+		//CHECK FOR SESSION
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect();
+		}
+
+		$url = API_BASE_URL . 'entry?response_id=' . $entry_id . '&format=json';
+		$result = json_decode($this->custom->run_curl_get($url));
+		$entry = $result->data;
+		$url = API_BASE_URLS . 'get-form?form_id=' . $entry->form_id . '&format=json';
+		$result = json_decode($this->custom->run_curl_get($url));
+		$form = $result->data;
+
+		$url = API_BASE_URL . 'app-lists?format=json';
+		$result = json_decode($this->custom->run_curl_get($url));
+		$app_lists = $result->data;
+
+		$data['app_lists'] = $app_lists;
+		$data['form'] = $form;
+		$data['entry'] = $entry;
+		$data['target'] = $target;
+		$data['page'] = 'pages/dashboard-edit';
+		$data['page_name'] = 'dashboard-edit';
+		// $this->custom->print($data); die();
+		$this->load->view('base', $data);
+	}
+
+	public function submit_dashboard_edit($response_id, $target)
+{
+    // Check for form submission
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Fetch form data from POST request
+        $form_data = $this->input->post(NULL, TRUE);
+
+        // Process form data for API submission
+        $api_data = [
+            '$response_id' => $response_id,
+            'title' => $form_data->title,
+            'is_geotagged' => $form_data['is_geotagged'] ?? 0,
+            'is_photograph' => $form_data['is_photograph'] ?? 0,
+            'is_followup' => $form_data['is_followup'] ?? 0,
+            'followup_interval' => $form_data['followup_interval'] ?? NULL,
+            'title_fields' => $this->processTitleFields($form_data),
+            'followup_prefill' => $this->processFollowupPrefill($form_data),
+            'is_publish' => $form_data['is_publish'] ?? 0,
+        ];
+		
+
+        // Send API request for form editing
+        $url = API_BASE_URLS . 'app/dashboard_entry_edit';
+        $result = $this->custom->run_curl_post($url, $api_data);
+
+        // Uncomment the following line for debugging purposes
+        // $this->custom->print($result); die();
+
+        // Redirect to the form page after editing
+        redirect('dashboard_entry_edit' . $form_id);
+    }
+}
+
+// Helper function to process title fields
+private function processTitleFields($form_data)
+{
+    $entry_title = $form_data['entry_title'] ? explode(',', str_replace(' ', '', $form_data['entry_title'])) : [];
+    $entry_subtitle = $form_data['entry_subtitle'] ? explode(',', str_replace(' ', '', $form_data['entry_subtitle'])) : [];
+
+    return json_encode(['entry_title' => $entry_title, 'entry_sub_title' => $entry_subtitle]);
+}
+
+// Helper function to process follow-up prefill
+private function processFollowupPrefill($form_data)
+{
+    $followup_prefill = $form_data['followup_prefill'] ? explode(',', str_replace(' ', '', $form_data['followup_prefill'])) : [];
+
+    return json_encode($followup_prefill);
+}
 
 	public function forms()
 	{
@@ -616,7 +703,6 @@ public function index()
 
 	public function form_entries($form_id)
 	{
-		//CHECK FOR SESSION
 		//CHECK FOR SESSION
 		if (!$this->session->has_userdata('logged_in')) {
 			redirect();
@@ -1105,21 +1191,6 @@ public function index()
 		// $data['permissions'] = $this->session->userdata('permissions');
 		$this->load->view('base', $data);
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	public function add_chart()
