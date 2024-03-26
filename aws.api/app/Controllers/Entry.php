@@ -32,10 +32,10 @@ class Entry extends BaseController
 		// {"created": {"$gt" : ISODate("2016-04-09T08:28:47") }},
 		//$query['responses.created_at'] > ISODate("2021-02-18");
 
-		if (isset ($params['region_id']) && $params['region_id'] != 0) {
+		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			/*				$district_list = $utility->region_district_array($params['region_id']);
-																		   $query['responses.qn4'] = ['$in' => $district_list];
-																		   */
+												$query['responses.qn4'] = ['$in' => $district_list];
+												*/
 		}
 
 
@@ -128,7 +128,7 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
-		if (isset ($params['entry_form_id'])) {
+		if (isset($params['entry_form_id'])) {
 			$entry = $collection->findOne(['entry_form_id' => $params['entry_form_id']]);
 			$entry->media_directory = base_url('writable/uploads/');
 			$data = [
@@ -136,7 +136,7 @@ class Entry extends BaseController
 				'data' => $entry
 			];
 
-		} elseif (isset ($params['response_id'])) {
+		} elseif (isset($params['response_id'])) {
 			$entry = $collection->findOne(['response_id' => $params['response_id']]);
 			// $entry->media_directory = base_url('writable/uploads/');
 
@@ -169,21 +169,21 @@ class Entry extends BaseController
 				'data' => $entry
 			];
 
-		} elseif (isset ($params['form_id'])) {
+		} elseif (isset($params['form_id'])) {
 
 			$query['form_id'] = $params['form_id'];
 
-			if (isset ($params['entity_type'])) {
+			if (isset($params['entity_type'])) {
 				$query['responses.entity_type'] = $params['entity_type'];
 				$emb_doc_filter['entity_type'] = $params['entity_type'];
 			}
 
-			if (isset ($params['start_date']) && isset ($params['end_date'])) {
+			if (isset($params['start_date']) && isset($params['end_date'])) {
 				$query['responses.created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
 				$emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
 			}
 
-			if (isset ($params['creator_id'])) {
+			if (isset($params['creator_id'])) {
 				$query['responses.creator_id'] = $params['creator_id'];
 				$emb_doc_filter['creator_id'] = $params['creator_id'];
 			}
@@ -196,7 +196,7 @@ class Entry extends BaseController
 					'form_id' => 1,
 					'created_at' => 1,
 					'updated_at' => 1,
-					'responses' => isset ($emb_doc_filter) ? array('$elemMatch' => $emb_doc_filter) : 1
+					'responses' => isset($emb_doc_filter) ? array('$elemMatch' => $emb_doc_filter) : 1
 				)
 			);
 			$data = $collection->find($query, $project)->toArray();
@@ -223,8 +223,8 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 		$entry = $collection->findOne(['response_id' => $params['response_id']]);
-		if (isset ($params['index'])) {
-			if (isset ($entry->responses[$params['index']])) {
+		if (isset($params['index'])) {
+			if (isset($entry->responses[$params['index']])) {
 				$entry->response = $entry->responses[$params['index']];
 				$entry->response->creator = $user_map[$entry->response->creator_id];
 				unset($entry->responses);
@@ -257,28 +257,28 @@ class Entry extends BaseController
 		$latest_followup = (array) $entry->responses[$number_of_responses - 1];
 		$followups = [];
 		foreach ($qn_data as $key => $value) {
-			if (isset ($qn_data[$key]) && isset ($baseline[$key])) {
+			if (isset($qn_data[$key]) && isset($baseline[$key])) {
 				$comp['baseline'][] = array('question' => $qn_data[$key], 'response' => $baseline[$key]);
 			}
-			if (isset ($qn_data[$key]) && isset ($latest_followup[0][$key])) {
+			if (isset($qn_data[$key]) && isset($latest_followup[0][$key])) {
 				$comp['followup'][0][] = array('question' => $qn_data[$key], 'response' => $latest_followup[0][$key]);
 				$photo_mobile_path = explode('/', $latest_followup[0]['photo']);
 				$filename = end($photo_mobile_path);
 				$comp['followup'][0]['photo'] = $filename;
 				$comp['has_an_array'] = 1;
 			}
-			if (isset ($qn_data[$key]) && isset ($latest_followup[$key])) {
+			if (isset($qn_data[$key]) && isset($latest_followup[$key])) {
 				$comp['followup'][] = array('question' => $qn_data[$key], 'response' => $latest_followup[$key]);
-				$photo_mobile_path = explode('/', $latest_followup['photo'] ?? null);
+				$photo_mobile_path = explode('/', $latest_followup['photo']??null);
 				$filename = end($photo_mobile_path);
 				$comp['followup']['photo'] = $filename;
 				$comp['has_an_array'] = 0;
 			}
-			if (isset ($latest_followup[0]['creator_id'])) {
+			if (isset($latest_followup[0]['creator_id'])) {
 				$comp['followup'][0]['followup_creator'] = $user_map[$latest_followup[0]['creator_id']];
 			}
 
-			if (isset ($followup['creator_id'])) {
+			if (isset($followup['creator_id'])) {
 				$comp['followup']['followup_creator'] = $user_map[$latest_followup['creator_id']];
 			}
 		}
@@ -287,23 +287,23 @@ class Entry extends BaseController
 		for ($i = 1; $i < $number_of_responses; $i++) {
 			$followup = (array) $entry->responses[$i];
 			foreach ($qn_data as $key => $value) {
-				if (isset ($qn_data[$key]) && isset ($followup[0][$key])) {
+				if (isset($qn_data[$key]) && isset($followup[0][$key])) {
 					$comp['followups'][$i][] = array('question' => $qn_data[$key], 'response' => $followup[0][$key]);
 					$photo_mobile_path = explode('/', $followup[0]['photo']);
 					$filename = end($photo_mobile_path);
 					$comp['followups'][$i]['photo'] = $filename;
 				}
-				if (isset ($qn_data[$key]) && isset ($followup[$key])) {
+				if (isset($qn_data[$key]) && isset($followup[$key])) {
 					$comp['followups'][$i][] = array('question' => $qn_data[$key], 'response' => $followup[$key]);
 					$photo_mobile_path = explode('/', $followup['photo']);
 					$filename = end($photo_mobile_path);
 					$comp['followups'][$i]['photo'] = $filename;
 				}
-				if (isset ($followup[0]['creator_id'])) {
+				if (isset($followup[0]['creator_id'])) {
 					$comp['followups'][$i]['followup_creator'] = $user_map[$followup[0]['creator_id']];
 				}
 
-				if (isset ($followup['creator_id'])) {
+				if (isset($followup['creator_id'])) {
 					$comp['followups'][$i]['followup_creator'] = $user_map[$followup['creator_id']];
 				}
 			}
@@ -335,7 +335,7 @@ class Entry extends BaseController
 		}
 
 
-		$photo_mobile_path = explode('/', $baseline['photo'] ?? null);
+		$photo_mobile_path = explode('/', $baseline['photo']??null);
 		$filename = end($photo_mobile_path);
 		$comp['baseline']['photo'] = $filename;
 		$data = $entry;
@@ -367,12 +367,12 @@ class Entry extends BaseController
 
 		$last_date = NULL;
 
-		if (isset ($params['region_id'])) {
+		if (isset($params['region_id'])) {
 			$district_list = $utility->region_district_array($params['region_id']);
 			$query['responses.qn4'] = ['$in' => $district_list];
 		}
 
-		if (isset ($params['form_id'])) {
+		if (isset($params['form_id'])) {
 			$query['form_id'] = $params['form_id'];
 			// Get Followup interval
 			$form = $this->db->table('question_form')->where('form_id', $params['form_id'])->get()->getRow();
@@ -387,11 +387,11 @@ class Entry extends BaseController
 		//	$query['responses.creator_id'] = $params['creator_id'];
 		//}
 
-		if (isset ($params['project'])) {
+		if (isset($params['project'])) {
 			$query['responses.qn148'] = $params['project'];
 		}
 
-		if (isset ($params['set_followup_interval'])) {
+		if (isset($params['set_followup_interval'])) {
 			// echo date('Y-m-d H:i:s', strtotime('-7 days'));
 			$last_date = date('Y-m-d H:i:s', strtotime('-' . $params['set_followup_interval'] . ' days'));
 			$query['updated_at'] = array('$lte' => $last_date);
@@ -443,16 +443,16 @@ class Entry extends BaseController
 			}
 			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
 
-			if (isset ($entry['responses'][0]['qn4'])) {
+			if (isset($entry['responses'][0]['qn4'])) {
 				$entry['district'] = $entry['responses'][0]['qn4'];
 			}
-			if (isset ($entry['responses'][0]['qn7'])) {
+			if (isset($entry['responses'][0]['qn7'])) {
 				$entry['sub_county'] = $entry['responses'][0]['qn7'];
 			}
-			if (isset ($entry['responses'][0]['qn8'])) {
+			if (isset($entry['responses'][0]['qn8'])) {
 				$entry['parish'] = $entry['responses'][0]['qn8'];
 			}
-			if (isset ($entry['responses'][0]['qn9'])) {
+			if (isset($entry['responses'][0]['qn9'])) {
 				$entry['village'] = $entry['responses'][0]['qn9'];
 			}
 
@@ -497,16 +497,16 @@ class Entry extends BaseController
 
 		$query['form_id'] = $params['form_id'];
 
-		if (isset ($params['region_id']) && $params['region_id'] != 0) {
+		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			$district_list = $utility->region_district_array($params['region_id']);
 			$query['responses.qn4'] = ['$in' => $district_list];
 		}
 
-		if (isset ($params['start_date']) && isset ($params['end_date'])) {
+		if (isset($params['start_date']) && isset($params['end_date'])) {
 			$query['responses.created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
 		}
 
-		if (!isset ($params['year'])) {
+		if (!isset($params['year'])) {
 			$date = '2024-01-01 12:43:12';
 			$query['responses.created_at'] = array('$gte' => $date);
 
@@ -535,7 +535,7 @@ class Entry extends BaseController
 			$number_of_responses = count($entry['responses']);
 			$title_str = '';
 			foreach ($form_titles['title'] as $item) {
-				if (isset ($entry['responses'][0]['qn' . $item]) || isset ($entry['responses'][0]['qn' . $item][0])) {
+				if (isset($entry['responses'][0]['qn' . $item]) || isset($entry['responses'][0]['qn' . $item][0])) {
 					if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
 						$title_str .= $entry['responses'][0]['qn' . $item][0];
 					} else {
@@ -549,7 +549,7 @@ class Entry extends BaseController
 
 			$sub_title_str = '';
 			foreach ($form_titles['sub_title'] as $item) {
-				if (isset ($entry['responses'][0]['qn' . $item]) || isset ($entry['responses'][0]['qn' . $item][0])) {
+				if (isset($entry['responses'][0]['qn' . $item]) || isset($entry['responses'][0]['qn' . $item][0])) {
 					if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
 						$sub_title_str .= $entry['responses'][0]['qn' . $item][0];
 					} else {
@@ -561,16 +561,16 @@ class Entry extends BaseController
 			}
 			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
 
-			if (isset ($entry['responses'][0]['qn4'])) {
+			if (isset($entry['responses'][0]['qn4'])) {
 				$entry['district'] = $entry['responses'][0]['qn4'];
 			}
-			if (isset ($entry['responses'][0]['qn7'])) {
+			if (isset($entry['responses'][0]['qn7'])) {
 				$entry['sub_county'] = $entry['responses'][0]['qn7'];
 			}
-			if (isset ($entry['responses'][0]['qn8'])) {
+			if (isset($entry['responses'][0]['qn8'])) {
 				$entry['parish'] = $entry['responses'][0]['qn8'];
 			}
-			if (isset ($entry['responses'][0]['qn9'])) {
+			if (isset($entry['responses'][0]['qn9'])) {
 				$entry['village'] = $entry['responses'][0]['qn9'];
 			}
 
@@ -651,12 +651,12 @@ class Entry extends BaseController
 		$collection = $client->aws->entries;
 
 		$query['form_id'] = $params['form_id'];
-		if (isset ($params['region_id']) && $params['region_id'] != 0) {
+		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			$district_list = $utility->region_district_array($params['region_id']);
 			$query['responses.qn4'] = ['$in' => $district_list];
 		}
 
-		if (isset ($params['start_date']) && isset ($params['end_date'])) {
+		if (isset($params['start_date']) && isset($params['end_date'])) {
 			$query['responses.created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
 		}
 
@@ -697,16 +697,16 @@ class Entry extends BaseController
 			}
 			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
 
-			if (isset ($entry['responses'][0]['qn4'])) {
+			if (isset($entry['responses'][0]['qn4'])) {
 				$entry['district'] = $entry['responses'][0]['qn4'];
 			}
-			if (isset ($entry['responses'][0]['qn7'])) {
+			if (isset($entry['responses'][0]['qn7'])) {
 				$entry['sub_county'] = $entry['responses'][0]['qn7'];
 			}
-			if (isset ($entry['responses'][0]['qn8'])) {
+			if (isset($entry['responses'][0]['qn8'])) {
 				$entry['parish'] = $entry['responses'][0]['qn8'];
 			}
-			if (isset ($entry['responses'][0]['qn9'])) {
+			if (isset($entry['responses'][0]['qn9'])) {
 				$entry['village'] = $entry['responses'][0]['qn9'];
 			}
 
@@ -778,23 +778,23 @@ class Entry extends BaseController
 			foreach ($entry->responses as $response) {
 				$compiled_response = [];
 				foreach ($response as $key => $value) {
-					if (isset ($compilation[$key])) {
+					if (isset($compilation[$key])) {
 						$compiled_response[] = array('question' => $compilation[$key], 'response' => $value);
 					}
 				}
 
 				$clean['compilation'] = $compiled_response;
-				if (isset ($response['photo_file']))
+				if (isset($response['photo_file']))
 					$clean['photo_file'] = $response['photo_file'];
-				if (isset ($response['coordinates']))
+				if (isset($response['coordinates']))
 					$clean['coordinates'] = $response['coordinates'];
-				if (isset ($response['creator_id']))
+				if (isset($response['creator_id']))
 					$clean['creator_id'] = $response['creator_id'];
-				if (isset ($response['creator_id']))
+				if (isset($response['creator_id']))
 					$clean['creator'] = $user_map[$response['creator_id']];
-				if (isset ($response['entity_type']))
+				if (isset($response['entity_type']))
 					$clean['entity_type'] = $response['entity_type'];
-				if (isset ($response['created_at']))
+				if (isset($response['created_at']))
 					$clean['created_at'] = $response['created_at'];
 				$compiled_entry[] = $clean;
 			}
@@ -816,83 +816,83 @@ class Entry extends BaseController
 
 	public function form_entries_report()
 	{
-		try {
-			ini_set('memory_limit', '512M');
-			// ini_set('memory_limit','1024M');
-			$utility = new Utility();
-			$params = $this->request->getGet();
+		try{
+		ini_set('memory_limit', '512M');
+		// ini_set('memory_limit','1024M');
+		$utility = new Utility();
+		$params = $this->request->getGet();
 
-			$client = new MongoDB();
-			$collection = $client->aws->entries;
+		$client = new MongoDB();
+		$collection = $client->aws->entries;
 
-			$aggregation = [];
+		$aggregation = [];
 
-			$aggregation[] = ['$match' => ['form_id' => $params['form_id']]];
-			$aggregation[] = ['$unwind' => '$responses'];
-			$aggregation[] = ['$unwind' => '$responses'];
+		$aggregation[] = ['$match' => ['form_id' => $params['form_id']]];
+		$aggregation[] = ['$unwind' => '$responses'];
+		$aggregation[] = ['$unwind' => '$responses'];
 
 
-			if ($params['region_id'] != "all") {
-				$orRegionArray = [];
-				$district_list = $utility->region_district_array($params['region_id']);
-				foreach ($district_list as $district) {
-					//push $district to $orRegionArray array with key responses.qn4
-					array_push($orRegionArray, ['responses.qn4' => $district]);
-				}
-
-				$aggregation[] = ['$match' => ['responses.entity_type' => $params['entry_data'], '$or' => $orRegionArray]];
-			} else {
-				//get records per region
-
+		if ($params['region_id'] != "all") {
+			$orRegionArray = [];
+			$district_list = $utility->region_district_array($params['region_id']);
+			foreach ($district_list as $district) {
+				//push $district to $orRegionArray array with key responses.qn4
+				array_push($orRegionArray, ['responses.qn4' => $district]);
 			}
 
-			if ($params['project'] != "all") {
-				$projects = [['responses.qn148' => $params['project']]];
-				$aggregation[] = [
-					'$match' => [
-						'$or' => $projects,
-						'$and' => [['responses.created_at' => ['$gt' => $params['startdate']]], ['responses.created_at' => ['$lt' => $params['enddate']]]]
-					]
-				];
-			} else {
-				$aggregation[] = [
-					'$match' => [
-						'$and' => [['responses.created_at' => ['$gt' => $params['startdate']]], ['responses.created_at' => ['$lt' => $params['enddate']]]]
-					]
-				];
-			}
+			$aggregation[] = ['$match' => ['responses.entity_type' => $params['entry_data'], '$or' => $orRegionArray]];
+		} else {
+			//get records per region
 
-			$aggregation[] = ['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]];
-			$aggregation[] = ['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]];
-			$aggregation[] = ['$project' => ['_id' => 0, 'response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'responses' => '$document.responses', 'created_at' => '$document.created_at', 'updated_at' => '$response.updated_at']];
-
-
-
-			$entry_list = $collection->aggregate($aggregation);
-
-			$data['headers'] = $utility->question_mapper($params['form_id']);
-			//check if region_id is not all
-			if ($params['region_id'] != "all") {
-				$data['region'] = $this->get_region_name($params['region_id']);
-			} else {
-				$data['region'] = "All Regions";
-			}
-			$data['entries'] = $entry_list->toArray();
-
-			$response = [
-				'status' => 200,
-				'data' => $data
-			];
-
-			return $this->respond($response);
-		} catch (Exception $e) {
-			$response = [
-				'status' => 500,
-				'data' => $e->getMessage()
-			];
-			return $this->fail($response);
 		}
+
+		if ($params['project'] != "all") {
+			$projects = [['responses.qn148' => $params['project']]];
+			$aggregation[] = [
+				'$match' => [
+					'$or' => $projects,
+					'$and' => [['responses.created_at' => ['$gt' => $params['startdate']]], ['responses.created_at' => ['$lt' => $params['enddate']]]]
+				]
+			];
+		} else {
+			$aggregation[] = [
+				'$match' => [
+					'$and' => [['responses.created_at' => ['$gt' => $params['startdate']]], ['responses.created_at' => ['$lt' => $params['enddate']]]]
+				]
+			];
+		}
+
+		$aggregation[] = ['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]];
+		$aggregation[] = ['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]];
+		$aggregation[] = ['$project' => ['_id' => 0, 'response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'responses' => '$document.responses', 'created_at' => '$document.created_at', 'updated_at' => '$response.updated_at']];
+
+
+
+		$entry_list = $collection->aggregate($aggregation);
+
+		$data['headers'] = $utility->question_mapper($params['form_id']);
+		//check if region_id is not all
+		if ($params['region_id'] != "all") {
+			$data['region'] = $this->get_region_name($params['region_id']);
+		}else {
+			$data['region'] = "All Regions";
+		}
+		$data['entries'] = $entry_list->toArray();
+
+		$response = [
+			'status' => 200,
+			'data' => $data
+		];
+
+		return $this->respond($response);
+	}catch(Exception $e){
+		$response = [
+			'status' => 500,
+			'data' => $e->getMessage()
+		];
+		return $this->fail($response);
 	}
+}
 	public function get_region_name($region_id)
 	{
 		$region = $this->db->table('region')->where('region_id', $region_id)->get()->getRow();
@@ -912,10 +912,8 @@ class Entry extends BaseController
 		$aggregation = [];
 
 		$aggregation[] = ['$match' => ['form_id' => $params['form_id']]];
-		if ($params['data_type'] == "followup") {
-			$aggregation[] = ['$unwind' => '$responses'];
-			$aggregation[] = ['$unwind' => '$responses'];
-		}
+		$aggregation[] = ['$unwind' => '$responses'];
+		$aggregation[] = ['$unwind' => '$responses'];
 
 		if ($params['project'] != "all") {
 			$projects = [['responses.qn148' => $params['project']]];
@@ -945,9 +943,7 @@ class Entry extends BaseController
 
 
 		$aggregation[] = ['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]];
-		if ($params['data_type'] == "followup") {
-			$aggregation[] = ['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]];
-		}
+		$aggregation[] = ['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]];
 
 		if ($params['group_by'] == 'village') {
 			$results = $this->db->table('village_view')->where('region_id', $params['region_id'])->get()->getResult();
@@ -974,9 +970,7 @@ class Entry extends BaseController
 			}, array_column($results, 'name'));
 			$group_stage_query = "responses.qn4";
 		}
-		if ($params['data_type'] == "followup") {
-			$aggregation[] = ['$project' => ['response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'title' => '$document.title', 'sub_title' => '$document.sub_title', 'district' => '$document.' . $group_stage_query, 'responses' => ['$objectToArray' => ['qn154' => ['$toInt' => '$document.responses.qn154'], 'qn155' => '$document.responses.qn155', 'qn412' => '$document.responses.qn412', 'qn157' => ['$toInt' => '$document.responses.qn157'], 'qn159' => ['$toInt' => '$document.responses.qn159'], 'qn219' => '$document.responses.qn219', 'qn162' => '$document.responses.qn162', 'qn167' => '$document.responses.qn167', 'qn168' => '$document.responses.qn168', 'qn174' => '$document.responses.qn174', 'qn171' => '$document.responses.qn171', 'qn173' => '$document.responses.qn173', 'qn221' => '$document.responses.qn221', 'qn179' => '$document.responses.qn179', 'qn181' => '$document.responses.qn181', 'qn223' => '$document.responses.qn223', 'qn183' => '$document.responses.qn183', 'qn184' => '$document.responses.qn184', 'qn189' => '$document.responses.qn189', 'qn191' => '$document.responses.qn191', 'qn193' => '$document.responses.qn193', 'qn194' => '$document.responses.qn194', 'qn217' => '$document.responses.qn217', 'qn225' => '$document.responses.qn225', 'qn197' => '$document.responses.qn197', 'qn206' => '$document.responses.qn206', 'qn414' => '$document.responses.qn414', 'qn424' => '$document.responses.qn424', 'qn416' => '$document.responses.qn416', 'qn418' => ['$toInt' => '$document.responses.qn418'], 'qn420' => '$document.responses.qn420', 'qn421' => '$document.responses.qn421', 'qn198' => ['$toInt' => '$document.responses.qn198'], 'qn201' => ['$toInt' => '$document.responses.qn201']]]]];
-		}
+		$aggregation[] = ['$project' => ['response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'title' => '$document.title', 'sub_title' => '$document.sub_title', 'district' => '$document.' . $group_stage_query, 'responses' => ['$objectToArray' => ['qn154' => ['$toInt' => '$document.responses.qn154'], 'qn155' => '$document.responses.qn155', 'qn412' => '$document.responses.qn412', 'qn157' => ['$toInt' => '$document.responses.qn157'], 'qn159' => ['$toInt' => '$document.responses.qn159'], 'qn219' => '$document.responses.qn219', 'qn162' => '$document.responses.qn162', 'qn167' => '$document.responses.qn167', 'qn168' => '$document.responses.qn168', 'qn174' => '$document.responses.qn174', 'qn171' => '$document.responses.qn171', 'qn173' => '$document.responses.qn173', 'qn221' => '$document.responses.qn221', 'qn179' => '$document.responses.qn179', 'qn181' => '$document.responses.qn181', 'qn223' => '$document.responses.qn223', 'qn183' => '$document.responses.qn183', 'qn184' => '$document.responses.qn184', 'qn189' => '$document.responses.qn189', 'qn191' => '$document.responses.qn191', 'qn193' => '$document.responses.qn193', 'qn194' => '$document.responses.qn194', 'qn217' => '$document.responses.qn217', 'qn225' => '$document.responses.qn225', 'qn197' => '$document.responses.qn197', 'qn206' => '$document.responses.qn206', 'qn414' => '$document.responses.qn414', 'qn424' => '$document.responses.qn424', 'qn416' => '$document.responses.qn416', 'qn418' => ['$toInt' => '$document.responses.qn418'], 'qn420' => '$document.responses.qn420', 'qn421' => '$document.responses.qn421', 'qn198' => ['$toInt' => '$document.responses.qn198'], 'qn201' => ['$toInt' => '$document.responses.qn201']]]]];
 		$aggregation[] = ['$match' => ['$or' => $orArray]];
 		$aggregation[] = ['$unwind' => ['path' => '$responses']];
 		$aggregation[] = ['$unwind' => ['path' => '$responses.v']];
@@ -998,12 +992,12 @@ class Entry extends BaseController
 		foreach ($entry_list as $key => $entry) {
 			$new_object = []; // Create an empty array to store the new objects
 			$new_object['name'] = $entry['name'];
-			if (isset ($entry->aggregate->qn155->Male)) {
+			if (isset($entry->aggregate->qn155->Male)) {
 				$males = $entry->aggregate->qn155->Male;
 			} else {
 				$males = 0;
 			}
-			if (isset ($entry->aggregate->qn155->Female)) {
+			if (isset($entry->aggregate->qn155->Female)) {
 				$females = $entry->aggregate->qn155->Female;
 			} else {
 				$females = 0;
@@ -1131,14 +1125,14 @@ class Entry extends BaseController
 		$file_path = WRITEPATH . 'uploads/' . $params['filename'];
 		$decoded = base64_decode($base64_string);
 		file_put_contents($file_path, $decoded);
-
+	
 		// Save the binary data to a file
 		$file_path = WRITEPATH . 'uploads/' . $params['filename'];
 		file_put_contents($file_path, $decoded);
 
 
 		// Check if 'photo_file' field exists in the responses array at the specified index
-		if (!isset ($entry['responses'][$index][0]['photo_file'])) {
+		if (!isset($entry['responses'][$index][0]['photo_file'])) {
 			// If not, update the document structure to include 'photo_file' in the responses array
 			$entry->responses[$index][0]->photo_file = $params['filename'];
 		}
@@ -1183,22 +1177,22 @@ class Entry extends BaseController
 		$base64_string = $params['photo_base64'];
 		// $base64_string = trim($base64_string);
 
-		$base64_string = str_replace('data:image/jpeg;base64,', '', $base64_string);
-		$base64_string = str_replace('[removed]', '', $base64_string);
-		$base64_string = str_replace(' ', '+', $base64_string);
+		 $base64_string = str_replace('data:image/jpeg;base64,', '', $base64_string);
+		 $base64_string = str_replace('[removed]', '', $base64_string);
+		 $base64_string = str_replace(' ', '+', $base64_string);
 
 		$file_path = WRITEPATH . 'uploads/' . $params['filename'];
 		$decoded = base64_decode($base64_string);
 
 		file_put_contents($file_path, $decoded);
-
+	
 		// Save the binary data to a file
 		$file_path = WRITEPATH . 'uploads/' . $params['filename'];
 		file_put_contents($file_path, $decoded);
 
 
 		// Check if 'photo_file' field exists in the responses array at the specified index
-		if (!isset ($entry['responses'][$index][0]['photo_file'])) {
+		if (!isset($entry['responses'][$index][0]['photo_file'])) {
 			// If not, update the document structure to include 'photo_file' in the responses array
 			$entry->responses[$index][0]->photo_file = $params['filename'];
 		}
@@ -1274,8 +1268,7 @@ class Entry extends BaseController
 	}
 
 
-	public function update_rejected_entry()
-	{
+		public function update_rejected_entry(){
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
@@ -1314,7 +1307,7 @@ class Entry extends BaseController
 		// convert file form base64 and upload it
 		$base64_string = $params['photo_base64'];
 		$base64_string = trim($base64_string);
-
+		
 		$base64_string = str_replace('data:image/jpeg;base64,', '', $base64_string);
 		$base64_string = str_replace('[removed]', '', $base64_string);
 		$base64_string = str_replace(' ', '+', $base64_string);
@@ -1350,7 +1343,7 @@ class Entry extends BaseController
 	}
 
 
-	public function reject_entry()
+		public function reject_entry()
 	{
 		$params = $this->request->getPost();
 
@@ -1386,7 +1379,7 @@ class Entry extends BaseController
 
 		$params = $this->request->getGet();
 
-		$user_id = (int) $params['user_id'];
+		$user_id = (int)$params['user_id'];
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
@@ -1403,17 +1396,17 @@ class Entry extends BaseController
 			$form_titles = $utility->form_titles($entry['form_id']);
 			$title_str = '';
 			foreach ($form_titles['title'] as $item) {
-
-				$title_str .= $entry['responses']['qn' . $item];
-
+			
+					$title_str .= $entry['responses']['qn' . $item];
+				
 			}
 			$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
 
 			$sub_title_str = '';
 			foreach ($form_titles['sub_title'] as $item) {
-
-				$sub_title_str .= $entry['responses']['qn' . $item];
-
+				
+					$sub_title_str .= $entry['responses']['qn' . $item];
+				
 			}
 			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
 
@@ -1519,37 +1512,37 @@ class Entry extends BaseController
 					if ($followup_entry = json_decode($entry->json_followup)) {
 						foreach ($followup_entry as $followup) {
 							if (count((array) $followup)) {
-								if (isset ($followup->qn3))
+								if (isset($followup->qn3))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn3));
-								if (isset ($followup->qn115))
+								if (isset($followup->qn115))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn115));
-								if (isset ($followup->qn133))
+								if (isset($followup->qn133))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn133));
-								if (isset ($followup->qn228))
+								if (isset($followup->qn228))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn228));
-								if (isset ($followup->qn229))
+								if (isset($followup->qn229))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn229));
-								if (isset ($followup->qn296))
+								if (isset($followup->qn296))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn296));
-								if (isset ($followup->qn297))
+								if (isset($followup->qn297))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn297));
-								if (isset ($followup->qn340))
+								if (isset($followup->qn340))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn340));
-								if (isset ($followup->qn351))
+								if (isset($followup->qn351))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn351));
-								if (isset ($followup->qn352))
+								if (isset($followup->qn352))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn352));
-								if (isset ($followup->qn405))
+								if (isset($followup->qn405))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn405));
-								if (isset ($followup->qn406))
+								if (isset($followup->qn406))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn406));
-								if (isset ($followup->qn425))
+								if (isset($followup->qn425))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn425));
-								if (isset ($followup->qn426))
+								if (isset($followup->qn426))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn426));
-								if (isset ($followup->qn455))
+								if (isset($followup->qn455))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn455));
-								if (isset ($followup->qn497))
+								if (isset($followup->qn497))
 									$followup->created_at = date('Y-m-d H:i:s', strtotime($followup->qn497));
 								if (gettype($followup) == 'object')
 									$followup->entity_type = 'followup';
@@ -1590,7 +1583,7 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
-		if (isset ($params['startdate']) && isset ($params['enddate'])) {
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1694,7 +1687,7 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
-		if (isset ($params['startdate']) && isset ($params['enddate'])) {
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1740,7 +1733,7 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
-		if (isset ($params['startdate']) && isset ($params['enddate'])) {
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1786,7 +1779,7 @@ class Entry extends BaseController
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
-		if (isset ($params['startdate']) && isset ($params['enddate'])) {
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1833,7 +1826,7 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
-		if (isset ($params['startdate']) && isset ($params['enddate'])) {
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1880,7 +1873,7 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
-		if (isset ($params['startdate']) && isset ($params['enddate'])) {
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
@@ -1926,7 +1919,7 @@ class Entry extends BaseController
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
-		if (isset ($params['startdate']) && isset ($params['enddate'])) {
+		if (isset($params['startdate']) && isset($params['enddate'])) {
 			$startdate = $params['startdate'];
 			$enddate = $params['enddate'];
 		} else {
