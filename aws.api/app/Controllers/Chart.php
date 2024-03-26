@@ -13,7 +13,8 @@ class Chart extends BaseController
 
 	use ResponseTrait;
 
-	public function index()
+
+		public function index()
 	{
 		$params = $this->request->getGet();
 		$model = new ChartModel();
@@ -40,11 +41,46 @@ class Chart extends BaseController
 			if ($data) {
 				$chart_list = [];
 				foreach ($data as $chart) {
+					$start_date = $chart['start_date'];
+					$end_date = $chart['end_date'];
 					$form_list = json_decode($chart['form_list']);
 					$form_entries = 0;
 					foreach ($form_list as $form_id) {
-						$count_documents = $collection->countDocuments(['form_id' => $form_id]);
-						$form_entries += $count_documents;
+
+						$aggregation = [];
+
+						// Stage 1: Match by form_id
+						$aggregation[] = ['$match' => ['form_id' => $form_id]];
+
+						// Stage 2: Match by date range
+						$aggregation[] = ['$match' => ['responses.created_at' => ['$gte' => $start_date, '$lte' => $end_date]]];
+
+						// Stage 3: Group by form_id and count the results
+						$aggregation[] = [
+							'$group' => [
+								'_id' => '$form_id',
+								'count' => ['$sum' => 1]
+							]
+						];
+
+						// Stage 4: Replace count with 0 if it's null
+						$aggregation[] = [
+							'$project' => [
+								'_id' => 1,
+								'entries' => ['$ifNull' => ['$count', 0]]
+							]
+						];
+
+						$number_of_entries = $collection->aggregate($aggregation)->toArray();
+
+						if (!empty($number_of_entries)) {
+							$count = $number_of_entries[0]['entries'];
+						} else {
+							$count = 0;
+						}
+
+						$form_entries += $count;
+
 					}
 
 					$chart['actual'] = $form_entries;
@@ -66,7 +102,7 @@ class Chart extends BaseController
 				],
 				'data' => $data
 			];
-			
+
 			return $this->respond($response);
 		}else{
 			return $this->failNotFound('No Data Found with id '.$id);
