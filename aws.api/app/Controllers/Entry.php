@@ -1376,8 +1376,7 @@ class Entry extends BaseController
 
 	public function rejected_entries()
 	{
-		ini_set('memory_limit', '512M');
-
+		try{
 		$utility = new Utility();
 
 		$params = $this->request->getGet();
@@ -1427,6 +1426,13 @@ class Entry extends BaseController
 		];
 
 		return $this->respond($response);
+	} catch (Exception $e) {
+		$response = [
+			'status' => 500,
+			'error' => $e->getMessage()
+		];
+		return $this->fail($response);
+	}
 	}
 
 
