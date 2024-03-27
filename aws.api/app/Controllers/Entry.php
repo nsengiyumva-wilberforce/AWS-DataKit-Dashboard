@@ -1388,7 +1388,9 @@ class Entry extends BaseController
 
 		$aggregation = [];
 
+		$aggregation[] = ['$match' => ['responses.creator_id' => 46]];
 		$aggregation[] = ['$match' => ['responses.rejection_status' => 'rejected']];
+
 
 		$rejected_entries = $collection->aggregate($aggregation)->toArray();
 		var_dump($rejected_entries); exit;
