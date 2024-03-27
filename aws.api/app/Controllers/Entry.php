@@ -1376,6 +1376,8 @@ class Entry extends BaseController
 
 	public function rejected_entries()
 	{
+		ini_set('memory_limit', '512M');
+
 		$utility = new Utility();
 
 		$params = $this->request->getGet();
@@ -1411,7 +1413,6 @@ class Entry extends BaseController
 			}
 			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
 
-			$entry['responses'] = $entry['responses'];
 
 			$newData[] = $entry;
 		}
