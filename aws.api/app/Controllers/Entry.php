@@ -1388,7 +1388,7 @@ class Entry extends BaseController
 
 		$aggregation = [];
 
-		$aggregation[] = ['$match' => ['responses.creator_id' => $user_id, 'responses.rejection_status' => 'rejected']];
+		$aggregation[] = ['$match' => ['responses.creator_id' => 46, 'responses.rejection_status' => 'rejected']];
 
 		$aggregation[] = ['$project' => ['_id' => 0, 'response_id' => '$response_id', 'form_id' => '$form_id', 'title' => ['$arrayElemAt' => ['$responses.qn152', 0]], 'sub_title' => ['$arrayElemAt' => ['$responses.qn9', 0]], 'responses' => ['$arrayElemAt' => ['$responses', 0]]]];
 
