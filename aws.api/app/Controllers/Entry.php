@@ -1376,29 +1376,22 @@ class Entry extends BaseController
 
 	public function rejected_entries()
 	{
-		try{
 		$utility = new Utility();
 
 		$params = $this->request->getGet();
 
-		$user_id = (int)$params['user_id'];
+		$user_id = $params['user_id'];
 
 		$client = new MongoDB();
 		$collection = $client->aws->entries;
 
 		$aggregation = [];
 
-		$aggregation[] = ['$match' => ['responses.creator_id' => 46]];
-		$aggregation[] = ['$match' => ['responses.rejection_status' => 'rejected']];
-
-
-		$rejected_entries = $collection->aggregate($aggregation)->toArray();
-		var_dump($rejected_entries); exit;
-
+		$aggregation[] = ['$match' => ['responses.creator_id' => $user_id, 'responses.rejection_status' => 'rejected']];
 
 		$aggregation[] = ['$project' => ['_id' => 0, 'response_id' => '$response_id', 'form_id' => '$form_id', 'title' => ['$arrayElemAt' => ['$responses.qn152', 0]], 'sub_title' => ['$arrayElemAt' => ['$responses.qn9', 0]], 'responses' => ['$arrayElemAt' => ['$responses', 0]]]];
 
-
+		$rejected_entries = $collection->aggregate($aggregation)->toArray();
 		$newData = [];
 		foreach ($rejected_entries as $entry) {
 			$form_titles = $utility->form_titles($entry['form_id']);
@@ -1432,13 +1425,6 @@ class Entry extends BaseController
 		];
 
 		return $this->respond($response);
-	} catch (Exception $e) {
-		$response = [
-			'status' => 500,
-			'error' => $e->getMessage()
-		];
-		return $this->fail($response);
-	}
 	}
 
 
