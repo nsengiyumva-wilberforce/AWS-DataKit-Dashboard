@@ -59,7 +59,7 @@ class App extends CI_Controller
 		redirect();
 	}
 
-	public function authenticate()
+		public function authenticate()
 	{
 		$params = $this->input->post(NULL, TRUE);
 		$params['format'] = 'json';
@@ -68,6 +68,10 @@ class App extends CI_Controller
 		//$url = API_BASE_URLS.'admin-authenticate';
 		$result = json_decode($this->custom->run_curl_post($url, $params));
 
+		if ($result->status==404 ){
+			$this->session->set_flashdata('err_msg', "Invalid username or password");
+			redirect();
+		}
 
 		if ($result->status) {
 			$user = $result->data;
@@ -77,6 +81,7 @@ class App extends CI_Controller
 			$user_data['region_code'] = $user->region_code;
 			$user_data['permissions'] = $permissions;
 			$user_data['logged_in'] = TRUE;
+
 			$this->session->set_userdata($user_data);
 			redirect();
 		} else {
