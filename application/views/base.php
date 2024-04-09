@@ -961,9 +961,9 @@
 				// Remove Question Form
 				$(document).on('click', '#remove-logic-to-question-form', function (e) {
 					e.preventDefault();
-					$('#add-logic-to-question-form').remove();
-					// $('.question-card').show();
-				});
+					let target_element = $(this).attr('data-target-element');
+					$('#' + target_element).remove();
+				});;
 
 
 
