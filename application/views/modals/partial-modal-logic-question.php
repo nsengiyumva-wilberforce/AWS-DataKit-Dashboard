@@ -1,4 +1,4 @@
-    <div class="form-group">
+<div class="form-group">
         <label>Answer to attach condition to</label>
         <select name="answer" id="select-answer" class="form-control" required>
             <option value=""></option>
@@ -42,7 +42,7 @@
                 <label>Select Questions to Prefill</label>
                 <select class="form-control" name="prefill_question_ids[]">
                 <option></option>
-                <?php foreach($prefill_question_list as $qn): ?>
+                <?php foreach($question_list as $qn): ?>
                 <option value="<?= $qn->question_id ?>"><?= $qn->question ?></option>
                 <?php endforeach; ?>
                 </select>
