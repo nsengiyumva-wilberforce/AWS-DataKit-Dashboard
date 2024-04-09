@@ -16,7 +16,7 @@
             <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
             <button type="submit" class="btn btn-sm btn-primary" id="add-logic-to-question-btn" data-target-element="#logic-help-text-<?= $question->question_id ?>">Submit</button>
 			<!-- <button type="submit" class="btn btn-sm btn-primary btn-save-question">Save</button> -->
-			<button id="remove-logic-to-question-form" class="btn btn-sm btn-primary">Cancel</button>
+			<button id="remove-logic-to-question-form" class="btn btn-sm btn-primary" data-target-element="add-logic-to-question-form-<?= $question->question_id ?>">Cancel</button>
         </div>
 	</div>
 </form>
