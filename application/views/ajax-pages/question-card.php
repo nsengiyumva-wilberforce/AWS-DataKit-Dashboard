@@ -28,5 +28,10 @@
 				<!-- <span>App list value</span> -->
 			<?php } ?>
 		<?php endif; ?>
+
+				<!-- question condions -->
+		<?php if (isset($conditions) && !is_null($conditions)): ?>
+			<?php echo $conditions; ?>
+		<?php endif; ?>
 	</div>
 </div>
