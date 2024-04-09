@@ -6,7 +6,7 @@
 </div>
 <div class="modal-body">
     <p class="lead"><strong><?= $question->question ?></strong></p>
-    <form id="add-logic-to-question-form" action="<?= base_url('create-conditional-logic') ?>" method="POST">
+    <form id="add-logic-to-question-form" action="<?= base_url('ajax/create-conditional-logic') ?>" method="POST">
         <input type="hidden" name="form_id" value="<?= $form_id ?>">
         <input type="hidden" name="question_id" value="<?= $question->question_id ?>">
         <?php $this->load->view('modals/partial-modal-logic-question') ?>

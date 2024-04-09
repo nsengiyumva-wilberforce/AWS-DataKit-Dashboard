@@ -1,4 +1,4 @@
-<form class="card add-logic-to-question-form" id="add-logic-to-question-form-<?= $question->question_id ?>" action="<?= base_url('create-conditional-logic') ?>" method="POST" data-target-element="#logic-help-text-<?= $question->question_id ?>">
+<form class="card add-logic-to-question-form" id="add-logic-to-question-form-<?= $question->question_id ?>" action="<?= base_url('ajax/create-conditional-logic') ?>" method="POST" data-target-element="#logic-help-text-<?= $question->question_id ?>">
 	<div class="card-body">
 		<div class="row">
 			<div class="col-12">
