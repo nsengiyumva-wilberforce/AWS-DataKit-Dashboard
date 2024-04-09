@@ -963,11 +963,7 @@
 					e.preventDefault();
 					let target_element = $(this).attr('data-target-element');
 					$('#' + target_element).remove();
-				});;
-
-
-
-
+				});
 
 				// Question Answers
 				$(document).on('change', '#answer-type', function (e) {
