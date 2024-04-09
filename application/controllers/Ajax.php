@@ -218,6 +218,69 @@ class Ajax extends CI_Controller {
 		}
 	}
 
+	public function logic_question($form_id, $question_id)
+	{
+		//CHECK FOR SESSION
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect('login');
+		}
+
+		//get the form details
+		$url = API_BASE_URL . 'forms?form_id=' . $form_id;
+		$result = $this->custom->run_curl_get($url);
+		$obj_array = json_decode($result);
+		$prefill_list = $obj_array->data->question_list;
+
+		//get answer values
+		$url = API_BASE_URL . 'questions?question_id=' . $question_id;
+		$result = $this->custom->run_curl_get($url);
+		$obj_array = json_decode($result);
+
+		$data['form_id'] = $form_id;
+		$data['question'] = $obj_array->data;
+		$data['question_list'] = $prefill_list;
+		$this->load->view('modals/ajax-logic-question', $data);
+	}
+
+	public function create_conditional_logic()
+	{
+		//CHECK FOR SESSION
+		if (!$this->session->has_userdata('logged_in')) {
+			redirect('login');
+		}
+
+		$params = $this->input->post(NULL, TRUE);
+
+		$data['form_id'] = $params['form_id'];
+		$data['question_id'] = $params['question_id'];
+		$data['answer'] = $params['answer'];
+		$data['action'] = $params['action'];
+		if (isset($params['prefill_question_ids']) && $params['action'] == 'prefill') {
+			//join prefill_question_ids and prefill_question_answers as prefill_question_ids value => prefill_question_answers value
+			$prefill_question_ids = $params['prefill_question_ids'];
+			$prefill_question_answers = $params['prefill_question_answers'];
+			$prefill_list = [];
+
+			foreach ($prefill_question_ids as $key => $value) {
+				$prefill_list['qn'.$value] = $prefill_question_answers[$key];
+			}
+
+			$data['question_ids'] = json_encode($prefill_list);
+		} else if (isset($params['question_ids']) && $params['action'] == 'hide') {
+			$hidden_fields = $params['question_ids'];
+
+			$hide = [];
+			foreach ($hidden_fields as $key => $value) {
+				$hide[] = 'qn'.$value;
+			}
+			$data['question_ids'] = json_encode($hide);
+		}
+		$url = API_BASE_URL . 'form/conditional-logic/add';
+		$result = $this->custom->run_curl_post($url, $data);
+		echo $result;
+
+	}
+
 	public function edit_question_form($question_id)
 	{
 		//CHECK FOR SESSION

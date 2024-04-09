@@ -1233,8 +1233,15 @@
 
 
 				$(document).on('submit', '.add-logic-to-question-form', function (event) {
+					console.log("adding question..........")
+					event.preventDefault();
+
 					let element = $(this).attr('id');
+					console.log("element:", element)
 					let response_element = $(this).attr('data-target-element');
+					console.log("response element:", response_element);
+					//print form data
+					console.log($(this).serialize());
 					$(this).ajaxSubmit({
 						success: function (response) {
 							// console.log(response);
@@ -1247,17 +1254,45 @@
 
 
 				$(document).on('click', '.remove-conditions', function (e) {
+					console.log("removing conditions.........")
 					e.preventDefault();
 					var r = confirm("This condition will permanently be removed. Do you want to continue?");
 					if (r == true) {
 						let url = $(this).attr('href');
 						let element = $(this).find('href');
-						$.get(url)
-							.done(function (response) {
-								element.html('');
-							}).fail(function (error) {
-								console.log(error);
-							});
+						//get data-question-element
+						let questionId = $(this).attr('data-question-element');
+						console.log("question id:", questionId);
+						//get data-form-element
+						let formId = $(this).attr('data-form-element');
+						console.log("form id:", formId);
+
+						//conditional logic from data-logic-element
+						
+						let logic = 
+						$.ajax({
+							url: url,
+							method: 'POST',
+							dataType: 'json', // Expecting JSON response (optional)
+							data: {
+								question_id: questionId,
+								form_id: formId,
+							},
+							success: function (response) {
+								if (response.success) {
+									console.log('Conditional logic removed!');
+
+									// Update UI or display success message (optional)
+								} else {
+									console.error('Error removing logic:', response.message);
+									// Handle error response (optional)
+								}
+							},
+							error: function (jqXHR, textStatus, errorThrown) {
+								console.error('Error during AJAX request:', textStatus, errorThrown);
+								// Handle general errors (optional)
+							}
+						});
 					} else {
 						// alert("You pressed Cancel!");
 						console.log('Action cancelled');

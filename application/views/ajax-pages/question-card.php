@@ -7,6 +7,9 @@
 			<a class="nav-link py-0 delete-question" data-question-id="<?= $question_id ?>" title="Delete" href="#">
 				<i data-feather="trash"></i>
 			</a>
+			<a class="nav-link py-0 add-logic-to-question btn-logic" href="<?= base_url('ajax/logic-question/'.$form_id.'/'.$question_id) ?>" data-question-id="<?= $form_id ?>" title="Add Conditional Logic" href="#">
+				<i data-feather="code"></i>
+			</a>
 		</nav>
 	</div>
 	<div class="card-body">

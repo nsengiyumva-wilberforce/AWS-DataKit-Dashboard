@@ -23,7 +23,7 @@ class Form extends BaseController
 			$form = $model->getWhere(['form_id' => $params['form_id']])->getRow();
 			if ($form) {
 
-				if (!is_null($form->question_list) && $form->question_list != '[]') {					
+				if (!is_null($form->question_list) && $form->question_list != '[]') {
 					$form->renamed = json_decode($form->renamed, TRUE);
 					$form->conditional_logic = $conditional_logic = json_decode($form->conditional_logic, TRUE);
 					$question_ids = json_decode($form->question_list);
@@ -33,21 +33,24 @@ class Form extends BaseController
 
 
 					foreach ($form->question_list as $question) {
+						$url = base_url('form/conditional-logic/remove');
+						$question_id = $question->question_id;
+						$form_id = $form->form_id;
 						$dom = NULL;
-						if (isset($conditional_logic['qn'.$question->question_id])) {
-							$dom = '<ul>';
-							foreach ($conditional_logic['qn'.$question->question_id] as $key => $value) {
-								if (isset($value['hide']) ) {
-									$dom .= '<li>Selecting <strong>"'.$key.'"</strong> will hide '.count($value['hide']).' Questions</li>';
-								} elseif (isset($value['prefill']) ) {
-									// print_r($value['prefill']);
-									$dom .= '<li>Selecting <strong>"'.$key.'"</strong> will hide '.count($value['prefill']).' Questions</li>';
+						if (isset($conditional_logic['qn' . $question->question_id])) {
+							$dom = '<ul class="unstyled-list">';
+							foreach ($conditional_logic['qn' . $question->question_id] as $key => $value) {
+								if (isset($value['hide'])) {
+									//pass the form_id, question_id as data-elements
+									$dom .= '<li>Selecting <strong>"' . $key . '"</strong> will hide ' . count($value['hide']) . ' Questions | <a href="' . $url . '" class="remove-conditions text-danger" data-form-element="'.$form_id.'" data-question-element="'.$question_id.'">Remove</a></li>';
+								} elseif (isset($value['prefill'])) {
+									$dom .= '<li>Selecting <strong>"' . $key . '"</strong> will prefill ' . count($value['prefill']) . ' Questions | <a href="' . $url . '" class="remove-conditions text-danger" data-form-element="'.$form_id.'" data-question-element="'.$question_id.'">Remove</a></li>';
 								}
 							}
 							$dom .= '</ul>';
-							
-						}	
-						$question->conditions = $dom;		
+
+						}
+						$question->conditions = $dom;
 					}
 
 				} else {
@@ -55,41 +58,41 @@ class Form extends BaseController
 				}
 
 				if (isset($params['settings']) && $params['settings'] = 1) {
-					$titles = count(json_decode($form->title_fields, true)['entry_title']??[]);
-					$sub_titles = json_decode($form->title_fields, true)['entry_sub_title']??[];
+					$titles = count(json_decode($form->title_fields, true)['entry_title'] ?? []);
+					$sub_titles = json_decode($form->title_fields, true)['entry_sub_title'] ?? [];
 					if ($titles) {
 						$title_fields = json_decode($form->title_fields);
-						$title_fields_ids_list = implode (", ", $title_fields->entry_title);
-						$sub_title_fields_ids_list = implode (", ", $title_fields->entry_sub_title);
+						$title_fields_ids_list = implode(", ", $title_fields->entry_title);
+						$sub_title_fields_ids_list = implode(", ", $title_fields->entry_sub_title);
 
 						$question_model = new QuestionModel();
 
-						$entry_title = $question_model->whereIn('question_id', $title_fields->entry_title)->orderBy('FIELD(question_id, '.$title_fields_ids_list.')')->get()->getResult();
+						$entry_title = $question_model->whereIn('question_id', $title_fields->entry_title)->orderBy('FIELD(question_id, ' . $title_fields_ids_list . ')')->get()->getResult();
 						foreach ($entry_title as $fill) {
 							$fill->answer_values = json_decode($fill->answer_values);
 						}
 
-						$entry_sub_title = $question_model->whereIn('question_id', $title_fields->entry_sub_title)->orderBy('FIELD(question_id, '.$sub_title_fields_ids_list.')')->get()->getResult();
+						$entry_sub_title = $question_model->whereIn('question_id', $title_fields->entry_sub_title)->orderBy('FIELD(question_id, ' . $sub_title_fields_ids_list . ')')->get()->getResult();
 						foreach ($entry_sub_title as $fill) {
 							$fill->answer_values = json_decode($fill->answer_values);
 						}
 
-						$form->title_fields = array('entry_title'=>$entry_title, 'entry_sub_title' => $entry_sub_title);
+						$form->title_fields = array('entry_title' => $entry_title, 'entry_sub_title' => $entry_sub_title);
 
 					} else {
-						$form->title_fields = array('entry_title'=>[], 'entry_sub_title' => []);
+						$form->title_fields = array('entry_title' => [], 'entry_sub_title' => []);
 					}
 
 					if ($form->followup_prefill) {
 						$followup_prefill = json_decode($form->followup_prefill);
 
 						if (count($followup_prefill)) {
-							$followup_prefill_ids_list = implode (", ", $followup_prefill);
-							$form->followup_prefill = $question_model->whereIn('question_id', json_decode($form->followup_prefill))->orderBy('FIELD(question_id, '.$followup_prefill_ids_list.')')->get()->getResult();
+							$followup_prefill_ids_list = implode(", ", $followup_prefill);
+							$form->followup_prefill = $question_model->whereIn('question_id', json_decode($form->followup_prefill))->orderBy('FIELD(question_id, ' . $followup_prefill_ids_list . ')')->get()->getResult();
 						} else {
 							$form->followup_prefill = [];
-						}						
-						
+						}
+
 						foreach ($form->followup_prefill as $prefill) {
 							$prefill->answer_values = json_decode($prefill->answer_values);
 						}
@@ -102,15 +105,15 @@ class Form extends BaseController
 				}
 
 			} else {
-				return $this->respondNoContent('No Form found with id '.$params['form_id']);
+				return $this->respondNoContent('No Form found with id ' . $params['form_id']);
 			}
-			$data = $form;		
+			$data = $form;
 
 		} elseif (isset($params['published'])) {
 			$data = $model->getWhere(['is_publish' => $params['published']])->getResult();
 			foreach ($data as $form) {
 
-				if (!is_null($form->question_list) && $form->question_list != '[]') {	
+				if (!is_null($form->question_list) && $form->question_list != '[]') {
 					$form->title_fields = json_decode($form->title_fields, TRUE);
 					$form->renamed = json_decode($form->renamed, TRUE);
 					$form->conditional_logic = $conditional_logic = json_decode($form->conditional_logic, TRUE);
@@ -121,20 +124,20 @@ class Form extends BaseController
 
 					foreach ($form->question_list as $question) {
 						$dom = NULL;
-						if (isset($conditional_logic['qn'.$question->question_id])) {
+						if (isset($conditional_logic['qn' . $question->question_id])) {
 							$dom = '<ul>';
-							foreach ($conditional_logic['qn'.$question->question_id] as $key => $value) {
-								if (isset($value['hide']) ) {
-									$dom .= '<li>Selecting <strong>"'.$key.'"</strong> will hide '.count($value['hide']).' Questions</li>';
-								} elseif (isset($value['prefill']) ) {
+							foreach ($conditional_logic['qn' . $question->question_id] as $key => $value) {
+								if (isset($value['hide'])) {
+									$dom .= '<li>Selecting <strong>"' . $key . '"</strong> will hide ' . count($value['hide']) . ' Questions</li>';
+								} elseif (isset($value['prefill'])) {
 									// print_r($value['prefill']);
-									$dom .= '<li>Selecting <strong>"'.$key.'"</strong> will hide '.count($value['prefill']).' Questions</li>';
+									$dom .= '<li>Selecting <strong>"' . $key . '"</strong> will hide ' . count($value['prefill']) . ' Questions</li>';
 								}
 							}
 							$dom .= '</ul>';
-							
-						}	
-						$question->conditions = $dom;		
+
+						}
+						$question->conditions = $dom;
 					}
 
 				} else {
@@ -147,16 +150,16 @@ class Form extends BaseController
 			$data = $model->findAll();
 		}
 
-		if($data){
+		if ($data) {
 			$response = [
-				'status'   => 201,
-				'error'    => null,
+				'status' => 201,
+				'error' => null,
 				'data' => $data
 			];
 
 			return $this->respond($response);
-		}else{
-			return $this->failNotFound('No Data Found with id '.$id);
+		} else {
+			return $this->failNotFound('No Data Found with id ' . $form_id);
 		}
 	}
 
