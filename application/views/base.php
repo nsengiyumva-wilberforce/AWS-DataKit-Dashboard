@@ -348,8 +348,8 @@
 					$('input[name="dates"]').daterangepicker({
 						opens: 'left',
 						autoApply: true,
-						startDate: '11/01/2022',
-						endDate: '06/30/2023'
+						startDate: '12/01/2023',
+						endDate: '04/30/2024'
 					});
 				});
 			</script>
@@ -410,7 +410,7 @@
 						}
 					},
 					title: {
-						text: 'Regional Baseline Vs Monitoring for 2023',
+						text: 'Regional Baseline Vs Monitoring for 2024',
 						align: 'left'
 					},
 					xAxis: {

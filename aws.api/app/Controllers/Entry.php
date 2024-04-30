@@ -866,9 +866,8 @@ class Entry extends BaseController
 		$aggregation[] = ['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]];
 		$aggregation[] = ['$project' => ['_id' => 0, 'response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'responses' => '$document.responses', 'created_at' => '$document.created_at', 'updated_at' => '$response.updated_at']];
 
-
-
-		$entry_list = $collection->aggregate($aggregation);
+		//add allowDiskUse to true to allow large data processing
+		$entry_list = $collection->aggregate($aggregation, ["allowDiskUse" => true]);
 
 		$data['headers'] = $utility->question_mapper($params['form_id']);
 		//check if region_id is not all
