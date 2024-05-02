@@ -353,9 +353,7 @@ class Entry extends BaseController
 			return $this->failNotFound('No Data Found with id ');
 		}
 	}
-
-
-
+	
 	public function downloadable_region_entries()
 	{
 		ini_set('memory_limit', '512M');
@@ -397,8 +395,13 @@ class Entry extends BaseController
 			$query['updated_at'] = array('$lte' => $last_date);
 		}
 
-		$date = '2023-11-01 00:00:00';
-		$query['responses.created_at'] = array('$gte' => $date);
+		//$date = '2023-11-01 00:00:00';
+		$current_date = new DateTime();
+		$base_date = new DateTime($form->from_date);
+		$date_range = $current_date->diff($base_date)->days; 
+
+		$query['responses.created_at'] = ['$gte' => $date_range];
+
 
 		// $emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
 		// echo json_encode($query); exi
@@ -466,10 +469,6 @@ class Entry extends BaseController
 
 		}
 
-
-
-
-
 		if ($data) {
 			$response = [
 				'status' => 200,
@@ -482,7 +481,6 @@ class Entry extends BaseController
 
 		// 	echo json_encode($query); exit;
 	}
-
 
 	public function getRegionalEntries()
 	{

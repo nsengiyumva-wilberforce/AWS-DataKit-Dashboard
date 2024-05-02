@@ -32,6 +32,7 @@
 		<div class="col">
 			<div id="loader" style="display: none;">
 				<div class="d-inline-block" style="border: thin solid #CCCCCC; margin: 0 auto; padding: 5px 15px;">Fetching Data...</div>
+				
 			</div>
 			<div id="ajax-table" style="width: 100%;">
 				<p class="lead">Pick date range for data to show</p>

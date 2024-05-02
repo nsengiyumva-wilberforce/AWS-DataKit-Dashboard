@@ -13,7 +13,7 @@ class FormModel extends Model
     // protected $useSoftDeletes = true;
 
 //    protected $allowedFields = ['category_id', 'title', 'question_list', 'title_fields', 'renamed', 'conditional_logic', 'is_geotagged', 'is_photograph', 'is_followup', 'followup_prefill', 'followup_interval', 'creator_id', 'is_publish'];
-    protected $allowedFields = ['form_id', 'title', 'question_list', 'title_fields', 'renamed', 'conditional_logic', 'is_geotagged', 'is_photograph', 'is_followup', 'followup_prefill', 'followup_interval', 'creator_id', 'is_publish', 'active'];
+    protected $allowedFields = ['form_id', 'title', 'question_list', 'title_fields', 'renamed', 'conditional_logic', 'is_geotagged', 'is_photograph', 'is_followup', 'followup_prefill', 'followup_interval', 'creator_id', 'is_publish', 'active',  'start_date', 'end_date', ];
     
     protected $useTimestamps = true;
     protected $createdField  = 'date_created';

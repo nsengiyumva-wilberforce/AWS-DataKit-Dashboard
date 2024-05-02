@@ -22,7 +22,7 @@
 		crossorigin="" />
 	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css">
 	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css">
-
+	<link rel="stylesheet" href="https: //cdn.datatables.net/2.0.3/css/dataTables.dataTables.min.css">
 
 	<link
 		href="<?= base_url('assets/vendors/Tokenfield/sliptree-bootstrap-tokenfield-9c06df4/dist/css/bootstrap-tokenfield.min.css') ?>"
@@ -1240,6 +1240,8 @@
 							// console.log(response);
 							$('#' + element).remove();
 							$(response_element).html(response);
+							console.log('awaiting for action....');
+							location.reload(true);
 						}
 					});
 					return false;
@@ -1248,16 +1250,21 @@
 
 				$(document).on('click', '.remove-conditions', function (e) {
 					e.preventDefault();
-					var r = confirm("This condition will permanently be removed. Do you want to continue?");
+					var r = confirm("This condition will permanently be removed. 24352435246 Do you want to continue?");
 					if (r == true) {
 						let url = $(this).attr('href');
 						let element = $(this).find('href');
 						$.get(url)
-							.done(function (response) {
-								element.html('');
-							}).fail(function (error) {
+						.done(function (response) {
+								console.log('Response:', response);
+								element.html(''); 
+								console.log('awaiting for action....');
+								location.reload(true); 
+							})
+							.fail(function (error) {
 								console.log(error);
 							});
+							
 					} else {
 						// alert("You pressed Cancel!");
 						console.log('Action cancelled');
@@ -1295,6 +1302,11 @@
 								// dom: "<'row'<'col-sm-12 col-md-6'B>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
 								// buttons: ['copy', 'excel', 'pdf']
 							});
+					// new DataTable('#example', {
+					// 	ajax: 'scripts/server_processing.php',
+					// 	processing: true,
+					// 	serverSide: true
+					// });
 						}
 					});
 					return false;
@@ -1381,12 +1393,20 @@
 					prefill_pair.append('<div class="col-2"><a href="javascript:;" class="btn btn-danger btn-sm remove-prefill-pair">Remove</a></div>');
 					prefill_pair.find('label').remove();
 					$('.prefill-list-wrapper').append(prefill_pair);
+					//reload
+					//location.reload(true);
+					console.log('waiting for reload......');
+					window.history.go(0);
 				});
 
 
 				$(document).on('click', '.remove-prefill-pair', function (e) {
 					e.preventDefault();
 					$(this).closest('.prefill-pair').remove();
+					//reload page after deleting
+					console.log('waiting for reload......');
+					location.reload(true);
+					//window.history.go(0);
 				});
 
 
@@ -1723,6 +1743,11 @@
 		<?php endif; ?>
 
 
+<script src="http//cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
+
+<script>
+	let table = new DataTable('#myTable');
+</script>
 
 </body>
 

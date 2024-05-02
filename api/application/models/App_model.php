@@ -863,7 +863,7 @@ class App_model extends CI_Model {
 
 	public function get_aggregated_responses($form_id, $aggregate_field, $form = 'json_response')
 	{
-		$query = $this->db->query('SELECT GROUP_CONCAT(DISTINCT region_id) AS region_id, GROUP_CONCAT(DISTINCT district_id) AS district_id, GROUP_CONCAT(DISTINCT sub_county_id) AS sub_county_id, GROUP_CONCAT(DISTINCT parish_id) AS parish_id, GROUP_CONCAT(DISTINCT village_id) AS village_id, GROUP_CONCAT('.$form.') AS entry_list FROM `response_with_location_view` WHERE form_id = '.$form_id.' AND active = 1 GROUP BY '.$aggregate_field.';');
+		$query = $this->db->query('SELECT GROUP_CONCAT(DISTINCT region_id) AS region_id, GROUP_CONCAT(DISTINCT district_id) AS district_id, GROUP_CONCAT(DISTINCT sub_county_id) AS sub_county_id, GROUP_CONCAT(DISTINCT parish_id) AS parish_id, GROUP_CONCAT(DISTINCT village_id) AS village_id, GROUP_CONCAT('.$form.') AS entry_cd  FROM `response_with_location_view` WHERE form_id = '.$form_id.' AND active = 1 GROUP BY '.$aggregate_field.';');
 		return $query->result();
 	}
 

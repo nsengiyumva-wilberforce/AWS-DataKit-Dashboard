@@ -363,28 +363,40 @@ class Form extends CI_Controller {
 	public function update_form($form_id)
 	{
 		$params = $this->input->post(NULL, TRUE);
+	
+		$dates = explode('/', $params['dates']);
+	
+		$start_date = trim($dates[0]);
+		$end_date = trim($dates[1]);
+	
+		// Prepare data array with form data including start_date and end_date
+		$data = [
+			'form_id' => $form_id,
+			'title' => $params['title'],
+			'start_date' => $start_date,
+			'end_date' => $end_date,
+			'is_geotagged' => $params['is_geotagged'] ?? 0,
+			'is_photograph' => $params['is_photograph'] ?? 0,
+			'is_followup' => $params['is_followup'] ?? 0,
+			'followup_interval' => $params['followup_interval'] ?? NULL,
+			'title_fields' => json_encode([
+				'entry_title' => $params['entry_title'] ? explode(',', str_replace(' ', '', $params['entry_title'])) : [],
+				'entry_sub_title' => $params['entry_subtitle'] ? explode(',', str_replace(' ', '', $params['entry_subtitle'])) : []
+			]),
+			'followup_prefill' => json_encode($params['followup_prefill'] ? explode(',', str_replace(' ', '', $params['followup_prefill'])) : []),
+			'is_publish' => $params['is_publish'] ?? 0
+		];
 
-		$data['form_id'] = $form_id;
-		$data['title'] = $params['title'];
-		$data['is_geotagged'] = $params['is_geotagged'] ?? 0;
-		$data['is_photograph'] = $params['is_photograph'] ?? 0;
-		$data['is_followup'] = $params['is_followup'] ?? 0;
-		$data['followup_interval'] = $params['followup_interval'] ?? NULL;
-		$entry_title = $params['entry_title'] ? explode(',', str_replace(' ', '', $params['entry_title'])) : [];
-		$entry_subtitle = $params['entry_subtitle'] ? explode(',', str_replace(' ', '', $params['entry_subtitle'])) : [];
-		$data['title_fields'] = json_encode(array('entry_title' => $entry_title, 'entry_sub_title' => $entry_subtitle));
-		$followup_prefill = $params['followup_prefill'] ? explode(',', str_replace(' ', '', $params['followup_prefill'])) : [];
-		$data['followup_prefill'] = json_encode($followup_prefill);
-		$data['is_publish'] = $params['is_publish'] ?? 0;
-
-		// $this->custom->print($data); die();
-		$url = API_BASE_URL.'form/edit';
+	
+	
+		// Send update request to the API
+		$url = API_BASE_URL . 'form/edit';
 		$result = $this->custom->run_curl_post($url, $data);
-		// $this->custom->print($result); die();
+	
+		// Redirect to the form page after update
 		redirect('form/'.$form_id);
 	}
-
-
+	
 
 
 

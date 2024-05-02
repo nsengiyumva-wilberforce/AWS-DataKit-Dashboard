@@ -14,6 +14,13 @@
 		<label>Form Title</label>
 		<input type="text" class="form-control" name="title" placeholder="Untitled Form" value="<?= $form->title ?>">
 	</div>
+
+	<div class="form-group">
+    <label>Set the date range</label>
+	<input type="text" name="dates" class="form-control my-1 mr-sm-2" value="<?= $form->start_date . ' / ' . $form->end_date ?>">
+   
+	</div>
+
 	<div class="form-group form-check">
 		<input type="checkbox" id="checkbox1" class="form-check-input" name="is_geotagged" value="1" <?= $form->is_geotagged == 1 ? 'checked' : '' ?>>
 		<label class="form-check-label" for="checkbox1">Collect Geo Location</label>

@@ -99,5 +99,9 @@ defined('PER_PAGE')        OR define('PER_PAGE', 5000);
 // defined('API_BASE_URL')        OR define('API_BASE_URL', 'http://127.0.0.1/aws-api/index.php/app/'); // no errors
 //defined('API_BASE_URL')        OR define('API_BASE_URL', 'http://127.0.0.1/aws/api/public/'); // no errors
 
-defined('API_BASE_URL')        OR define('API_BASE_URL', 'https://dashboard.africawatersolutions.org/aws.api/public/');
-defined('API_BASE_URLS')        OR define('API_BASE_URLS', 'https://dashboard.africawatersolutions.org/api/index.php/app/'); // no errors
+// defined('API_BASE_URL')        OR define('API_BASE_URL', 'https://dashboard.africawatersolutions.org/aws.api/public/');
+// defined('API_BASE_URLS')        OR define('API_BASE_URLS', 'https://dashboard.africawatersolutions.org/api/index.php/app/'); // no errors
+
+
+defined('API_BASE_URL')        OR define('API_BASE_URL', 'http://localhost:8080/');
+defined('API_BASE_URLS')        OR define('API_BASE_URLS', 'http://localhost/aws/AWS-DataKit-Dashboard/api/index.php/app/');

@@ -3,8 +3,7 @@ name: allowDiskUse
 type: boolean
 description: |
   Enables writing to temporary files. When set to ``true``, aggregation stages
-  can write data to the ``_tmp`` sub-directory in the ``dbPath`` directory. The
-  default is ``false``.
+  can write data to the ``_tmp`` sub-directory in the ``dbPath`` directory.
 interface: phpmethod
 operation: ~
 optional: true
@@ -46,6 +45,20 @@ type: boolean
 description: |
   Specifies whether or not to return the information on the processing of the
   pipeline.
+interface: phpmethod
+operation: ~
+optional: true
+---
+arg_name: option
+name: let
+type: array|object
+description: |
+  Map of parameter names and values. Values must be constant or closed
+  expressions that do not reference document fields. Parameters can then be
+  accessed as variables in an aggregate expression context (e.g. ``$$var``).
+
+  This is not supported for server versions prior to 5.0 and will result in an
+  exception at execution time if used.
 interface: phpmethod
 operation: ~
 optional: true
