@@ -1258,8 +1258,8 @@
 						.done(function (response) {
 								console.log('Response:', response);
 								element.html(''); 
-								console.log('awaiting for action....');
-								location.reload(true); 
+								
+								$('').load('');
 							})
 							.fail(function (error) {
 								console.log(error);
@@ -1394,9 +1394,10 @@
 					prefill_pair.find('label').remove();
 					$('.prefill-list-wrapper').append(prefill_pair);
 					//reload
-					//location.reload(true);
+					
 					console.log('waiting for reload......');
-					window.history.go(0);
+					$('.form-builder').load('modals/partial-modal-logic-question.php');
+					
 				});
 
 
@@ -1405,8 +1406,8 @@
 					$(this).closest('.prefill-pair').remove();
 					//reload page after deleting
 					console.log('waiting for reload......');
-					location.reload(true);
-					//window.history.go(0);
+					$('.form-builder').load('modals/partial-modal-logic-question.php');
+					
 				});
 
 
