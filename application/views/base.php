@@ -888,7 +888,12 @@
 
 				$('#datatable').DataTable();
 				//$('#datatable-entries').DataTable();
-				$('#datatable-entries').DataTable({ "order": [[4, "desc"]] });
+				$('#datatable-entries').DataTable({ 
+					"order": [[4, "desc"]],
+					//add export buttons
+					dom: "<'row'<'col-sm-12 col-md-6'B>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
+					buttons: ['copy', 'excel', 'pdf'] 
+				});
 
 				// New Question
 				$(document).on('click', '#new-question', function (e) {
