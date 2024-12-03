@@ -507,11 +507,11 @@ class Entry extends BaseController
 		}
 
 		if (!isset($params['year'])) {
-			$date = '2024-01-01 12:43:12';
+			$date = '2023-12-01 12:00:00';
 			$query['responses.created_at'] = array('$gte' => $date);
 
 		} else {
-			$date = $params['year'] . '-01-01 12:00:00';
+			$date = ($params['year']-1) . '-12-01 12:00:00';
 			$date_to = $params['year'] . '-12-30 12:00:00';
 			$query['responses.created_at'] = array('$gte' => $date, '$lte' => $date_to);
 		}
