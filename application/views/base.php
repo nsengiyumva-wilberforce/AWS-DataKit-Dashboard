@@ -85,13 +85,13 @@
 							</li>
 						<?php endif; ?>
 						<?php if ($this->session->permissions->view_reports): ?>
-						<li class="nav-item">
-							<a class="nav-link <?= $page_name == 'reports' ? 'active' : '' ?>"
-								href="<?= base_url('reports') ?>">
-								<i data-feather="file-text"></i>
-								Reports
-							</a>
-						</li>
+							<li class="nav-item">
+								<a class="nav-link <?= $page_name == 'reports' ? 'active' : '' ?>"
+									href="<?= base_url('reports') ?>">
+									<i data-feather="file-text"></i>
+									Reports
+								</a>
+							</li>
 						<?php endif; ?>
 						<li class="nav-item">
 							<a class="nav-link <?= $page_name == 'insights' ? 'active' : '' ?>"
@@ -283,54 +283,54 @@
 			<?php foreach ($charts as $chart): ?>
 				<script>
 					// Build the chart
-				Highcharts.chart('container<?= $chart->chart_id ?>', {
-				chart: {
-					type: 'column'
-				},
-				title: {
-					text: '<?= $chart->title ?>',
-					style: {
-						fontSize: '20px',
-						fontWeight: 'bold',
-						fontFamily: 'Segoe UI, sans-serif'
-					}
-				},
-				xAxis: {
-					categories: ['Actual', 'Target']
-				},
-				yAxis: {
-					min: 0,
-					title: {
-						text: 'Households'
-					}
-				},
-				legend: {
-					shadow: false
-				},
-				tooltip: {
-					shared: true
-				},
-				plotOptions: {
-					column: {
-						grouping: false,
-						shadow: false,
-						borderWidth: 0
-					}
-				},
-				series: [{
-					name: '<?= $chart->unit ?>',
-					colorByPoint: true,
-					innerSize: '50%',
-					data: [{
-						name: 'Actual',
-						y: <?= $chart->actual ?>
-					}, {
-						name: 'Target',
-						y: <?= $chart->target ?>
-					}
-				]
-				}]
-			});
+					Highcharts.chart('container<?= $chart->chart_id ?>', {
+						chart: {
+							type: 'column'
+						},
+						title: {
+							text: '<?= $chart->title ?>',
+							style: {
+								fontSize: '20px',
+								fontWeight: 'bold',
+								fontFamily: 'Segoe UI, sans-serif'
+							}
+						},
+						xAxis: {
+							categories: ['Actual', 'Target']
+						},
+						yAxis: {
+							min: 0,
+							title: {
+								text: 'Households'
+							}
+						},
+						legend: {
+							shadow: false
+						},
+						tooltip: {
+							shared: true
+						},
+						plotOptions: {
+							column: {
+								grouping: false,
+								shadow: false,
+								borderWidth: 0
+							}
+						},
+						series: [{
+							name: '<?= $chart->unit ?>',
+							colorByPoint: true,
+							innerSize: '50%',
+							data: [{
+								name: 'Actual',
+								y: <?= $chart->actual ?>
+							}, {
+								name: 'Target',
+								y: <?= $chart->target ?>
+							}
+							]
+						}]
+					});
 				</script>
 			<?php endforeach; ?>
 		<?php endif; ?>
@@ -395,7 +395,7 @@
 						}
 					},
 					series: <?= $region_and_district ?>
-					});
+				});
 
 				Highcharts.chart('barchart-container-region', {
 					chart: {
@@ -444,11 +444,11 @@
 						{
 							name: 'Baseline',
 							data: <?= $baseline_region ?>
-										},
+						},
 						{
 							name: 'Monitoring',
 							data: <?= $followup_region ?>
-										}
+						}
 					]
 				});
 
@@ -491,11 +491,11 @@
 						{
 							name: 'Baseline',
 							data: <?= $baseline_latrine_coverage ?>
-										},
+						},
 						{
 							name: 'Monitoring',
 							data: <?= $followup_latrine_coverage ?>
-										}
+						}
 					]
 				});
 
@@ -539,11 +539,11 @@
 						{
 							name: 'Baseline',
 							data: <?= $baseline_sanitation_category ?>
-										},
+						},
 						{
 							name: 'Monitoring',
 							data: <?= $followup_sanitation_category ?>
-										}
+						}
 					]
 				});
 
@@ -587,11 +587,11 @@
 						{
 							name: 'Baseline',
 							data: <?= $baseline_water_collection ?>
-												},
+						},
 						{
 							name: 'Monitoring',
 							data: <?= $followup_water_collection ?>
-												}
+						}
 					]
 				});
 
@@ -636,11 +636,11 @@
 						{
 							name: 'Baseline',
 							data: <?= $baseline_water_treatment ?>
-												},
+						},
 						{
 							name: 'Monitoring',
 							data: <?= $followup_water_treatment ?>
-												}
+						}
 					]
 				});
 
@@ -685,11 +685,11 @@
 						{
 							name: 'Baseline',
 							data: <?= $baseline_family_savings ?>
-												},
+						},
 						{
 							name: 'Monitoring',
 							data: <?= $followup_family_savings ?>
-												}
+						}
 					]
 				});
 				$(document).on('submit', '#form-insights', function (event) {
@@ -764,9 +764,9 @@
 								//show an alert that entry has been rejected
 								alert('Entry has been rejected');
 								$('#reject-entry').hide();
-								
+
 								console.log(response);
-							} else{
+							} else {
 								console.log(response);
 							}
 						},
@@ -774,7 +774,7 @@
 							alert('Error rejecting entry');
 						}
 					});
-					
+
 				});
 			</script>
 		<?php endif; ?>
@@ -888,11 +888,11 @@
 
 				$('#datatable').DataTable();
 				//$('#datatable-entries').DataTable();
-				$('#datatable-entries').DataTable({ 
+				$('#datatable-entries').DataTable({
 					"order": [[4, "desc"]],
 					//add export buttons
 					dom: "<'row'<'col-sm-12 col-md-6'B>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
-					buttons: ['copy', 'excel', 'pdf'] 
+					buttons: ['copy', 'excel', 'pdf']
 				});
 
 				// New Question
@@ -1269,31 +1269,31 @@
 						console.log("form id:", formId);
 
 						//conditional logic from data-logic-element
-						
-						let logic = 
-						$.ajax({
-							url: url,
-							method: 'POST',
-							dataType: 'json', // Expecting JSON response (optional)
-							data: {
-								question_id: questionId,
-								form_id: formId,
-							},
-							success: function (response) {
-								if (response.success) {
-									console.log('Conditional logic removed!');
 
-									// Update UI or display success message (optional)
-								} else {
-									console.error('Error removing logic:', response.message);
-									// Handle error response (optional)
+						let logic =
+							$.ajax({
+								url: url,
+								method: 'POST',
+								dataType: 'json', // Expecting JSON response (optional)
+								data: {
+									question_id: questionId,
+									form_id: formId,
+								},
+								success: function (response) {
+									if (response.success) {
+										console.log('Conditional logic removed!');
+
+										// Update UI or display success message (optional)
+									} else {
+										console.error('Error removing logic:', response.message);
+										// Handle error response (optional)
+									}
+								},
+								error: function (jqXHR, textStatus, errorThrown) {
+									console.error('Error during AJAX request:', textStatus, errorThrown);
+									// Handle general errors (optional)
 								}
-							},
-							error: function (jqXHR, textStatus, errorThrown) {
-								console.error('Error during AJAX request:', textStatus, errorThrown);
-								// Handle general errors (optional)
-							}
-						});
+							});
 					} else {
 						// alert("You pressed Cancel!");
 						console.log('Action cancelled');
@@ -1328,8 +1328,8 @@
 								// scrollX: true,
 								scrollCollapse: true,
 								fixedColumns: true,
-								// dom: "<'row'<'col-sm-12 col-md-6'B>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
-								// buttons: ['copy', 'excel', 'pdf']
+								 dom: "<'row'<'col-sm-12 col-md-6'B>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
+								buttons: ['copy', 'excel', 'pdf']
 							});
 						}
 					});

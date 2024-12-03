@@ -34,8 +34,8 @@ class Entry extends BaseController
 
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			/*				$district_list = $utility->region_district_array($params['region_id']);
-												$query['responses.qn4'] = ['$in' => $district_list];
-												*/
+																									  $query['responses.qn4'] = ['$in' => $district_list];
+																									  */
 		}
 
 
@@ -269,7 +269,7 @@ class Entry extends BaseController
 			}
 			if (isset($qn_data[$key]) && isset($latest_followup[$key])) {
 				$comp['followup'][] = array('question' => $qn_data[$key], 'response' => $latest_followup[$key]);
-				$photo_mobile_path = explode('/', $latest_followup['photo']??null);
+				$photo_mobile_path = explode('/', $latest_followup['photo'] ?? null);
 				$filename = end($photo_mobile_path);
 				$comp['followup']['photo'] = $filename;
 				$comp['has_an_array'] = 0;
@@ -335,7 +335,7 @@ class Entry extends BaseController
 		}
 
 
-		$photo_mobile_path = explode('/', $baseline['photo']??null);
+		$photo_mobile_path = explode('/', $baseline['photo'] ?? null);
 		$filename = end($photo_mobile_path);
 		$comp['baseline']['photo'] = $filename;
 		$data = $entry;
@@ -816,82 +816,82 @@ class Entry extends BaseController
 
 	public function form_entries_report()
 	{
-		try{
-		ini_set('memory_limit', '512M');
-		// ini_set('memory_limit','1024M');
-		$utility = new Utility();
-		$params = $this->request->getGet();
+		try {
+			ini_set('memory_limit', '512M');
+			// ini_set('memory_limit','1024M');
+			$utility = new Utility();
+			$params = $this->request->getGet();
 
-		$client = new MongoDB();
-		$collection = $client->aws->entries;
+			$client = new MongoDB();
+			$collection = $client->aws->entries;
 
-		$aggregation = [];
+			$aggregation = [];
 
-		$aggregation[] = ['$match' => ['form_id' => $params['form_id']]];
-		$aggregation[] = ['$unwind' => '$responses'];
-		$aggregation[] = ['$unwind' => '$responses'];
+			$aggregation[] = ['$match' => ['form_id' => $params['form_id']]];
+			$aggregation[] = ['$unwind' => '$responses'];
+			$aggregation[] = ['$unwind' => '$responses'];
 
 
-		if ($params['region_id'] != "all") {
-			$orRegionArray = [];
-			$district_list = $utility->region_district_array($params['region_id']);
-			foreach ($district_list as $district) {
-				//push $district to $orRegionArray array with key responses.qn4
-				array_push($orRegionArray, ['responses.qn4' => $district]);
+			if ($params['region_id'] != "all") {
+				$orRegionArray = [];
+				$district_list = $utility->region_district_array($params['region_id']);
+				foreach ($district_list as $district) {
+					//push $district to $orRegionArray array with key responses.qn4
+					array_push($orRegionArray, ['responses.qn4' => $district]);
+				}
+
+				$aggregation[] = ['$match' => ['responses.entity_type' => $params['entry_data'], '$or' => $orRegionArray]];
+			} else {
+				//get records per region
+
 			}
 
-			$aggregation[] = ['$match' => ['responses.entity_type' => $params['entry_data'], '$or' => $orRegionArray]];
-		} else {
-			//get records per region
+			if ($params['project'] != "all") {
+				$projects = [['responses.qn148' => $params['project']]];
+				$aggregation[] = [
+					'$match' => [
+						'$or' => $projects,
+						'$and' => [['responses.created_at' => ['$gt' => $params['startdate']]], ['responses.created_at' => ['$lt' => $params['enddate']]]]
+					]
+				];
+			} else {
+				$aggregation[] = [
+					'$match' => [
+						'$and' => [['responses.created_at' => ['$gt' => $params['startdate']]], ['responses.created_at' => ['$lt' => $params['enddate']]]]
+					]
+				];
+			}
 
-		}
+			$aggregation[] = ['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]];
+			$aggregation[] = ['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]];
+			$aggregation[] = ['$project' => ['_id' => 0, 'response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'responses' => '$document.responses', 'created_at' => '$document.created_at', 'updated_at' => '$response.updated_at']];
 
-		if ($params['project'] != "all") {
-			$projects = [['responses.qn148' => $params['project']]];
-			$aggregation[] = [
-				'$match' => [
-					'$or' => $projects,
-					'$and' => [['responses.created_at' => ['$gt' => $params['startdate']]], ['responses.created_at' => ['$lt' => $params['enddate']]]]
-				]
+			//add allowDiskUse to true to allow large data processing
+			$entry_list = $collection->aggregate($aggregation, ["allowDiskUse" => true]);
+
+			$data['headers'] = $utility->question_mapper($params['form_id']);
+			//check if region_id is not all
+			if ($params['region_id'] != "all") {
+				$data['region'] = $this->get_region_name($params['region_id']);
+			} else {
+				$data['region'] = "All Regions";
+			}
+			$data['entries'] = $entry_list->toArray();
+
+			$response = [
+				'status' => 200,
+				'data' => $data
 			];
-		} else {
-			$aggregation[] = [
-				'$match' => [
-					'$and' => [['responses.created_at' => ['$gt' => $params['startdate']]], ['responses.created_at' => ['$lt' => $params['enddate']]]]
-				]
+
+			return $this->respond($response);
+		} catch (Exception $e) {
+			$response = [
+				'status' => 500,
+				'data' => $e->getMessage()
 			];
+			return $this->fail($response);
 		}
-
-		$aggregation[] = ['$group' => ['_id' => ['response_id' => '$response_id', 'created_at' => '$responses.created_at'], 'responses' => ['$push' => ['response_id' => '$response_id', 'created_at' => '$created_at', 'responses' => '$responses', 'active' => '$active', 'district' => '$district']]]];
-		$aggregation[] = ['$replaceWith' => ['document' => ['$arrayElemAt' => ['$responses', 0]]]];
-		$aggregation[] = ['$project' => ['_id' => 0, 'response_id' => '$document.response_id', 'form_id' => '$document.form_id', 'responses' => '$document.responses', 'created_at' => '$document.created_at', 'updated_at' => '$response.updated_at']];
-
-		//add allowDiskUse to true to allow large data processing
-		$entry_list = $collection->aggregate($aggregation, ["allowDiskUse" => true]);
-
-		$data['headers'] = $utility->question_mapper($params['form_id']);
-		//check if region_id is not all
-		if ($params['region_id'] != "all") {
-			$data['region'] = $this->get_region_name($params['region_id']);
-		}else {
-			$data['region'] = "All Regions";
-		}
-		$data['entries'] = $entry_list->toArray();
-
-		$response = [
-			'status' => 200,
-			'data' => $data
-		];
-
-		return $this->respond($response);
-	}catch(Exception $e){
-		$response = [
-			'status' => 500,
-			'data' => $e->getMessage()
-		];
-		return $this->fail($response);
 	}
-}
 	public function get_region_name($region_id)
 	{
 		$region = $this->db->table('region')->where('region_id', $region_id)->get()->getRow();
@@ -1125,7 +1125,7 @@ class Entry extends BaseController
 		$file_path = WRITEPATH . 'uploads/' . $params['filename'];
 		$decoded = base64_decode($base64_string);
 		file_put_contents($file_path, $decoded);
-	
+
 		// Save the binary data to a file
 		$file_path = WRITEPATH . 'uploads/' . $params['filename'];
 		file_put_contents($file_path, $decoded);
@@ -1177,15 +1177,15 @@ class Entry extends BaseController
 		$base64_string = $params['photo_base64'];
 		// $base64_string = trim($base64_string);
 
-		 $base64_string = str_replace('data:image/jpeg;base64,', '', $base64_string);
-		 $base64_string = str_replace('[removed]', '', $base64_string);
-		 $base64_string = str_replace(' ', '+', $base64_string);
+		$base64_string = str_replace('data:image/jpeg;base64,', '', $base64_string);
+		$base64_string = str_replace('[removed]', '', $base64_string);
+		$base64_string = str_replace(' ', '+', $base64_string);
 
 		$file_path = WRITEPATH . 'uploads/' . $params['filename'];
 		$decoded = base64_decode($base64_string);
 
 		file_put_contents($file_path, $decoded);
-	
+
 		// Save the binary data to a file
 		$file_path = WRITEPATH . 'uploads/' . $params['filename'];
 		file_put_contents($file_path, $decoded);
@@ -1268,7 +1268,8 @@ class Entry extends BaseController
 	}
 
 
-		public function update_rejected_entry(){
+	public function update_rejected_entry()
+	{
 		$params = $this->request->getPost();
 
 		$client = new MongoDB();
@@ -1307,7 +1308,7 @@ class Entry extends BaseController
 		// convert file form base64 and upload it
 		$base64_string = $params['photo_base64'];
 		$base64_string = trim($base64_string);
-		
+
 		$base64_string = str_replace('data:image/jpeg;base64,', '', $base64_string);
 		$base64_string = str_replace('[removed]', '', $base64_string);
 		$base64_string = str_replace(' ', '+', $base64_string);
@@ -1343,7 +1344,7 @@ class Entry extends BaseController
 	}
 
 
-		public function reject_entry()
+	public function reject_entry()
 	{
 		$params = $this->request->getPost();
 
@@ -1390,12 +1391,12 @@ class Entry extends BaseController
 			'$match' => [
 				'$or' => [
 					['responses.creator_id' => $user_id],
-					['responses.creator_id' => (int)$user_id],
+					['responses.creator_id' => (int) $user_id],
 				],
 				'responses.rejection_status' => 'rejected'
 			]
 		];
-		
+
 		$aggregation[] = ['$project' => ['_id' => 0, 'response_id' => '$response_id', 'form_id' => '$form_id', 'title' => ['$arrayElemAt' => ['$responses.qn152', 0]], 'sub_title' => ['$arrayElemAt' => ['$responses.qn9', 0]], 'responses' => ['$arrayElemAt' => ['$responses', 0]]]];
 
 		$rejected_entries = $collection->aggregate($aggregation)->toArray();
@@ -1404,17 +1405,17 @@ class Entry extends BaseController
 			$form_titles = $utility->form_titles($entry['form_id']);
 			$title_str = '';
 			foreach ($form_titles['title'] as $item) {
-			
-					$title_str .= $entry['responses']['qn' . $item];
-				
+
+				$title_str .= $entry['responses']['qn' . $item];
+
 			}
 			$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
 
 			$sub_title_str = '';
 			foreach ($form_titles['sub_title'] as $item) {
-				
-					$sub_title_str .= $entry['responses']['qn' . $item];
-				
+
+				$sub_title_str .= $entry['responses']['qn' . $item];
+
 			}
 			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
 
