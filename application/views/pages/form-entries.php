@@ -10,7 +10,7 @@
 				<option value="<?= $region->region_id ?>" <?php if ($region->region_id == $this->session->region_id) { echo 'selected'; } ?>><?= $region->name ?></option>
 				<?php endforeach; ?>
 			</select>
-
+		<?php if($form_id==11){ ?>
 			<label class="my-1 mr-2">Year</label>
 			<select name="year" id="region_id" class="custom-select my-1 mr-sm-2">
 				<option value="2024">2024</option>
@@ -20,9 +20,10 @@
 				<option value="2020">2020</option>
 				<option value="2019">2019</option>
 			</select>
-
+		 <?php } ?>
 			<input type="hidden" name="form_id" value="<?= $form_id ?>">
 			<button type="submit" class="btn btn-outline-secondary btn-sm my-1 mr-sm-2">Go</button>
+	
 		</form>
 	</div>
 </div>

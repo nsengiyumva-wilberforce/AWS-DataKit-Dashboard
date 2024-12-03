@@ -540,9 +540,12 @@ $result = json_decode($this->custom->run_curl_get($url));
 
 		if(isset($params['year'])){
 			$year=$params['year'];
-		}
 
-		$url = API_BASE_URL.'entry/getRegionalEntries?year='.$year.'&form_id='.$form_id.$query_param.'&format=json';
+			$url = API_BASE_URL.'entry/getRegionalEntries?year='.$year.'&form_id='.$form_id.$query_param.'&format=json';
+		}else{
+
+			$url = API_BASE_URL.'entry/getRegionalEntries?form_id='.$form_id.$query_param.'&format=json';
+		}
 		// $this->custom->print($params,true);
 		// $this->custom->print($this->custom->run_curl_get($url),true);
 		$result = json_decode($this->custom->run_curl_get($url));
