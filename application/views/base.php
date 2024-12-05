@@ -989,6 +989,7 @@
 							"targets": 5, // Actions column
 							"render": function (data, type, row) {
 								let can_delete = '<?= $can_delete??0 ?>';
+								console.log(can_delete);
 								// Dynamically generate action buttons for each row
 								let buttonsHtml = '<nav class="nav d-inline-flex">';
 								let viewUrl = '<?= base_url('entry/') ?>' + row.response_id;
