@@ -321,16 +321,13 @@ class App extends CI_Controller
 		$url = API_BASE_URL . 'regions?format=json';
 		$result = json_decode($this->custom->run_curl_get($url));
 		$regions = $result->data;
-
-		ini_set('memory_limit', '1024M');
 		$query_param = $_SESSION['region_id'] != 0 ? '&region_id=' . $_SESSION['region_id'] : '';
-
-		$url = API_BASE_URL . 'entry/getRegionalEntries?form_id=' . $form_id . $query_param . '&format=json';
+		$can_delete= $this->session->permissions->delete_response;
 
 		$result = json_decode($this->custom->run_curl_get($url));
 		$data['report_title'] = $report_title;
 		$data['regions'] = $regions ?? [];
-		$data['entries'] = $result->data ?? [];
+		$data['can_delete'] = $can_delete;
 		$data['form_id'] = $form_id;
 		$data['page'] = 'pages/form-entries';
 		$data['page_name'] = 'form-entries';
