@@ -826,9 +826,19 @@
 
 			<script>
 				$(document).ready(function () {
+					// Get the current date
+					var currentDate = new Date();
+
+					// Get the first of December in the previous year
+					var firstDecemberLastYear = new Date(currentDate.getFullYear() - 1, 11, 1);  // Month is 0-based (11 = December)
+
+					// Get the last day of November in the current year
+					var lastNovemberThisYear = new Date(currentDate.getFullYear(), 10, 30);  // Month is 0-based (10 = November)
 					$('input[name="dates"]').daterangepicker({
 						opens: 'left',
-						autoApply: true
+						autoApply: true,
+						startDate: firstDecemberLastYear,
+						endDate: lastNovemberThisYear,
 					});
 				});
 			</script>
@@ -973,7 +983,7 @@
 						{
 							"targets": 5, // Actions column
 							"render": function (data, type, row) {
-								let can_delete = '<?= $can_delete??0 ?>';
+								let can_delete = '<?= $can_delete ?? 0 ?>';
 								// Dynamically generate action buttons for each row
 								let buttonsHtml = '<nav class="nav d-inline-flex">';
 								let viewUrl = '<?= base_url('entry/') ?>' + row.response_id;
@@ -1428,7 +1438,7 @@
 								// scrollX: true,
 								scrollCollapse: true,
 								fixedColumns: true,
-								 dom: "<'row'<'col-sm-12 col-md-6'B>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
+								dom: "<'row'<'col-sm-12 col-md-6'B>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
 								buttons: ['copy', 'excel', 'pdf']
 							});
 						}
