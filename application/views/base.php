@@ -903,6 +903,13 @@
 					dom: "<'row'<'col-sm-12 col-md-6'B>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
 					buttons: ['copy', 'excel', 'pdf']
 				});
+				$('#filter-entries').on('submit', function (e) {
+					console.log('Form submitted');
+					e.preventDefault(); // Prevent the default form submission
+
+					// Trigger DataTable reload with the new filters
+					$('#dt-entries').DataTable().ajax.reload();
+				});
 				$('#dt-entries').DataTable({
 					"serverSide": true,
 					"processing": true,
