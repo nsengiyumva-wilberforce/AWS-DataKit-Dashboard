@@ -826,9 +826,18 @@
 
 			<script>
 				$(document).ready(function () {
+					var currentDate = new Date();
+
+					// Get the first of December in the previous year
+					var firstDecemberLastYear = new Date(currentDate.getFullYear() - 1, 11, 1);  // Month is 0-based (11 = December)
+
+					// Get the last day of November in the current year
+					var lastNovemberThisYear = new Date(currentDate.getFullYear(), 10, 30);  // Month is 0-based (10 = November)
 					$('input[name="dates"]').daterangepicker({
 						opens: 'left',
-						autoApply: true
+						autoApply: true,
+						startDate: firstDecemberLastYear,
+						endDate: lastNovemberThisYear,
 					});
 				});
 			</script>
@@ -893,6 +902,110 @@
 					//add export buttons
 					dom: "<'row'<'col-sm-12 col-md-6'B>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
 					buttons: ['copy', 'excel', 'pdf']
+				});
+				$('#filter-entries').on('submit', function (e) {
+					console.log('Form submitted');
+					e.preventDefault(); // Prevent the default form submission
+
+					// Trigger DataTable reload with the new filters
+					$('#dt-entries').DataTable().ajax.reload();
+				});
+				$('#dt-entries').DataTable({
+					"serverSide": true,
+					"processing": true,
+					"ajax": {
+						"url": "http://localhost:8080/entry/getRegionalEntries", // Update this URL as needed
+						"data": function (d) {
+							// Include necessary parameters (region_id, year, form_id)
+							d.dates = $('input[name="dates"]').val();
+							d.form_id = $('input[name="form_id"]').val();
+							d.region_id = $('#region_id').val();
+						},
+						"type": "GET",
+						"dataSrc": function (json) {
+							// Ensure the server returns the correct data format (data and recordsFiltered)
+							return json.data; // json.data should be the list of entries
+						}
+					},
+					"order": [[4, "desc"]], // Order by "Last Modified" column (index 4)
+					// Add export buttons
+					dom: "<'row'<'col-sm-12 col-md-6'B>><'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row'<'col-sm-12 col-md-6'i><'col-sm-12 col-md-6'p>>",
+					buttons: ['copy', 'excel', 'pdf'],
+					columns: [
+						{ data: 'title' },
+						{ data: 'location' },
+						{ data: 'creator_id' },
+						{ data: 'last_follower' },
+						{ data: 'updated_at' },
+						{ data: 'actions' }
+					],
+					"columnDefs": [
+						{
+							"targets": 0, // Title column
+							"render": function (data, type, row) {
+								// Format the "Title" column with a link to the entry page
+								return `<a href="<?= base_url('entry/') ?>${row.response_id}">${data}</a>`;
+							}
+						},
+						{
+							"targets": 1, // location column
+							"render": function (data, type, row) {
+								// Format the "location" column with a link to the entry page
+								return `${row.location}`;
+							}
+						},
+
+						{
+							"targets": 3, // Last Modified column
+							"render": function (data, type, row) {
+								// Format the "Last Modified" column with the date
+								return `${row.last_follower}`;
+							}
+						},
+						{
+							"targets": 4, // updated_at column modification
+							"render": function (data, type, row) {
+								// Ensure the data is a valid date string
+								let date = new Date(row.updated_at);
+
+								// Check if the date is valid
+								if (!isNaN(date.getTime())) {
+									// Format the date as "Jan 20, 2024"
+									let formattedDate = date.toLocaleDateString('en-US', {
+										year: 'numeric',
+										month: 'short',
+										day: 'numeric'
+									});
+
+									return `<span title="Last modified on ${formattedDate}">${formattedDate}</span>`;
+								}
+
+								return data; // Return the original value if the date is invalid
+							}
+
+						},
+
+						{
+							"targets": 5, // Actions column
+							"render": function (data, type, row) {
+								let can_delete = '<?= $can_delete??0 ?>';
+								// Dynamically generate action buttons for each row
+								let buttonsHtml = '<nav class="nav d-inline-flex">';
+								let viewUrl = '<?= base_url('entry/') ?>' + row.response_id;
+								let deleteUrl = '<?= base_url('entry/') ?>' + row.response_id + '/delete';
+
+								// View button
+								buttonsHtml += `<a class="nav-link py-0 btn-info" data-toggle="View" title="View" href="${viewUrl}"><i data-feather="eye">view</i></a>`;
+								if (can_delete==1) {
+
+									// Check if the user has permission to delete and generate the Delete button if allowed
+									buttonsHtml += ` <a class="nav-link py-0 confirm-tr-delete btn-danger" data-toggle="Delete" title="Delete" href="${deleteUrl}"><i data-feather="trash"></i>delete</a>`;
+								}
+								buttonsHtml += '</nav>';
+								return buttonsHtml; // Return the generated HTML
+							}
+						}
+					]
 				});
 
 				// New Question

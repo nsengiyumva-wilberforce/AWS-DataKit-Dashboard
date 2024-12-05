@@ -487,6 +487,7 @@ class Entry extends BaseController
 	public function getRegionalEntries()
 	{
 		ini_set('memory_limit', '-1');
+
 		$utility = new Utility();
 		$params = $this->request->getGet();
 
@@ -495,110 +496,137 @@ class Entry extends BaseController
 
 		$user_map = $utility->mobile_user_mapper();
 
-		$query['form_id'] = $params['form_id'];
+		$query = [
+			'form_id' => $params['form_id'],
+		];
 
+		// Add region filter
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			$district_list = $utility->region_district_array($params['region_id']);
 			$query['responses.qn4'] = ['$in' => $district_list];
 		}
 
-		if (isset($params['start_date']) && isset($params['end_date'])) {
-			$query['responses.created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
-		}
+		// Add date filter
+		if (isset($params['dates'])) {
+			$start_date = explode('-', $params['dates'])[0];
+			$end_date = explode('-', $params['dates'])[1];
 
-		if (!isset($params['year'])) {
-			$date = '2023-12-01 12:00:00';
-			$query['responses.created_at'] = array('$gte' => $date);
-
+			$start_date = date('Y-m-d', strtotime($start_date));
+			$end_date = date('Y-m-d', strtotime($end_date));
+			$query['responses.created_at'] = [
+				'$gte' => $start_date,
+				'$lte' => $end_date
+			];
+		} elseif (!isset($params['year'])) {
+			$query['responses.created_at'] = ['$gte' => '2023-12-01 12:00:00'];
 		} else {
-			$date = ($params['year']-1) . '-12-01 12:00:00';
-			$date_to = $params['year'] . '-12-30 12:00:00';
-			$query['responses.created_at'] = array('$gte' => $date, '$lte' => $date_to);
+			$start_date = ($params['year'] - 1) . '-12-01 12:00:00';
+			$end_date = $params['year'] . '-12-30 12:00:00';
+			$query['responses.created_at'] = ['$gte' => $start_date, '$lte' => $end_date];
 		}
 
-		$project = [
-			'projection' => [
-				'_id' => 0,
-				//'responses' => ['$slice' => 1]
+		// Pagination parameters
+		$start = isset($params['start']) ? (int) $params['start'] : 0; // Using start instead of page
+		$perPage = isset($params['length']) ? (int) $params['length'] : 10; // Using length for perPage
+		$skip = $start; // Skip is the start offset
+		$draw = isset($params['draw']) ? (int) $params['draw'] : 1;
+
+		// Calculate total records
+		$totalQuery = $collection->countDocuments(['form_id' => $params['form_id']]);
+		$filteredQuery = $collection->countDocuments($query);
+
+		// Build aggregation pipeline for data
+		$pipeline = [
+			// Match stage for filtering
+			['$match' => $query],
+
+			// Project stage for shaping the documents
+			[
+				'$project' => [
+					'_id' => 0,
+					'response_id' => 1,
+					'responses' => ['$slice' => ['$responses', 1]],
+					'number_of_responses' => ['$size' => '$responses'],
+					'created_at' => 1,
+					'active' => 1,
+					'updated_at' => 1
+				],
 			],
+
+			// Sort stage to order by updated_at in descending order
+			[
+				'$sort' => [
+					'updated_at' => -1, // Sort by updated_at field in descending order (latest first)
+				],
+			],
+
+			// Pagination stage
+			['$skip' => $skip],
+			['$limit' => $perPage],
 		];
 
-		$data = $collection->find($query, $project)->toArray();
-		$data = json_decode(json_encode($data), TRUE);
+		// Fetch data
+		$data = $collection->aggregate($pipeline)->toArray();
 
-		// Get form title ids
+		// Process data
 		$form_titles = $utility->form_titles($params['form_id']);
+		$dataGenetration = [];  // Initialize the array
 
-		// Cleaning values to only return needed data
-		$new_data = [];
-		foreach ($data as $entry) {
+		$new_data = array_map(function ($entry) use ($form_titles, $user_map, &$dataGenetration) {
 			$number_of_responses = count($entry['responses']);
 			$title_str = '';
 			foreach ($form_titles['title'] as $item) {
-				if (isset($entry['responses'][0]['qn' . $item]) || isset($entry['responses'][0]['qn' . $item][0])) {
-					if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
-						$title_str .= $entry['responses'][0]['qn' . $item][0];
-					} else {
-						$title_str .= $entry['responses'][0]['qn' . $item];
-					}
-				} else {
-					$title_str .= 'Unknown Title';
-				}
+				$title_str .= $entry['responses'][0]['qn' . $item] ?? 'Unknown Title';
 			}
-			$entry['title'] = $title_str != '' ? $title_str : 'Unknown Title';
+			$entry['title'] = $title_str;
 
 			$sub_title_str = '';
 			foreach ($form_titles['sub_title'] as $item) {
-				if (isset($entry['responses'][0]['qn' . $item]) || isset($entry['responses'][0]['qn' . $item][0])) {
-					if (gettype($entry['responses'][0]['qn' . $item]) == 'array') {
-						$sub_title_str .= $entry['responses'][0]['qn' . $item][0];
-					} else {
-						$sub_title_str .= $entry['responses'][0]['qn' . $item];
-					}
-				} else {
-					$sub_title_str = "Unknown Sub Title";
-				}
+				$sub_title_str .= $entry['responses'][0]['qn' . $item] ?? 'Unknown Sub Title';
 			}
-			$entry['sub_title'] = $sub_title_str != '' ? $sub_title_str : 'Unknown Sub Title';
+			$entry['sub_title'] = $sub_title_str;
 
-			if (isset($entry['responses'][0]['qn4'])) {
-				$entry['district'] = $entry['responses'][0]['qn4'];
-			}
-			if (isset($entry['responses'][0]['qn7'])) {
-				$entry['sub_county'] = $entry['responses'][0]['qn7'];
-			}
-			if (isset($entry['responses'][0]['qn8'])) {
-				$entry['parish'] = $entry['responses'][0]['qn8'];
-			}
-			if (isset($entry['responses'][0]['qn9'])) {
-				$entry['village'] = $entry['responses'][0]['qn9'];
-			}
+			$entry['district'] = $entry['responses'][0]['qn4'] ?? null;
+			$entry['sub_county'] = $entry['responses'][0]['qn7'] ?? null;
+			$entry['parish'] = $entry['responses'][0]['qn8'] ?? null;
+			$entry['village'] = $entry['responses'][0]['qn9'] ?? null;
 
-			$entry['number_of_responses'] = $number_of_responses;
 			//get the last creator
-			if ($number_of_responses > 1) {
+			if ($entry['number_of_responses'] > 1) {
 				$last_follower = $entry['responses'][$number_of_responses - 1][0]['creator_id'] ?? $entry['responses'][$number_of_responses - 1]['creator_id'];
 				$entry['last_follower'] = $user_map[$last_follower];
 			}
-			$user_map = $utility->mobile_user_mapper();
-			// Fetch first creator information
+			$entry['creator_id'] = $user_map[$entry['responses'][0]['creator_id']] ?? 'Unknown';
 
+			// Prepare the data for the table row
+			$item = [
+				'title' => $entry['title'],
+				'sub_title' => $entry['sub_title'],
+				'creator_id' => $entry['creator_id'],
+				'location' => $entry['district'] . ', ' . $entry['sub_county'] . ', ' . $entry['parish'] . ', ' . $entry['village'],
+				'last_follower' => $entry['last_follower'],
+				'updated_at' => date('M j, Y', strtotime($entry['updated_at'] ?? $entry['created_at'])),
+				'response_id' => $entry['response_id'],
+			];
 
-			$entry['creator_id'] = $user_map[$entry['responses'][0]['creator_id'] ?? "72"];
+			// Append item to the dataGenetration array
+			$dataGenetration[] = $item;
 
-			$new_data[] = $entry;
-		}
+			return $entry;
+		}, $data);
 
+		// Response data
 		$response = [
 			'status' => 200,
-
-			//'total'   =>$total,
-			'data' => $new_data
+			'data' => $dataGenetration,
+			'current_page' => $start / $perPage + 1, // Calculate current page
+			'per_page' => $perPage,
+			'draw' => $draw,
+			'recordsTotal' => $filteredQuery, // Total records matching the form_id
+			'recordsFiltered' => $filteredQuery, // Total records after applying filters
 		];
+
 		return $this->respond($response);
-
-
-
 	}
 
 	public function form_entry_geodata()
