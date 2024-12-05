@@ -897,6 +897,13 @@
 				attach_sort();
 
 				$('#datatable').DataTable();
+				$('#filter-entries').on('submit', function (e) {
+					console.log('Form submitted');
+					e.preventDefault(); // Prevent the default form submission
+
+					// Trigger DataTable reload with the new filters
+					$('#dt-entries').DataTable().ajax.reload();
+				});
 				//$('#datatable-entries').DataTable();
 				$('#datatable-entries').DataTable({
 					"order": [[4, "desc"]],
