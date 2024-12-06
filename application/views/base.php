@@ -914,7 +914,7 @@
 					"serverSide": true,
 					"processing": true,
 					"ajax": {
-						"url": "http://localhost:8080/entry/getRegionalEntries", // Update this URL as needed
+						"url": "https://dashboard.africawatersolutions.org/aws.api/public/entry/getRegionalEntries", // Update this URL as needed
 						"data": function (d) {
 							// Include necessary parameters (region_id, year, form_id)
 							d.dates = $('input[name="dates"]').val();
