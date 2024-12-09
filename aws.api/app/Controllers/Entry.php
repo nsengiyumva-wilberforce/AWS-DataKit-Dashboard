@@ -512,15 +512,15 @@ class Entry extends BaseController
 			$end_date_received = explode('-', $params['dates'])[1];
 
 			$date1 = explode('/', $start_date_received);
-			$start_date = $date1[2].'-'.$date1[0].'-'.$date1[1];
+			$start_date = trim($date1[2]).'-'.trim($date1[0]).'-'.trim($date1[1]);
 
 			$date2 = explode('/', $end_date_received);
-			$end_date = $date2[2].'-'.$date2[0].'-'.$date2[1];
+			$end_date = trim($date2[2]).'-'.trim($date2[0]).'-'.trim($date2[1]);
 
 		
 			$query['responses.created_at'] = [
-				'$gte' => $start_date,
-				'$lte' => $end_date
+				'$gte' => "2024-12-01",
+				'$lte' => "2024-12-30"
 			];
 		} 
 		// Pagination parameters
@@ -602,7 +602,7 @@ class Entry extends BaseController
 				'sub_title' => $entry['sub_title'],
 				'creator_id' => $entry['creator_id'],
 				'location' => $entry['district'] . ', ' . $entry['sub_county'] . ', ' . $entry['parish'] . ', ' . $entry['village'],
-				'last_follower' => $entry['last_follower'],
+				'last_follower' => $entry['last_follower']??'',
 				'updated_at' => date('M j, Y', strtotime($entry['updated_at'] ?? $entry['created_at'])),
 				'response_id' => $entry['response_id'],
 			];
@@ -626,6 +626,7 @@ class Entry extends BaseController
 
 		return $this->respond($response);
 	}
+
 
 	public function form_entry_geodata()
 	{
