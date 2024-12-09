@@ -519,8 +519,8 @@ class Entry extends BaseController
 
 		
 			$query['responses.created_at'] = [
-				'$gte' => "2024-12-01",
-				'$lte' => "2024-12-30"
+				'$gte' => $start_date,
+				'$lte' => $end_date
 			];
 		} 
 		// Pagination parameters
