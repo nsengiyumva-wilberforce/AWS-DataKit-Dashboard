@@ -508,23 +508,21 @@ class Entry extends BaseController
 
 		// Add date filter
 		if (isset($params['dates'])) {
-			$start_date = explode('-', $params['dates'])[0];
-			$end_date = explode('-', $params['dates'])[1];
+			$start_date_received = explode('-', $params['dates'])[0];
+			$end_date_received = explode('-', $params['dates'])[1];
 
-			$start_date = date('Y-m-d', strtotime($start_date));
-			$end_date = date('Y-m-d', strtotime($end_date));
+			$date1 = explode('/', $start_date_received);
+			$start_date = $date1[2].'-'.$date1[0].'-'.$date1[1];
+
+			$date2 = explode('/', $end_date_received);
+			$end_date = $date2[2].'-'.$date2[0].'-'.$date2[1];
+
+		
 			$query['responses.created_at'] = [
 				'$gte' => $start_date,
 				'$lte' => $end_date
 			];
-		} elseif (!isset($params['year'])) {
-			$query['responses.created_at'] = ['$gte' => '2023-12-01 12:00:00'];
-		} else {
-			$start_date = ($params['year'] - 1) . '-12-01 12:00:00';
-			$end_date = $params['year'] . '-12-30 12:00:00';
-			$query['responses.created_at'] = ['$gte' => $start_date, '$lte' => $end_date];
-		}
-
+		} 
 		// Pagination parameters
 		$start = isset($params['start']) ? (int) $params['start'] : 0; // Using start instead of page
 		$perPage = isset($params['length']) ? (int) $params['length'] : 10; // Using length for perPage
@@ -628,6 +626,7 @@ class Entry extends BaseController
 
 		return $this->respond($response);
 	}
+
 	public function form_entry_geodata()
 	{
 		ini_set('memory_limit', '512M');
