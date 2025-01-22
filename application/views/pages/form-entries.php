@@ -14,7 +14,7 @@
 			<label class="my-1 mr-2">Date Range</label>
 			<input type="text" name="dates" class="form-control my-1 mr-sm-2">
 			<label class="my-1 mr-2">Creator</label>
-			<select name="creator_id" id="creator" class="custom-select my-1 mr-sm-2">
+			<select name="creator_id" id="creator_id" class="custom-select my-1 mr-sm-2">
 				<option value="0">All</option>
 				<?php
 				// Group users by region name

@@ -920,6 +920,7 @@
 							d.dates = $('input[name="dates"]').val();
 							d.form_id = $('input[name="form_id"]').val();
 							d.region_id = $('#region_id').val();
+							d.creator_id = $('#creator_id').val();
 						},
 						"type": "GET",
 						"dataSrc": function (json) {
