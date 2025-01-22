@@ -553,7 +553,7 @@ class Entry extends BaseController
 			// Sort stage to order by updated_at in descending order
 			[
 				'$sort' => [
-					'updated_at' => -1, // Sort by updated_at field in descending order (latest first)
+					'created_at' => -1, // Sort by updated_at field in descending order (latest first)
 				],
 			],
 
