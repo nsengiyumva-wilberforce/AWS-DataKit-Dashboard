@@ -11,7 +11,38 @@
 					  } ?>><?= $region->name ?></option>
 				<?php endforeach; ?>
 			</select>
+			<label class="my-1 mr-2">Date Range</label>
 			<input type="text" name="dates" class="form-control my-1 mr-sm-2">
+			<label class="my-1 mr-2">Creator</label>
+			<select name="creator_id" id="creator" class="custom-select my-1 mr-sm-2">
+				<option value="0">All</option>
+				<?php
+				// Group users by region name
+				$grouped_users = [];
+				foreach ($users as $user) {
+					$grouped_users[$user->region_name][] = $user;
+				}
+
+				// Sort users alphabetically within each region
+				foreach ($grouped_users as $region_name => &$users_in_region) {
+					usort($users_in_region, function ($a, $b) {
+						return strcmp($a->first_name, $b->first_name); // Sort by first_name
+					});
+				}
+				unset($users_in_region); // Unset reference to avoid side effects
+				
+				// Generate the dropdown
+				foreach ($grouped_users as $region_name => $users_in_region): ?>
+					<optgroup label="<?= htmlspecialchars($region_name) ?>">
+						<?php foreach ($users_in_region as $user): ?>
+							<option value="<?= $user->user_id ?>" <?php if ($user->user_id == $this->session->creator) {
+								  echo 'selected';
+							  } ?>><?= $user->first_name . ' ' . $user->last_name ?></option>
+						<?php endforeach; ?>
+					</optgroup>
+				<?php endforeach; ?>
+			</select>
+
 			<input type="hidden" name="form_id" value="<?= $form_id ?>">
 			<button type="submit" class="btn btn-outline-secondary btn-sm my-1 mr-sm-2">Go</button>
 

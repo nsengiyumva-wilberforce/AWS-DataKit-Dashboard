@@ -499,7 +499,12 @@ class Entry extends BaseController
 		$query = [
 			'form_id' => $params['form_id'],
 		];
-
+		
+				//filter by creator id
+		if (isset($params['creator_id']) && $params['creator_id'] != 0) {
+			$query['responses.creator_id'] = $params['creator_id'];
+		}
+		
 		// Add region filter
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			$district_list = $utility->region_district_array($params['region_id']);

@@ -324,6 +324,9 @@ class App extends CI_Controller
 		$query_param = $_SESSION['region_id'] != 0 ? '&region_id=' . $_SESSION['region_id'] : '';
 		$can_delete= $this->session->permissions->delete_response;
 
+		$users = API_BASE_URL . 'users';
+		$users = json_decode($this->custom->run_curl_get($users))->data;
+
 		$result = json_decode($this->custom->run_curl_get($url));
 		$data['report_title'] = $report_title;
 		$data['regions'] = $regions ?? [];
@@ -331,6 +334,7 @@ class App extends CI_Controller
 		$data['form_id'] = $form_id;
 		$data['page'] = 'pages/form-entries';
 		$data['page_name'] = 'form-entries';
+		$data['users'] = $users;
 		// $this->custom->print($data); die();
 		$this->load->view('base', $data);
 	}
