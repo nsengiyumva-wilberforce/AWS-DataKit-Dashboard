@@ -530,17 +530,42 @@ class Entry extends BaseController
 			];
 		}
 
-		if (!empty($params['search'])) {
-
-			$searchTerm = $params['search'];
-
-			$query['$or'] = [
-				['responses.qn4' => ['$regex' => $searchTerm, '$options' => 'i']], // Another field
-				['responses.qn7' => ['$regex' => $searchTerm, '$options' => 'i']], // Another field
-				['responses.qn8' => ['$regex' => $searchTerm, '$options' => 'i']], // Another field
-				['responses.qn9' => ['$regex' => $searchTerm, '$options' => 'i']], // Another field
-			];
-		}
+	
+			if (!empty($params['search'])) {
+				$searchTerm = $params['search'];
+				
+				$query['$expr'] = [
+					'$gt' => [
+						[
+							'$size' => [
+								'$filter' => [
+									'input' => [
+										'$objectToArray' => [
+											'$arrayElemAt' => ['$responses', 0]
+										]
+									],
+									'as' => 'field',
+									'cond' => [
+										'$regexMatch' => [
+											'input' => [
+												// Convert to string safely, even for arrays
+												'$convert' => [
+													'input' => '$$field.v',
+													'to' => 'string',
+													'onError' => '' // Default to empty string on error
+												]
+											],
+											'regex' => $searchTerm,
+											'options' => 'i'
+										]
+									]
+								]
+							]
+						],
+						0
+					]
+				];
+			}
 		// Pagination parameters
 		$start = isset($params['start']) ? (int) $params['start'] : 0; // Using start instead of page
 		$perPage = isset($params['length']) ? (int) $params['length'] : 10; // Using length for perPage
@@ -645,6 +670,7 @@ class Entry extends BaseController
 
 		return $this->respond($response);
 	}
+
 
 
 
