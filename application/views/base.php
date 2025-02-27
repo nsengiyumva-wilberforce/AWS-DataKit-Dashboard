@@ -910,6 +910,8 @@
 					// Trigger DataTable reload with the new filters
 					$('#dt-entries').DataTable().ajax.reload();
 				});
+
+
 				$('#dt-entries').DataTable({
 					"serverSide": true,
 					"processing": true,
@@ -920,6 +922,7 @@
 							d.dates = $('input[name="dates"]').val();
 							d.form_id = $('input[name="form_id"]').val();
 							d.region_id = $('#region_id').val();
+							d.search = d.search.value; // Pass the search term
 							d.creator_id = $('#creator_id').val();
 						},
 						"type": "GET",
@@ -989,8 +992,7 @@
 						{
 							"targets": 5, // Actions column
 							"render": function (data, type, row) {
-								let can_delete = '<?= $can_delete??0 ?>';
-								console.log(can_delete);
+								let can_delete = '<?= $can_delete ?? 0 ?>';
 								// Dynamically generate action buttons for each row
 								let buttonsHtml = '<nav class="nav d-inline-flex">';
 								let viewUrl = '<?= base_url('entry/') ?>' + row.response_id;
@@ -998,8 +1000,7 @@
 
 								// View button
 								buttonsHtml += `<a class="nav-link py-0 btn-info" data-toggle="View" title="View" href="${viewUrl}"><i data-feather="eye">view</i></a>`;
-								if (can_delete==1) {
-
+								if (can_delete == 1) {
 									// Check if the user has permission to delete and generate the Delete button if allowed
 									buttonsHtml += ` <a class="nav-link py-0 confirm-tr-delete btn-danger" data-toggle="Delete" title="Delete" href="${deleteUrl}"><i data-feather="trash"></i>delete</a>`;
 								}
@@ -1009,7 +1010,6 @@
 						}
 					]
 				});
-
 				// New Question
 				$(document).on('click', '#new-question', function (e) {
 					e.preventDefault();
