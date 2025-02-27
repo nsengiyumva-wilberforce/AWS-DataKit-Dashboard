@@ -499,12 +499,13 @@ class Entry extends BaseController
 		$query = [
 			'form_id' => $params['form_id'],
 		];
-		
-				//filter by creator id
+
+		//filter by creator id
 		if (isset($params['creator_id']) && $params['creator_id'] != 0) {
 			$query['responses.creator_id'] = $params['creator_id'];
 		}
-		
+
+
 		// Add region filter
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			$district_list = $utility->region_district_array($params['region_id']);
@@ -517,17 +518,29 @@ class Entry extends BaseController
 			$end_date_received = explode('-', $params['dates'])[1];
 
 			$date1 = explode('/', $start_date_received);
-			$start_date = trim($date1[2]).'-'.trim($date1[0]).'-'.trim($date1[1]);
+			$start_date = trim($date1[2]) . '-' . trim($date1[0]) . '-' . trim($date1[1]);
 
 			$date2 = explode('/', $end_date_received);
-			$end_date = trim($date2[2]).'-'.trim($date2[0]).'-'.trim($date2[1]);
+			$end_date = trim($date2[2]) . '-' . trim($date2[0]) . '-' . trim($date2[1]);
 
-		
+
 			$query['responses.created_at'] = [
 				'$gte' => $start_date,
 				'$lte' => $end_date
 			];
-		} 
+		}
+
+		if (!empty($params['search'])) {
+
+			$searchTerm = $params['search'];
+
+			$query['$or'] = [
+				['responses.qn4' => ['$regex' => $searchTerm, '$options' => 'i']], // Another field
+				['responses.qn7' => ['$regex' => $searchTerm, '$options' => 'i']], // Another field
+				['responses.qn8' => ['$regex' => $searchTerm, '$options' => 'i']], // Another field
+				['responses.qn9' => ['$regex' => $searchTerm, '$options' => 'i']], // Another field
+			];
+		}
 		// Pagination parameters
 		$start = isset($params['start']) ? (int) $params['start'] : 0; // Using start instead of page
 		$perPage = isset($params['length']) ? (int) $params['length'] : 10; // Using length for perPage
@@ -538,7 +551,6 @@ class Entry extends BaseController
 		$totalQuery = $collection->countDocuments(['form_id' => $params['form_id']]);
 		$filteredQuery = $collection->countDocuments($query);
 
-		// Build aggregation pipeline for data
 		$pipeline = [
 			// Match stage for filtering
 			['$match' => $query],
@@ -555,10 +567,10 @@ class Entry extends BaseController
 				],
 			],
 
-			// Sort stage to order by updated_at in descending order
+			// Sort stage to order by created_at in descending order
 			[
 				'$sort' => [
-					'created_at' => -1, // Sort by updated_at field in descending order (latest first)
+					'created_at' => -1, // Sort by created_at field in descending order (latest first)
 				],
 			],
 
@@ -572,6 +584,7 @@ class Entry extends BaseController
 
 		// Process data
 		$form_titles = $utility->form_titles($params['form_id']);
+
 		$dataGenetration = [];  // Initialize the array
 
 		$new_data = array_map(function ($entry) use ($form_titles, $user_map, &$dataGenetration) {
@@ -607,9 +620,10 @@ class Entry extends BaseController
 				'sub_title' => $entry['sub_title'],
 				'creator_id' => $entry['creator_id'],
 				'location' => $entry['district'] . ', ' . $entry['sub_county'] . ', ' . $entry['parish'] . ', ' . $entry['village'],
-				'last_follower' => $entry['last_follower']??'',
+				'last_follower' => $entry['last_follower'] ?? '',
 				'updated_at' => date('M j, Y', strtotime($entry['updated_at'] ?? $entry['created_at'])),
 				'response_id' => $entry['response_id'],
+				'responses' => $entry['responses'],
 			];
 
 			// Append item to the dataGenetration array
@@ -631,6 +645,7 @@ class Entry extends BaseController
 
 		return $this->respond($response);
 	}
+
 
 
 	public function form_entry_geodata()
