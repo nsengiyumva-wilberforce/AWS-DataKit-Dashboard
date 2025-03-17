@@ -359,6 +359,7 @@ class Entry extends BaseController
 	public function downloadable_region_entries()
 	{
 		ini_set('memory_limit', '512M');
+		try{
 		$utility = new Utility();
 		$params = $this->request->getGet();
 
@@ -379,7 +380,7 @@ class Entry extends BaseController
 			if (!is_null($form->followup_interval)) {
 				$followup_interval = $form->followup_interval;
 				$last_date = date('Y-m-d H:i:s', strtotime('-' . $followup_interval . ' days'));
-				$query['updated_at'] = array('$lte' => $last_date);
+				$query['responses.updated_at'] = array('$lte' => $last_date);
 			}
 		}
 
@@ -394,10 +395,10 @@ class Entry extends BaseController
 		if (isset($params['set_followup_interval'])) {
 			// echo date('Y-m-d H:i:s', strtotime('-7 days'));
 			$last_date = date('Y-m-d H:i:s', strtotime('-' . $params['set_followup_interval'] . ' days'));
-			$query['updated_at'] = array('$lte' => $last_date);
+			$query['responses.updated_at'] = array('$lte' => $last_date);
 		}
 
-		$date = '2025-01-01 00:00:00';
+		$date = '2024-11-01 00:00:00';
 		$query['responses.created_at'] = array('$gte' => $date);
 
 		// $emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
@@ -416,7 +417,6 @@ class Entry extends BaseController
 		);
 		$data = $collection->find($query, $project)->toArray();
 
-		var_dump($data);
 		// Get form title ids
 		$form_titles = $utility->form_titles($params['form_id']);
 
@@ -467,23 +467,22 @@ class Entry extends BaseController
 
 		}
 
-
-
-
-
-		if ($data) {
-			$response = [
-				'status' => 200,
-				'data' => $new_data
-			];
-			return $this->respond($response);
-		} else {
-			return $this->failNotFound();
-		}
-
-		// 	echo json_encode($query); exit;
+	} catch (Exception $e) {
+		//print the message
+		echo $e->getMessage();
 	}
 
+	if ($data) {
+		$response = [
+			'status' => 200,
+			'data' => $new_data
+		];
+		return $this->respond($response);
+	} else {
+		return $this->failNotFound();
+	}
+
+}
 
 	public function getRegionalEntries()
 	{
