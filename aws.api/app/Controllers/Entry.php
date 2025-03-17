@@ -416,6 +416,7 @@ class Entry extends BaseController
 		);
 		$data = $collection->find($query, $project)->toArray();
 
+		var_dump($data);
 		// Get form title ids
 		$form_titles = $utility->form_titles($params['form_id']);
 
