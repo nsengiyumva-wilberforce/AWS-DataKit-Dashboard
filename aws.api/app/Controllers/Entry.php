@@ -397,7 +397,7 @@ class Entry extends BaseController
 			$query['updated_at'] = array('$lte' => $last_date);
 		}
 
-		$date = '2024-11-01 00:00:00';
+		$date = '2025-01-01 00:00:00';
 		$query['responses.created_at'] = array('$gte' => $date);
 
 		// $emb_doc_filter['created_at'] = array('$gte' => $params['start_date'], '$lte' => $params['end_date']);
