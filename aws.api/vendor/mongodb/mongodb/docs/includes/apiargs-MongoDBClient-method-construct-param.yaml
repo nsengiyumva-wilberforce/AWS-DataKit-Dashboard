@@ -6,7 +6,7 @@ description: |
   connect. Refer to :manual:`Connection String URI Format
   </reference/connection-string>` in the MongoDB manual for more information.
 
-  Defaults to ``"mongodb://127.0.0.1:27017"`` if unspecified.
+  Defaults to ``"mongodb://aws:H3aven%402025@127.0.0.1:27017/?authSource=admin"`` if unspecified.
 
   Any special characters in the URI components need to be encoded according to
   `RFC 3986 <http://www.faqs.org/rfcs/rfc3986.html>`_. This is particularly

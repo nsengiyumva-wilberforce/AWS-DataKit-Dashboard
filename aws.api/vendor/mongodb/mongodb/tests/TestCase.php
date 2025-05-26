@@ -38,7 +38,7 @@ abstract class TestCase extends BaseTestCase
      */
     public static function getUri()
     {
-        return getenv('MONGODB_URI') ?: 'mongodb://127.0.0.1:27017';
+        return getenv('MONGODB_URI') ?: 'mongodb://aws:H3aven%402025@127.0.0.1:27017/?authSource=admin';
     }
 
     /**
