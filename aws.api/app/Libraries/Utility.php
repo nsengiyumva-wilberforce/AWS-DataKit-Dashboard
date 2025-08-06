@@ -19,7 +19,7 @@ class Utility
 
     //return form district key, from the form's question list, iterate through the question list by checking thrigh question table and the first question you find with answer_type_values
     //as {"db_table": "app_district"}, return that key
-    public function form_district_key($form_id)
+        public function form_district_key($form_id)
     {
         $db = \Config\Database::connect();
         $form = $db->table('question_form')->where('form_id', $form_id)->get()->getRow();
@@ -29,9 +29,10 @@ class Utility
         $district_key = NULL;
         if ($question_ids) {
             $questions = $db->table('question')->whereIn('question_id', $question_ids)->orderBy('FIELD(question_id, '.$question_ids_list.')')->get()->getResult();
+
             foreach ($questions as $question) {
-                if (isset($question->answer_type_values) && !is_null($question->answer_type_values)) {
-                    $answer_values = json_decode($question->answer_type_values, TRUE);
+                if (isset($question->answer_values) && !is_null($question->answer_values)) {
+                    $answer_values = json_decode($question->answer_values, TRUE);
                     if (isset($answer_values['db_table']) && $answer_values['db_table'] === 'app_district') {
                         $district_key = $question->question_id;
                         break;
