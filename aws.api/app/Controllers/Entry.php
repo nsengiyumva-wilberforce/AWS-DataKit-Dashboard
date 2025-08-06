@@ -509,7 +509,9 @@ class Entry extends BaseController
 		// Add region filter
 		if (isset($params['region_id']) && $params['region_id'] != 0) {
 			$district_list = $utility->region_district_array($params['region_id']);
-			$query['responses.qn4'] = ['$in' => $district_list];
+			//get district key for the form
+			$district_key = $utility->form_district_key($params['form_id']);
+			$query['responses.qn' . $district_key] = ['$in' => $district_list];
 		}
 
 		// Add date filter
